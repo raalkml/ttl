@@ -155,7 +155,16 @@ void test_map()
    ttl::map<char, int> m2;
    ttl::map<char, int>();
    ttl::map<char, int>();
-   m1['a'] = 'a';
+   //m1['a'] = 'a';
+}
+
+void test_forward_list()
+{
+   printf("\nXXX %s\n", __func__);
+
+   ttl::forward_list<testtype> fl(10, testtype(9));
+//   for (auto i = fl.begin(); i != fl.end(); ++i)
+//      ;
 }
 
 int main(int argc, char* argv[], char* envp[])
@@ -168,6 +177,7 @@ int main(int argc, char* argv[], char* envp[])
    test_pair();
    test_vector();
    test_map();
+   test_forward_list();
    return 0;
 }
 

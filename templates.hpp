@@ -452,11 +452,75 @@ namespace ttl
       return !(a == b);
    }
 
-#if 0
-   template<typename T> class forward_list
+   template<typename T>
+   class forward_list
    {
-   };
+   public:
+      class iterator
+      {
+         typedef T value_type;
+         typedef T *pointer;
+         typedef T &reference;
+         typedef ttl::ptrdiff_t difference_type;
+      };
+      class const_iterator
+      {
+         typedef forward_list<T>::iterator iterator;
+         typedef T value_type;
+         typedef const T *pointer;
+         typedef const T &reference;
+         typedef ttl::ptrdiff_t difference_type;
+      };
+      typedef T value_type;
+      typedef T *pointer;
+      typedef const T *const_pointer;
+      typedef T &reference;
+      typedef const T &const_reference;
+      typedef std::size_t size_type;
+      typedef std::ptrdiff_t difference_type;
+   private:
+      struct node
+      {
+         struct node *next;
+         T value;
+         node(const T &v): value(v) {}
+      };
+      node *head_;
+   public:
+      forward_list(): head_(NULL) {}
+      forward_list(const forward_list &): head_(NULL) {}
+      forward_list(size_type n, const T &value);
+      ~forward_list() { clear(); }
 
+      iterator begin();
+      iterator end();
+      const_iterator begin() const;
+      const_iterator end() const;
+      const_iterator cbegin() const;
+      const_iterator cend() const;
+
+      void clear()
+      {
+         while (head_)
+         {
+            node *n = head_->next;
+            delete head_;
+            head_ = n;
+         }
+      }
+   };
+   template<typename T> forward_list<T>::forward_list(size_type n, const T &value)
+   {
+      head_ = NULL;
+      while (n--)
+      {
+         node *t = new node(value);
+         t->next = head_;
+         head_ = t;
+      }
+   }
+
+#if 0
    template<typename T> class list
    {
    };
