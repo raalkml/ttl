@@ -487,9 +487,9 @@ namespace ttl
       typedef const value_type *const_iterator;
 
    public:
-      explicit map();
-      explicit map(const Compare &);
-      map(const map& other);
+      explicit map(): elements_(NULL), last_(NULL), end_of_elements_(NULL) {}
+      explicit map(const Compare &c): elements_(NULL), last_(NULL), end_of_elements_(NULL), comp_(c) {}
+      map(const map& other): comp_(other.comp_) {}
       template<class InputIt>
       map(InputIt first, InputIt last, const Compare & = Compare());
       map &operator=(const map &other);
@@ -498,16 +498,16 @@ namespace ttl
       T &at(const KT &key);
       const T &at(const KT &key) const;
 
-      iterator       begin();
-      const_iterator begin() const;
-      iterator       end();
-      const_iterator end() const;
-      const_iterator cbegin() const;
-      const_iterator cend() const;
+      iterator       begin() { return elements_; }
+      const_iterator begin() const { return elements_; }
+      iterator       end() { return last_; }
+      const_iterator end() const { return last_; }
+      const_iterator cbegin() const { return elements_; }
+      const_iterator cend() const { return last_; }
 
-      size_type size() const;
-      bool empty() const;
-      size_type max_size() const;
+      size_type size() const { return last_ - elements_; }
+      bool empty() const { return last_ == elements_; }
+      size_type max_size() const { return (size_type)-1 / sizeof(value_type); }
 
       void clear();
 
@@ -535,7 +535,7 @@ namespace ttl
       iterator upper_bound(const KT &key);
       const_iterator upper_bound(const KT &key) const;
 
-      key_compare key_comp() const;
+      key_compare key_comp() const { return comp_; }
 
       struct value_compare
       {
@@ -556,7 +556,8 @@ namespace ttl
       value_compare value_comp() const;
 
    private:
-      value_type *elements_;
+      value_type *elements_, *last_, *end_of_elements_;
+      Compare comp_;
    };
 
 #if 0

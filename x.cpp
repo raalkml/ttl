@@ -144,11 +144,18 @@ void test_vector()
    printf("\ndestructors:\n");
 }
 
+template class ttl::map<char, int>;
+
 void test_map()
 {
    printf("\nXXX %s\n", __func__);
 
    ttl::map<char, int> m;
+   ttl::map<char, int> m1 = m;
+   ttl::map<char, int> m2;
+   ttl::map<char, int>();
+   ttl::map<char, int>();
+   m1['a'] = 'a';
 }
 
 int main(int argc, char* argv[], char* envp[])
