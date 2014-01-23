@@ -1,10 +1,11 @@
 CPPFLAGS :=
 CFLAGS := -Wall -ggdb -O3
 CXXFLAGS := -fno-exceptions -fno-rtti
+flags :=
 SHELL := bash
 V := @
 x.o: x.cpp templates.hpp
-	$(CXX) -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $<
+	$(CXX) -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
 	$(V)test -f prevtext && prevtext=$$(< prevtext);\
 	    test -n "$$prevtext" || prevtext=0;\
 	    test -f prevdec && prevdec=$$(< prevdec);\
@@ -15,3 +16,5 @@ x.o: x.cpp templates.hpp
 	       echo "text:$$text($$(($$text - $$prevtext))) data:$$data bss:$$bss: dec:$$dec($$(($$dec-$$prevdec)))"; \
 	       echo "$$text" >prevtext; echo "$$dec" >prevdec; \
 	    done
+a.out: x.o
+	$(CXX) $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $+
