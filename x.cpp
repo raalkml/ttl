@@ -44,12 +44,17 @@ typedef int ValueType;
 struct testtype
 {
    int value;
-   testtype():value(-1) { printf("%p %s\n", this, __func__); }
-   testtype(int v):value(v) { printf("%p %s(int v) %d\n", this, __func__, value); }
-   testtype(const testtype &o): value(o.value) { printf("%p %s(const testtype &) %d\n", this, __func__, value); }
-   testtype &operator=(const testtype &o) { value = o.value; printf("%p %s %d\n", this, __func__, value); return *this; }
-   ~testtype() { printf("%p %s %d\n", this, __func__, value); }
+   testtype();
+   testtype(int);
+   testtype(const testtype &);
+   testtype &operator=(const testtype &);
+   ~testtype();
 };
+testtype::testtype():value(-1) { printf("%p %s\n", this, __func__); }
+testtype::testtype(int v):value(v) { printf("%p %s(int v) %d\n", this, __func__, value); }
+testtype::testtype(const testtype &o): value(o.value) { printf("%p %s(const testtype &) %d\n", this, __func__, value); }
+testtype &testtype::operator=(const testtype &o) { value = o.value; printf("%p %s %d\n", this, __func__, value); return *this; }
+testtype::~testtype() { printf("%p %s %d\n", this, __func__, value); }
 inline bool operator==(const testtype &a, const testtype &b)
 {
    return a.value == b.value;
