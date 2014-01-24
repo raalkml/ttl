@@ -1,17 +1,16 @@
 /////////////////////////////////////////////////// vim: sw=3 ts=8 et
 //
 // A library of trivial templates designed to workaround some of the
-// shortcomings of CoLibry.
+// shortcomings of CoLibry while still work without RTTI and exceptions.
 //
 // The templates are mostly ports of STL templates (as STL is made
 // impossible to use by disabling standard include directories) and
-// should be mostly compatible.
+// should be somewhat compatible.
 //
-// There is no allocator support and the O(log N) guarantee might be
-// not implemented. Also reverse iterators might be missing.
+// There is no allocator support and the O(log N) and similar complexity
+// guarantees might be not implemented. Also reverse iterators might be
+// missing.
 // Usually only equality operators are implemented, if any.
-//
-// Works without RTTI and exceptions.
 //
 #ifndef _TRIVIAL_TEMPLATE_LIBRARY_HPP_
 #define _TRIVIAL_TEMPLATE_LIBRARY_HPP_ 1
