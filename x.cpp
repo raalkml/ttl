@@ -163,13 +163,19 @@ void test_map()
    //m1['a'] = 'a';
 }
 
+template class ttl::forward_list<testtype>;
+
 void test_forward_list()
 {
    printf("\nXXX %s\n", __func__);
 
    ttl::forward_list<testtype> fl(10, testtype(9));
+   ttl::forward_list<testtype> fl1 = fl;
+   ttl::forward_list<testtype> fl2 = fl;
+   ttl::forward_list<testtype> fl3 = fl;
 //   for (auto i = fl.begin(); i != fl.end(); ++i)
 //      ;
+   fl.reverse();
 }
 
 int main(int argc, char* argv[], char* envp[])
