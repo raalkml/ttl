@@ -1,19 +1,20 @@
 /////////////////////////////////////////////////// vim: sw=3 ts=8 et
 //
-// A library of trivial templates designed to workaround some of the
-// shortcomings of CoLibry while still work without RTTI and exceptions.
+//                        Tiny Template Library
 //
-// The templates are mostly ports of STL templates (as STL is made
-// impossible to use by disabling standard include directories) and
-// should be somewhat compatible.
+// A library of STL-inspired templates designed to work in conditions
+// of constrained resources, but also without RTTI and exceptions.
+//
+// Some templates are just implementations of STL templates.
 //
 // There is no allocator support and the O(log N) and similar complexity
 // guarantees might be not implemented. Also reverse iterators might be
 // missing.
+//
 // Usually only equality operators are implemented, if any.
 //
-#ifndef _TRIVIAL_TEMPLATE_LIBRARY_HPP_
-#define _TRIVIAL_TEMPLATE_LIBRARY_HPP_ 1
+#ifndef _TINY_TEMPLATE_LIBRARY_HPP_
+#define _TINY_TEMPLATE_LIBRARY_HPP_ 1
 
 #include <new>
 
@@ -451,6 +452,11 @@ namespace ttl
       return !(a == b);
    }
 
+#if 0
+   // A template for a vector with fixed preallocated capacity
+   template<typename T, const ttl::size_t N> class fixed_vector {};
+#endif
+
    template<typename T>
    class forward_list
    {
@@ -623,9 +629,18 @@ namespace ttl
    }
 
 #if 0
+
+   // a template for single-linked list with O(1) insertion in the back
+   // (keeps tail pointer)
+   template<typename T> class backward_list {};
+
    template<typename T> class list
    {
    };
+
+   template<typename T> class fixed_list {};
+   template<typename T> class fixed_forward_list {};
+   template<typename T> class fixed_backward_list {};
 
    template<typename T> class set // collection of unique keys
    {
@@ -794,4 +809,4 @@ namespace ttl
 #endif // NO
 }
 
-#endif // _TRIVIAL_TEMPLATE_LIBRARY_HPP_
+#endif // _TINY_TEMPLATE_LIBRARY_HPP_
