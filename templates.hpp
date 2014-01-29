@@ -623,6 +623,10 @@ namespace ttl
    }
 
 #if 0
+   // a template for single-linked list with O(1) insertion in the back?
+   // (keeps tail pointer)
+   template<typename T> class backward_list {};
+
    template<typename T> class list
    {
    };
