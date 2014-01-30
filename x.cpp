@@ -14,31 +14,9 @@
 #include <sys/uio.h>
 #include <sys/time.h>
 
-#include "templates.hpp"
+#include "ttl/ttl.hpp"
 
-typedef int8_t Int8;
-typedef uint8_t UInt8;
-typedef int16_t Int16;
-typedef uint16_t UInt16;
-typedef int32_t Int32;
-typedef uint32_t UInt32;
-
-namespace HBMOSTTypes
-{
-   typedef UInt8 FBlockID;
-   typedef UInt8 InstID;
-};
-
-typedef int ValueType;
-#define VALUE_MAX INT_MAX
-#define VALUE_MIN INT_MIN
-
-#define HB_ARRAYLEN(a) (sizeof(a)/sizeof(*a))
-#define DBG_MSG(a) do { printf a; fputc('\n', stdout); } while(0)
-#define DBG_WARNING(a) do { fputs("warning: ", stdout); printf a; fputc('\n', stdout); } while(0)
-#define DBG_ERROR(a) do { fputs("error: ", stdout); printf a; fputc('\n', stdout); } while(0)
-#define DBG_FLUSH fputc('\n', stdout)
-#define TRC_SCOPE(a,b,c) ((void)0)
+#define countof(a) (sizeof(a)/sizeof(*a))
 
 
 struct testtype
@@ -135,17 +113,17 @@ void test_vector()
       printf(" %d", i->value);
    printf("\n");
    static const int in[] = {1,2,3,4,5};
-   v1.assign(in, in + HB_ARRAYLEN(in));
-   v1.insert(v1.begin() + 1, in, in + HB_ARRAYLEN(in));
+   v1.assign(in, in + countof(in));
+   v1.insert(v1.begin() + 1, in, in + countof(in));
 
    printf("\nctor(first, last):\n");
-   ttl::vector<testtype>(in, in + HB_ARRAYLEN(in));
+   ttl::vector<testtype>(in, in + countof(in));
 
-   testvector(in, in + HB_ARRAYLEN(in));
-   testvector(in, in + HB_ARRAYLEN(in));
-   testvector(in, in + HB_ARRAYLEN(in));
-   testvector(in, in + HB_ARRAYLEN(in));
-   testvector(in, in + HB_ARRAYLEN(in));
+   testvector(in, in + countof(in));
+   testvector(in, in + countof(in));
+   testvector(in, in + countof(in));
+   testvector(in, in + countof(in));
+   testvector(in, in + countof(in));
    printf("\ndestructors:\n");
 }
 

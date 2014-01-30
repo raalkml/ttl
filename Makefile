@@ -7,7 +7,7 @@ V := @
 
 all: a.out
 
-x.o: x.cpp templates.hpp
+x.o: x.cpp ttl/ttl.hpp
 	$(CXX) -c -o $@ $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
 	$(V)test -f $@.prevtext && prevtext=$$(< $@.prevtext);\
 	    test -n "$$prevtext" || prevtext=0;\
@@ -19,7 +19,7 @@ x.o: x.cpp templates.hpp
 	       echo "text:$$text($$(($$text - $$prevtext))) data:$$data bss:$$bss: dec:$$dec($$(($$dec-$$prevdec)))"; \
 	       echo "$$text" >$@.prevtext; echo "$$dec" >$@.prevdec; \
 	    done
-x.s: x.cpp templates.hpp
+x.s: x.cpp ttl/ttl.hpp
 	$(CXX) -S -o $@ $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
 a.out: x.o
 	$(CXX) $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $+
