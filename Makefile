@@ -16,11 +16,14 @@ x.o: x.cpp ttl/ttl.hpp
 	    size $@ | \
 	    grep -v text | \
 	    while read text data bss dec rest; do \
-	       echo "text:$$text($$(($$text - $$prevtext))) data:$$data bss:$$bss: dec:$$dec($$(($$dec-$$prevdec)))"; \
+	       printf 'text:%d%+d data:%d bss:%d dec:%d%+d\n' $$text $$(($$text - $$prevtext)) $$data $$bss $$dec $$(($$dec-$$prevdec)); \
 	       echo "$$text" >$@.prevtext; echo "$$dec" >$@.prevdec; \
 	    done
 x.s: x.cpp ttl/ttl.hpp
 	$(CXX) -S -o $@ $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
+-include x.d
+%.d: %.cpp
+	$(CC) -MM -MG -o $@ -MQ '$(patsubst %.cpp,%.o,$<)' $< $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags)
 a.out: x.o
 	$(CXX) $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $+
 	$(V)test -f $@.prevtext && prevtext=$$(< $@.prevtext);\
