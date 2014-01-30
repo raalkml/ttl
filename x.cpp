@@ -14,6 +14,7 @@
 #include <sys/uio.h>
 #include <sys/time.h>
 
+#include <bitset>
 #include "ttl/ttl.hpp"
 
 #define countof(a) (sizeof(a)/sizeof(*a))
@@ -156,6 +157,27 @@ void test_forward_list()
    fl.reverse();
 }
 
+template class ttl::bitset<128>;
+
+void test_bitset()
+{
+   printf("\nXXX %s\n", __func__);
+
+   ttl::bitset<128> bs0(0xfefeffUL);
+   ttl::bitset<128> bs064(0xfefeffULL);
+   ttl::bitset<128> bs1("0101010101");
+   ttl::bitset<256> bs2("0101010101");
+   ttl::bitset<0>   bs3("0101010101");
+   ttl::bitset<0>   bs3_("0101010101");
+   for (unsigned i = bs0.size(); i--;)
+      printf("%d",(bool)bs0[i]);
+   printf("\n");
+   printf("sizeof bs0(128) %u vs %u, size: %u vs %u\n", sizeof(bs0), sizeof(std::bitset<128>), bs0.size(), std::bitset<128>().size());
+   printf("sizeof bs2(256) %u vs %u\n", sizeof(bs2), sizeof(std::bitset<256>));
+   printf("sizeof bs3(0) %u vs %u, size: %u vs %u\n", sizeof(bs3), sizeof(std::bitset<0>), bs3.size(), std::bitset<0>().size());
+   bs0 = bs1;
+}
+
 int main(int argc, char* argv[], char* envp[])
 {
    void *p = ::operator new(10 * sizeof(int));
@@ -167,6 +189,7 @@ int main(int argc, char* argv[], char* envp[])
    test_vector();
    test_map();
    test_forward_list();
+   test_bitset();
    return 0;
 }
 
