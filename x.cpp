@@ -186,7 +186,7 @@ template<typename T> void print_bitset(const char *s, const T &bs)
       if (i && !((i) % 8))
          fputc('_', stdout);
    }
-   fputs("\n", stdout);
+   fputs(".\n", stdout);
 }
 
 void test_bitset()
@@ -237,6 +237,10 @@ void test_bitset()
           sizeof(bs0), sizeof(std::bitset<128>), bs0.capacity(), bs0.size(), std::bitset<128>().size());
    printf("sizeof bs3(0) %u vs %u, cap: %u, size: %u vs %u\n",
           sizeof(bs3), sizeof(std::bitset<0>), bs3.capacity(), bs3.size(), std::bitset<0>().size());
+   bs4.set();
+   print_bitset("1: ", bs4);
+   print_bitset("2: ", bs2);
+   print_bitset("3: ", bs3);
    printf("all : %d %d %d\n", bs4.all(), bs2.all(), bs3.all());
    printf("any : %d %d %d\n", bs4.any(), bs2.any(), bs3.any());
    printf("none: %d %d %d\n", bs4.none(), bs2.none(), bs3.none());
