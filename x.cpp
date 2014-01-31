@@ -159,6 +159,18 @@ void test_forward_list()
 
 template class ttl::bitset<128>;
 
+template<typename T> void print_bitset(const char *s, const T &bs)
+{
+   fputs(s, stdout);
+   for (unsigned i = bs.size(); i--;)
+   {
+      fputc("01"[bs[i]], stdout);
+      if (i && !((i) % 8))
+         fputc('_', stdout);
+   }
+   fputs("\n", stdout);
+}
+
 void test_bitset()
 {
    printf("\nXXX %s\n", __func__);
@@ -169,28 +181,47 @@ void test_bitset()
    ttl::bitset<256> bs2("0101010101");
    ttl::bitset<0>   bs3("0101010101");
    ttl::bitset<0>   bs3_ = bs3;
-   ttl::bitset<16>  bs4;
-   bs4 = bs2;
-   for (unsigned i = bs0.size(); i--;)
-      printf("%d",(bool)bs0[i]);
-   printf("\n");
-   for (unsigned i = bs064.size(); i--;)
-      printf("%d",(bool)bs064[i]);
-   printf("\n");
-   for (unsigned i = bs4.size(); i--;)
-      printf("%d",(bool)bs4[i]);
-   printf("\n");
+   ttl::bitset<16>  bs4(bs2);
+
+   print_bitset("<128>:UL  ", bs0);
+   print_bitset("<128>:ULL ", bs064);
+   print_bitset("<256>:    ", bs2);
+
+   print_bitset("bs4:      ", bs4);
+   printf("u32:    0x%08lx\n", bs4.to_ulong());
+   printf("u64:    0x%016llx\n", bs4.to_ullong());
+   bs4.reset();
+   print_bitset("bs4:      ", bs4);
+   bs4 = ttl::bitset<64>("1111111111111111");
+   print_bitset("bs4:      ", bs4);
+   bs4[1].flip();
+   print_bitset("flip      ", bs4);
+   bs4.set(1);
+   print_bitset(" set      ", bs4);
+   bs4.reset(1);
+   print_bitset("rset      ", bs4);
+   bs4.flip();
+   print_bitset("flip      ", bs4);
+   bs4[4] = 1;
+   print_bitset("refset    ", bs4);
+
+   print_bitset("<0>       ", bs3);
+
    bs0 = bs1;
-   for (unsigned i = bs0.size(); i--;)
-      printf("%d",(bool)bs0[i]);
-   printf("\n");
+   print_bitset("<128>=<128> ", bs0);
+
    bs1 = bs3;
-   for (unsigned i = bs1.size(); i--;)
-      printf("%d",(bool)bs1[i]);
-   printf("\n");
-   printf("sizeof bs0(128) %u vs %u, size: %u vs %u\n", sizeof(bs0), sizeof(std::bitset<128>), bs0.size(), std::bitset<128>().size());
-   printf("sizeof bs2(256) %u vs %u\n", sizeof(bs2), sizeof(std::bitset<256>));
-   printf("sizeof bs3(0) %u vs %u, size: %u vs %u\n", sizeof(bs3), sizeof(std::bitset<0>), bs3.size(), std::bitset<0>().size());
+   print_bitset("<128>=<0>   ", bs1);
+
+   printf("sizeof bs2(256) %u vs %u\n",
+          sizeof(bs2), sizeof(std::bitset<256>));
+   printf("sizeof bs0(128) %u vs %u, cap: %u, size: %u vs %u\n",
+          sizeof(bs0), sizeof(std::bitset<128>), bs0.capacity(), bs0.size(), std::bitset<128>().size());
+   printf("sizeof bs3(0) %u vs %u, cap: %u, size: %u vs %u\n",
+          sizeof(bs3), sizeof(std::bitset<0>), bs3.capacity(), bs3.size(), std::bitset<0>().size());
+   printf("all : %d %d %d\n", bs4.all(), bs2.all(), bs3.all());
+   printf("any : %d %d %d\n", bs4.any(), bs2.any(), bs3.any());
+   printf("none: %d %d %d\n", bs4.none(), bs2.none(), bs3.none());
 }
 
 int main(int argc, char* argv[], char* envp[])
