@@ -5,6 +5,7 @@
 #ifndef _TINY_TEMPLATE_LIBRARY_BITSET_HPP_
 #define _TINY_TEMPLATE_LIBRARY_BITSET_HPP_ 1
 
+#include <string.h>
 #include "types.hpp"
 
 namespace ttl
@@ -19,16 +20,17 @@ namespace ttl
       slot_type bits_[(N + sizeof(slot_type) * CHAR_BIT - 1) / (sizeof(slot_type) * CHAR_BIT)];
    public:
       bitset() { reset(); }
-      bitset(const bitset &other);
-      template<ttl::size_t M> bitset(const bitset<M> &other);
+      bitset(const bitset &other) { operator=(other); }
+      template<ttl::size_t M> explicit bitset(const bitset<M> &other);
       bitset(unsigned long bits);
-      bitset(unsigned long long bits);
-      bitset(const char *bits, ttl::size_t n = (ttl::size_t)-1, char zero = '0', char one = '1');
+      explicit bitset(unsigned long long bits);
+      explicit bitset(const char *bits, ttl::size_t n = (ttl::size_t)-1, char zero = '0', char one = '1');
 
       ~bitset() {}
 
       bitset &operator=(const bitset &other);
       template<ttl::size_t M> bitset &operator=(const bitset<M> &other);
+      slot_type slot(ttl::size_t s) const { return bits_[s]; }
 
       bool operator==(const bitset &other);
       bool operator!=(const bitset &other) { return !operator==(other); }
@@ -140,10 +142,24 @@ namespace ttl
       }
    }
    template<ttl::size_t N>
+   template<ttl::size_t M>
+   bitset<N>::bitset(const bitset<M> &other)
+   {
+      operator=(other);
+   }
+   template<ttl::size_t N>
    bitset<N>::bitset(const char *bits, ttl::size_t n, char zero, char one)
    {
-      reset();
-      for (ttl::size_t i = 0; i < n; ++i, ++bits)
+      ttl::size_t len = strlen(bits);
+      if (len < n)
+         n = len;
+      ttl::size_t i;
+      for (i = 0; i < n; ++i)
+         if (!(bits[i] == zero || bits[i] == one))
+            break;
+      for (ttl::size_t s = i / (sizeof(slot_type) * CHAR_BIT); s < sizeof(bits_)/sizeof(*bits_); ++s)
+         bits_[s] = 0;
+      for (; i--; ++bits)
          if (*bits == zero)
             reset(i);
          else if (*bits == one)
@@ -196,8 +212,8 @@ namespace ttl
    bitset<N> &bitset<N>::operator=(const bitset<M> &other)
    {
       unsigned i;
-      for (i = 0; i < (N < M ? sizeof(bits_)/sizeof(*bits_): sizeof(other.bits_)/sizeof(*other.bits_)); ++i)
-         bits_[i] = other.bits_[i];
+      for (i = 0; i < (N < M ? size()/(sizeof(slot_type) * CHAR_BIT): other.size()/(sizeof(slot_type) * CHAR_BIT)); ++i)
+         bits_[i] = other.slot(i);
       for ( ; i < sizeof(bits_)/sizeof(*bits_); ++i)
          bits_[i] = 0;
       return *this;
