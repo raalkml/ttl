@@ -224,18 +224,45 @@ void test_bitset()
    printf("none: %d %d %d\n", bs4.none(), bs2.none(), bs3.none());
 }
 
-int main(int argc, char* argv[], char* envp[])
+static void test_new()
 {
    void *p = ::operator new(10 * sizeof(int));
    printf("::operator new %p\n", p);
    ::operator delete(p);
+}
 
-   test_array();
-   test_pair();
-   test_vector();
-   test_map();
-   test_forward_list();
-   test_bitset();
+static bool has_arg(char **argv, const char *arg)
+{
+   while (*argv)
+      if (strcasecmp(*argv++, arg) == 0)
+         return true;
+   return false;
+}
+static const struct
+{
+   const char *name;
+   void (* const fn)();
+} tests[] = {
+   { "new",    &test_new },
+   { "array",  &test_array },
+   { "pair",   &test_pair },
+   { "vector", &test_vector },
+   { "map",    &test_map },
+   { "list",   &test_forward_list },
+   { "bitset", &test_bitset },
+};
+
+int main(int argc, char* argv[], char* envp[])
+{
+   if (argc <= 1)
+      printf("%s", argv[0]);
+   for (unsigned i = 0; i < sizeof(tests)/sizeof(*tests); ++i)
+      if (argc <= 1)
+         printf(" %s", tests[i].name);
+      else if (has_arg(argv, tests[i].name))
+         (tests[i].fn)();
+   if (argc <= 1)
+      printf("\n");
    return 0;
 }
 
