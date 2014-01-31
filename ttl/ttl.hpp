@@ -13,6 +13,8 @@
 //
 // Usually only equality operators are implemented, if any.
 //
+// There is generally no streaming operator support.
+//
 #ifndef _TINY_TEMPLATE_LIBRARY_HPP_
 #define _TINY_TEMPLATE_LIBRARY_HPP_ 1
 
