@@ -18,19 +18,26 @@ namespace ttl
       const slot_type *bits_slot(ttl::size_t pos) const { return bits_ + pos / (sizeof(slot_type) * CHAR_BIT); }
       static ttl::size_t bits_bit(ttl::size_t pos) { return pos % (sizeof(slot_type) * CHAR_BIT); }
       slot_type bits_[(N + sizeof(slot_type) * CHAR_BIT - 1) / (sizeof(slot_type) * CHAR_BIT)];
+
    public:
       bitset() { reset(); }
       bitset(const bitset &other) { operator=(other); }
-      template<ttl::size_t M> explicit bitset(const bitset<M> &other);
       bitset(unsigned long bits);
       explicit bitset(unsigned long long bits);
       explicit bitset(const char *bits, ttl::size_t n = (ttl::size_t)-1, char zero = '0', char one = '1');
 
       ~bitset() {}
 
-      bitset &operator=(const bitset &other);
+      template<ttl::size_t M> explicit bitset(const bitset<M> &other);
+      template<ttl::size_t M> operator bitset<M>() const
+      {
+         return bitset<M>(*this);
+      }
       template<ttl::size_t M> bitset &operator=(const bitset<M> &other);
+
       slot_type slot(ttl::size_t s) const { return bits_[s]; }
+
+      bitset &operator=(const bitset &other);
 
       bool operator==(const bitset &other);
       bool operator!=(const bitset &other) { return !operator==(other); }

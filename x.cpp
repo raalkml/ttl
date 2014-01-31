@@ -181,13 +181,13 @@ void test_bitset()
    ttl::bitset<256> bs2("0101010101");
    ttl::bitset<0>   bs3("0101010101");
    ttl::bitset<0>   bs3_ = bs3;
-   ttl::bitset<16>  bs4(bs2);
 
    print_bitset("<128>:UL  ", bs0);
    print_bitset("<128>:ULL ", bs064);
    print_bitset("<256>:    ", bs2);
 
-   print_bitset("bs4:      ", bs4);
+   ttl::bitset<16> bs4 = bs2;
+   print_bitset("(<16>)<256> ", bs4);
    printf("u32:    0x%08lx\n", bs4.to_ulong());
    printf("u64:    0x%016llx\n", bs4.to_ullong());
    bs4.reset();
