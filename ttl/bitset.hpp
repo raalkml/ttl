@@ -141,9 +141,13 @@ namespace ttl
       unsigned long to_ulong() const { return *bits_; }
       unsigned long long to_ullong() const
       {
+#if __SIZEOF_LONG__ < __SIZEOF_LONG_LONG__
          const ttl::size_t BPW = sizeof(*bits_) * CHAR_BIT;
-         return N < 1 ? 0ull: (unsigned long long)bits_[0] |
-            (N < BPW + 1 ? 0ull: ((unsigned long long)bits_[1] << BPW));
+         return static_cast<unsigned long long>(bits_[0]) |
+            (N < BPW + 1 ? 0ull: (static_cast<unsigned long long>(bits_[1]) << BPW));
+#else
+         return static_cast<unsigned long long>(bits_[0]);
+#endif
       }
    };
 
@@ -157,11 +161,17 @@ namespace ttl
    template<ttl::size_t N>
    bitset<N>::bitset(unsigned long long bits)
    {
+#if __SIZEOF_LONG__ < __SIZEOF_LONG_LONG__
       for (unsigned i = 0; i < sizeof(bits_)/sizeof(*bits_); ++i)
       {
          bits_[i] = bits & (unsigned long)-1;
          bits >>= sizeof(slot_type) * CHAR_BIT;
       }
+#else
+      bits_[0] = bits;
+      for (unsigned i = 1; i < sizeof(bits_)/sizeof(*bits_); ++i)
+         bits_[i] = 0;
+#endif
    }
    template<ttl::size_t N>
    template<ttl::size_t M>
