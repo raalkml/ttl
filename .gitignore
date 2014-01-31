@@ -1,0 +1,7 @@
+*.report
+*.prevtext
+*.prevdata
+*.prevbss
+*.prevdec
+*.[do]
+a.out
