@@ -130,6 +130,14 @@ void test_vector()
 
 template class ttl::map<char, int>;
 
+void print_map(const char *s, const ttl::map<char, int> &m)
+{
+   fputs(s, stdout);
+   for (ttl::map<char, int>::const_iterator i = m.cbegin(); i != m.cend(); ++i)
+      printf("'%c' = %3d ", i->first < 32 ? '.': i->first, i->second);
+   fputs(".\n", stdout);
+}
+
 void test_map()
 {
    printf("\nXXX %s\n", __func__);
@@ -139,7 +147,17 @@ void test_map()
    ttl::map<char, int> m2;
    ttl::map<char, int>();
    ttl::map<char, int>();
-   //m1['a'] = 'a';
+   for (char c = 0; c < 127; ++c)
+      m1[c] = c;
+   print_map("[]\n", m1);
+   for (char c = 0; c < 127; ++c)
+      m1.insert(ttl::make_pair(c, (int)c));
+   print_map("insert\n", m1);
+   //for (char c = 0; c < 127; ++c)
+   //   m1.insert(m1.end(), ttl::make_pair(c, (int)c));
+   //print_map("insert(iterator)\n", m1);
+   m1.clear();
+   print_map("clear: ", m1);
 }
 
 template class ttl::forward_list<testtype>;
