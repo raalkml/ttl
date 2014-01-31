@@ -14,31 +14,10 @@
 #include <sys/uio.h>
 #include <sys/time.h>
 
-#include "templates.hpp"
+#include <bitset>
+#include "ttl/ttl.hpp"
 
-typedef int8_t Int8;
-typedef uint8_t UInt8;
-typedef int16_t Int16;
-typedef uint16_t UInt16;
-typedef int32_t Int32;
-typedef uint32_t UInt32;
-
-namespace HBMOSTTypes
-{
-   typedef UInt8 FBlockID;
-   typedef UInt8 InstID;
-};
-
-typedef int ValueType;
-#define VALUE_MAX INT_MAX
-#define VALUE_MIN INT_MIN
-
-#define HB_ARRAYLEN(a) (sizeof(a)/sizeof(*a))
-#define DBG_MSG(a) do { printf a; fputc('\n', stdout); } while(0)
-#define DBG_WARNING(a) do { fputs("warning: ", stdout); printf a; fputc('\n', stdout); } while(0)
-#define DBG_ERROR(a) do { fputs("error: ", stdout); printf a; fputc('\n', stdout); } while(0)
-#define DBG_FLUSH fputc('\n', stdout)
-#define TRC_SCOPE(a,b,c) ((void)0)
+#define countof(a) (sizeof(a)/sizeof(*a))
 
 
 struct testtype
@@ -135,21 +114,29 @@ void test_vector()
       printf(" %d", i->value);
    printf("\n");
    static const int in[] = {1,2,3,4,5};
-   v1.assign(in, in + HB_ARRAYLEN(in));
-   v1.insert(v1.begin() + 1, in, in + HB_ARRAYLEN(in));
+   v1.assign(in, in + countof(in));
+   v1.insert(v1.begin() + 1, in, in + countof(in));
 
    printf("\nctor(first, last):\n");
-   ttl::vector<testtype>(in, in + HB_ARRAYLEN(in));
+   ttl::vector<testtype>(in, in + countof(in));
 
-   testvector(in, in + HB_ARRAYLEN(in));
-   testvector(in, in + HB_ARRAYLEN(in));
-   testvector(in, in + HB_ARRAYLEN(in));
-   testvector(in, in + HB_ARRAYLEN(in));
-   testvector(in, in + HB_ARRAYLEN(in));
+   testvector(in, in + countof(in));
+   testvector(in, in + countof(in));
+   testvector(in, in + countof(in));
+   testvector(in, in + countof(in));
+   testvector(in, in + countof(in));
    printf("\ndestructors:\n");
 }
 
 template class ttl::map<char, int>;
+
+void print_map(const char *s, const ttl::map<char, int> &m)
+{
+   fputs(s, stdout);
+   for (ttl::map<char, int>::const_iterator i = m.cbegin(); i != m.cend(); ++i)
+      printf("'%c' = %3d ", i->first < 32 ? '.': i->first, i->second);
+   fputs(".\n", stdout);
+}
 
 void test_map()
 {
@@ -160,7 +147,17 @@ void test_map()
    ttl::map<char, int> m2;
    ttl::map<char, int>();
    ttl::map<char, int>();
-   //m1['a'] = 'a';
+   for (char c = 0; c < 127; ++c)
+      m1[c] = c;
+   print_map("[]\n", m1);
+   for (char c = 0; c < 127; ++c)
+      m1.insert(ttl::make_pair(c, (int)c));
+   print_map("insert\n", m1);
+   //for (char c = 0; c < 127; ++c)
+   //   m1.insert(m1.end(), ttl::make_pair(c, (int)c));
+   //print_map("insert(iterator)\n", m1);
+   m1.clear();
+   print_map("clear: ", m1);
 }
 
 template class ttl::forward_list<testtype>;
@@ -178,17 +175,112 @@ void test_forward_list()
    fl.reverse();
 }
 
-int main(int argc, char* argv[], char* envp[])
+template class ttl::bitset<128>;
+
+template<typename T> void print_bitset(const char *s, const T &bs)
+{
+   fputs(s, stdout);
+   for (unsigned i = bs.size(); i--;)
+   {
+      fputc("01"[bs[i]], stdout);
+      if (i && !((i) % 8))
+         fputc('_', stdout);
+   }
+   fputs("\n", stdout);
+}
+
+void test_bitset()
+{
+   printf("\nXXX %s\n", __func__);
+
+   ttl::bitset<128> bs0(0xfefeffUL);
+   ttl::bitset<128> bs064(0xfefe00000000ULL);
+   ttl::bitset<128> bs1("1010101010_");
+   ttl::bitset<256> bs2("0101010101");
+   ttl::bitset<0>   bs3("0101010101");
+   ttl::bitset<0>   bs3_ = bs3;
+
+   print_bitset("<128>:UL  ", bs0);
+   print_bitset("<128>:ULL ", bs064);
+   print_bitset("<256>:    ", bs2);
+
+   ttl::bitset<16> bs4 = bs2;
+   print_bitset("(<16>)<256> ", bs4);
+   printf("u32:    0x%08lx\n", bs4.to_ulong());
+   printf("u64:    0x%016llx\n", bs4.to_ullong());
+   bs4.reset();
+   print_bitset("bs4:      ", bs4);
+   bs4 = ttl::bitset<64>().set();
+   print_bitset("<16>=<64> ", bs4);
+   bs4[1].flip();
+   print_bitset("flip      ", bs4);
+   bs4.set(1);
+   print_bitset(" set      ", bs4);
+   bs4.reset(1);
+   print_bitset("rset      ", bs4);
+   bs4.flip();
+   print_bitset("flip      ", bs4);
+   bs4[4] = 1;
+   print_bitset("refset    ", bs4);
+
+   print_bitset("<0>       ", bs3);
+
+   bs0 = bs1;
+   print_bitset("<128>=<128> ", bs0);
+
+   bs1 = bs3;
+   print_bitset("<128>=<0>   ", bs1);
+
+   printf("sizeof bs2(256) %u vs %u\n",
+          sizeof(bs2), sizeof(std::bitset<256>));
+   printf("sizeof bs0(128) %u vs %u, cap: %u, size: %u vs %u\n",
+          sizeof(bs0), sizeof(std::bitset<128>), bs0.capacity(), bs0.size(), std::bitset<128>().size());
+   printf("sizeof bs3(0) %u vs %u, cap: %u, size: %u vs %u\n",
+          sizeof(bs3), sizeof(std::bitset<0>), bs3.capacity(), bs3.size(), std::bitset<0>().size());
+   printf("all : %d %d %d\n", bs4.all(), bs2.all(), bs3.all());
+   printf("any : %d %d %d\n", bs4.any(), bs2.any(), bs3.any());
+   printf("none: %d %d %d\n", bs4.none(), bs2.none(), bs3.none());
+}
+
+static void test_new()
 {
    void *p = ::operator new(10 * sizeof(int));
    printf("::operator new %p\n", p);
    ::operator delete(p);
+}
 
-   test_array();
-   test_pair();
-   test_vector();
-   test_map();
-   test_forward_list();
+static bool has_arg(char **argv, const char *arg)
+{
+   while (*argv)
+      if (strcasecmp(*argv++, arg) == 0)
+         return true;
+   return false;
+}
+static const struct
+{
+   const char *name;
+   void (* const fn)();
+} tests[] = {
+   { "new",    &test_new },
+   { "array",  &test_array },
+   { "pair",   &test_pair },
+   { "vector", &test_vector },
+   { "map",    &test_map },
+   { "list",   &test_forward_list },
+   { "bitset", &test_bitset },
+};
+
+int main(int argc, char* argv[], char* envp[])
+{
+   if (argc <= 1)
+      printf("%s", argv[0]);
+   for (unsigned i = 0; i < sizeof(tests)/sizeof(*tests); ++i)
+      if (argc <= 1)
+         printf(" %s", tests[i].name);
+      else if (has_arg(argv, tests[i].name))
+         (tests[i].fn)();
+   if (argc <= 1)
+      printf("\n");
    return 0;
 }
 
