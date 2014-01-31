@@ -134,7 +134,12 @@ void print_map(const char *s, const ttl::map<char, int> &m)
 {
    fputs(s, stdout);
    for (ttl::map<char, int>::const_iterator i = m.cbegin(); i != m.cend(); ++i)
-      printf("'%c' = %3d ", i->first < 32 ? '.': i->first, i->second);
+      if (i->first < 0)
+         printf("--- = %3d ", i->second);
+      else if (i->first < 32)
+         printf("... = %3d ", i->second);
+      else
+         printf("'%c' = %3d ", i->first, i->second);
    fputs(".\n", stdout);
 }
 
@@ -147,13 +152,15 @@ void test_map()
    ttl::map<char, int> m2;
    ttl::map<char, int>();
    ttl::map<char, int>();
-   for (char c = 0; c < 127; ++c)
-      m1[c] = c;
+   for (unsigned char c = 0; c < 255u; ++c)
+      m1[(char)c] = c;
+   m1[(char)255] = 255;
    print_map("[]\n", m1);
-   for (char c = 0; c < 127; ++c)
-      m1.insert(ttl::make_pair(c, (int)c));
+   for (unsigned char c = 0; c < 255u; ++c)
+      m1.insert(ttl::make_pair((char)c, (int)c));
+   m1.insert(ttl::make_pair((char)255, 255));
    print_map("insert\n", m1);
-   //for (char c = 0; c < 127; ++c)
+   //for (char c = 0; (unsigned)c <= 127u; ++c)
    //   m1.insert(m1.end(), ttl::make_pair(c, (int)c));
    //print_map("insert(iterator)\n", m1);
    m1.clear();
@@ -253,6 +260,21 @@ void test_bitset()
    printf("all : %d %d %d\n", bs4.all(), bs2.all(), bs3.all());
    printf("any : %d %d %d\n", bs4.any(), bs2.any(), bs3.any());
    printf("none: %d %d %d\n", bs4.none(), bs2.none(), bs3.none());
+
+   // should cause no code to be produced if optimizing
+#if 1
+   for (unsigned i = 0; i < 256; ++i)
+   {
+      bs3[i].flip();
+      bs3[i] = bs3[i];
+      bs3[i] = bs3.test(i);
+   }
+   bs3.set();
+   bs3.reset();
+   bs3.flip();
+   bs3.to_ulong();
+   bs3.to_ullong();
+#endif
 }
 
 static void test_new()
