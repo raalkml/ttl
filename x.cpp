@@ -192,8 +192,8 @@ void test_bitset()
    printf("u64:    0x%016llx\n", bs4.to_ullong());
    bs4.reset();
    print_bitset("bs4:      ", bs4);
-   bs4 = ttl::bitset<64>("1111111111111111");
-   print_bitset("bs4:      ", bs4);
+   bs4 = ttl::bitset<64>().set();
+   print_bitset("<16>=<64> ", bs4);
    bs4[1].flip();
    print_bitset("flip      ", bs4);
    bs4.set(1);
