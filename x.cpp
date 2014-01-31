@@ -164,18 +164,33 @@ void test_bitset()
    printf("\nXXX %s\n", __func__);
 
    ttl::bitset<128> bs0(0xfefeffUL);
-   ttl::bitset<128> bs064(0xfefeffULL);
-   ttl::bitset<128> bs1("0101010101");
+   ttl::bitset<128> bs064(0xfefe00000000ULL);
+   ttl::bitset<128> bs1("1010101010_");
    ttl::bitset<256> bs2("0101010101");
    ttl::bitset<0>   bs3("0101010101");
-   ttl::bitset<0>   bs3_("0101010101");
+   ttl::bitset<0>   bs3_ = bs3;
+   ttl::bitset<16>  bs4;
+   bs4 = bs2;
    for (unsigned i = bs0.size(); i--;)
       printf("%d",(bool)bs0[i]);
+   printf("\n");
+   for (unsigned i = bs064.size(); i--;)
+      printf("%d",(bool)bs064[i]);
+   printf("\n");
+   for (unsigned i = bs4.size(); i--;)
+      printf("%d",(bool)bs4[i]);
+   printf("\n");
+   bs0 = bs1;
+   for (unsigned i = bs0.size(); i--;)
+      printf("%d",(bool)bs0[i]);
+   printf("\n");
+   bs1 = bs3;
+   for (unsigned i = bs1.size(); i--;)
+      printf("%d",(bool)bs1[i]);
    printf("\n");
    printf("sizeof bs0(128) %u vs %u, size: %u vs %u\n", sizeof(bs0), sizeof(std::bitset<128>), bs0.size(), std::bitset<128>().size());
    printf("sizeof bs2(256) %u vs %u\n", sizeof(bs2), sizeof(std::bitset<256>));
    printf("sizeof bs3(0) %u vs %u, size: %u vs %u\n", sizeof(bs3), sizeof(std::bitset<0>), bs3.size(), std::bitset<0>().size());
-   bs0 = bs1;
 }
 
 int main(int argc, char* argv[], char* envp[])
