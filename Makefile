@@ -16,7 +16,7 @@ x.s: x.cpp ttl/ttl.hpp
 %.d: %.cpp
 	$(CC) -MM -MG -o $@ -MQ '$(patsubst %.cpp,%.o,$<)' $< $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags)
 a.out: x.o
-	$(CXX) $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@ $+
+	$(CXX) $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) $(flags) -o $@ $+
 
 %.report: %
 	-$(V)test -f $<.prevtext && prevtext=$$(< $<.prevtext);\
