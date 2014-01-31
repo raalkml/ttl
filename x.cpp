@@ -231,12 +231,21 @@ void test_bitset()
    bs1 = bs3;
    print_bitset("<128>=<0>   ", bs1);
 
-   printf("sizeof bs2(256) %u vs %u\n",
-          sizeof(bs2), sizeof(std::bitset<256>));
-   printf("sizeof bs0(128) %u vs %u, cap: %u, size: %u vs %u\n",
-          sizeof(bs0), sizeof(std::bitset<128>), bs0.capacity(), bs0.size(), std::bitset<128>().size());
-   printf("sizeof bs3(0) %u vs %u, cap: %u, size: %u vs %u\n",
-          sizeof(bs3), sizeof(std::bitset<0>), bs3.capacity(), bs3.size(), std::bitset<0>().size());
+   printf("sizeof bs2(256) %lu vs %lu\n",
+          (unsigned long)sizeof(bs2),
+          (unsigned long)sizeof(std::bitset<256>));
+   printf("sizeof bs0(128) %lu vs %lu, cap: %lu, size: %lu vs %lu\n",
+          (unsigned long)sizeof(bs0),
+          (unsigned long)sizeof(std::bitset<128>),
+          (unsigned long)bs0.capacity(),
+          (unsigned long)bs0.size(),
+          (unsigned long)std::bitset<128>().size());
+   printf("sizeof bs3(0) %lu vs %lu, cap: %lu, size: %lu vs %lu\n",
+          (unsigned long)sizeof(bs3),
+          (unsigned long)sizeof(std::bitset<0>),
+          (unsigned long)bs3.capacity(),
+          (unsigned long)bs3.size(),
+          (unsigned long)std::bitset<0>().size());
    bs4.set();
    print_bitset("1: ", bs4);
    print_bitset("2: ", bs2);
