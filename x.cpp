@@ -285,6 +285,8 @@ static const struct
 
 int main(int argc, char* argv[], char* envp[])
 {
+   printf("unsigned long: %lu\n", sizeof(unsigned long));
+   printf("unsigned long long: %lu\n", sizeof(unsigned long long));
    if (argc <= 1)
       printf("%s", argv[0]);
    for (unsigned i = 0; i < sizeof(tests)/sizeof(*tests); ++i)
