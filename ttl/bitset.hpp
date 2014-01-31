@@ -76,8 +76,9 @@ namespace ttl
       bool all() const;
       bool any() const;
       bool none() const;
-      ttl::size_t count() const;
-      ttl::size_t size() const { return sizeof(bits_) * CHAR_BIT; }
+      ttl::size_t count() const; // count set bits
+      ttl::size_t size() const { return N; }
+      ttl::size_t capacity() const { return sizeof(bits_) * CHAR_BIT; }
 
       bitset<N>& operator&=(const bitset<N>& other);
       bitset<N>& operator|=(const bitset<N>& other);
@@ -115,14 +116,29 @@ namespace ttl
       }
       bitset<N>& reset(ttl::size_t pos)
       {
+         *bits_slot(pos) &= ~((slot_type)1 << bits_bit(pos));
          return *this;
       }
 
-      bitset<N>& flip();
-      bitset<N>& flip(ttl::size_t pos);
+      bitset<N>& flip()
+      {
+         for (unsigned i = 0; i < sizeof(bits_)/sizeof(*bits_); ++i)
+            bits_[i] = ~bits_[i];
+         return *this;
+      }
+      bitset<N>& flip(ttl::size_t pos)
+      {
+         *bits_slot(pos) ^= (slot_type)1 << bits_bit(pos);
+         return *this;
+      }
 
-      unsigned long to_ulong() const;
-      unsigned long to_ullong() const;
+      unsigned long to_ulong() const { return N ? *bits_: 0; }
+      unsigned long long to_ullong() const
+      {
+         const ttl::size_t BPW = sizeof(*bits_) * CHAR_BIT;
+         return N < 1 ? 0ull: (unsigned long long)bits_[0] |
+            (N < BPW + 1 ? 0ull: ((unsigned long long)bits_[1] << BPW));
+      }
    };
 
    template<ttl::size_t N>
@@ -150,9 +166,6 @@ namespace ttl
    template<ttl::size_t N>
    bitset<N>::bitset(const char *bits, ttl::size_t n, char zero, char one)
    {
-      ttl::size_t len = strlen(bits);
-      if (len < n)
-         n = len;
       ttl::size_t i;
       for (i = 0; i < n; ++i)
          if (!(bits[i] == zero || bits[i] == one))
@@ -179,10 +192,12 @@ namespace ttl
    template<ttl::size_t N>
    inline bool bitset<N>::all() const
    {
-      for (unsigned i = 0; i < sizeof(bits_)/sizeof(*bits_); ++i)
+      unsigned i;
+      for (i = 0; i < sizeof(bits_)/sizeof(*bits_) - 1; ++i)
          if (bits_[i] != (slot_type)-1)
             return false;
-      return true;
+      const slot_type mask = (slot_type)-1 >> (capacity() - N);
+      return (bits_[i] & mask) == mask;
    }
    template<ttl::size_t N>
    inline bool bitset<N>::any() const
@@ -212,7 +227,8 @@ namespace ttl
    bitset<N> &bitset<N>::operator=(const bitset<M> &other)
    {
       unsigned i;
-      for (i = 0; i < (N < M ? size()/(sizeof(slot_type) * CHAR_BIT): other.size()/(sizeof(slot_type) * CHAR_BIT)); ++i)
+      const ttl::size_t n = N < M ? capacity()/(sizeof(slot_type) * CHAR_BIT): other.capacity()/(sizeof(slot_type) * CHAR_BIT);
+      for (i = 0; i < n; ++i)
          bits_[i] = other.slot(i);
       for ( ; i < sizeof(bits_)/sizeof(*bits_); ++i)
          bits_[i] = 0;
