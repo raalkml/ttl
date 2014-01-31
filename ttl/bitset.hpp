@@ -138,7 +138,7 @@ namespace ttl
          return *this;
       }
 
-      unsigned long to_ulong() const { return N ? *bits_: 0; }
+      unsigned long to_ulong() const { return *bits_; }
       unsigned long long to_ullong() const
       {
          const ttl::size_t BPW = sizeof(*bits_) * CHAR_BIT;
@@ -244,6 +244,10 @@ template<const ttl::size_t N> bitset<N> operator&( const bitset<N>& lhs, const b
 template<const ttl::size_t N> bitset<N> operator|( const bitset<N>& lhs, const bitset<N>& rhs );
 template<const ttl::size_t N> bitset<N> operator^( const bitset<N>& lhs, const bitset<N>& rhs );
 
+   template<> inline bitset<0>::slot_type *bitset<0>::bits_slot(ttl::size_t) { return bits_; }
+   template<> inline bool bitset<0>::all() const { return false; }
+   template<> inline unsigned long long bitset<0>::to_ullong() const { return 0; }
+   template<> inline unsigned long bitset<0>::to_ulong() const { return 0; }
 }
 
 #endif // _TINY_TEMPLATE_LIBRARY_HPP_
