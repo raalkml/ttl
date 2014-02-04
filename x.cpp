@@ -177,8 +177,16 @@ void test_forward_list()
    ttl::forward_list<testtype> fl1 = fl;
    ttl::forward_list<testtype> fl2 = fl;
    ttl::forward_list<testtype> fl3 = fl;
+   int c = 0;
    for (ttl::forward_list<testtype>::iterator i = fl.begin(); i != fl.end(); ++i)
-      ;
+   {
+      i->value = c++;
+   }
+   for (ttl::forward_list<testtype>::const_iterator i = fl.cbegin(); i != fl.cend(); ++i)
+   {
+      printf(" %d", i->value);
+   }
+   printf("\n");
    fl.reverse();
 }
 

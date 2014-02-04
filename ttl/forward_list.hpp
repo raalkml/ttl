@@ -42,9 +42,12 @@ namespace ttl
          typedef T &reference;
          typedef ttl::ptrdiff_t difference_type;
 
+         iterator() /* head_ left uninitialized */ {}
          ~iterator() {}
          iterator &operator++() { head_ = head_->next; return *this; }
          iterator operator++(int) { iterator tmp(head_); head_ = head_->next; return tmp; }
+         reference operator*() const { return static_cast<forward_list<T>::node *>(head_)->value; }
+         pointer operator->() const { return &static_cast<forward_list<T>::node *>(head_)->value; }
 
          bool operator==(const iterator &other) const { return head_ == other.head_; }
          bool operator!=(const iterator &other) const { return head_ != other.head_; }
@@ -64,10 +67,22 @@ namespace ttl
          typedef const T *pointer;
          typedef const T &reference;
          typedef ttl::ptrdiff_t difference_type;
+
+         const_iterator() /* head_ left uninitialized */ {}
+         ~const_iterator() {}
+         const_iterator &operator++() { head_ = head_->next; return *this; }
+         const_iterator operator++(int) { const_iterator tmp(head_); head_ = head_->next; return tmp; }
+         reference operator*() const { return static_cast<const forward_list<T>::node *>(head_)->value; }
+         pointer operator->() const { return &static_cast<const forward_list<T>::node *>(head_)->value; }
+
+         bool operator==(const const_iterator &other) const { return head_ == other.head_; }
+         bool operator!=(const const_iterator &other) const { return head_ != other.head_; }
+
       private:
          friend class forward_list<T>;
          friend class forward_list<T>::iterator;
-         forward_list<T>::node_base *head_;
+         const forward_list<T>::node_base *head_;
+         const_iterator(const forward_list<T>::node_base *head): head_(head) {}
       };
 
       forward_list() { head_.next = NULL; }
@@ -90,15 +105,15 @@ namespace ttl
          return *this;
       }
 
-      iterator before_begin();
+      iterator before_begin() { return iterator(&head_); }
       iterator begin() { return iterator(head_.next); }
       iterator end() { return iterator(NULL); }
-      const_iterator before_begin() const;
-      const_iterator begin() const;
-      const_iterator end() const;
-      const_iterator cbefore_begin() const;
-      const_iterator cbegin() const;
-      const_iterator cend() const;
+      const_iterator before_begin() const { return const_iterator(&head_); }
+      const_iterator begin() const { return const_iterator(head_.next); }
+      const_iterator end() const { return const_iterator(NULL); }
+      const_iterator cbefore_begin() const { return const_iterator(&head_); }
+      const_iterator cbegin() const { return const_iterator(head_.next); }
+      const_iterator cend() const { return const_iterator(NULL); }
 
       bool empty() const { return !head_.next; }
       size_type max_size() const { return (size_type)-1/sizeof(node); }
