@@ -3,6 +3,7 @@ CFLAGS := -Wall -ggdb
 CXXFLAGS := -fno-exceptions -fno-rtti
 flags := -O3
 SHELL := bash
+ARGS :=
 V := @
 
 all: x.o.report a.out.report
@@ -42,11 +43,11 @@ a.out: x.o
 	    done > $@
 
 valgrind: a.out
-	valgrind --tool=memcheck --leak-check=full $(abspath $<)
+	valgrind --tool=memcheck --leak-check=full $(abspath $<) $(ARGS)
 gdb:
 	-tmp=$$(tempfile -p gdb || echo gdb$$$$.tmp) && echo run >"$$tmp"; \
 	test -f "$$tmp" && opt="-x $$tmp";\
-	gdb -q $$opt --args a.out;\
+	gdb -q $$opt --args a.out $(ARGS);\
 	rc=$$?;\
 	rm -f "$$tmp";\
 	exit $$rc
