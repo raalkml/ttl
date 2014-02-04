@@ -270,11 +270,11 @@ void test_bitset()
    printf("none: %d %d %d\n", bs4.none(), bs2.none(), bs3.none());
 
    // should cause no code to be produced if optimizing
-#if 1
    for (unsigned i = 0; i < 256; ++i)
    {
       bs3[i].flip();
       bs3[i] = bs3[i];
+      bs3[i] = false;
       bs3[i] = bs3.test(i);
    }
    bs3.set();
@@ -282,7 +282,6 @@ void test_bitset()
    bs3.flip();
    bs3.to_ulong();
    bs3.to_ullong();
-#endif
 }
 
 static void test_new()
