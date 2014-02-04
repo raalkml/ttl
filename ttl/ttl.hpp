@@ -21,6 +21,7 @@
 #include <new>
 
 #include "types.hpp"
+#include "type_traits.hpp"
 #include "functional.hpp"
 #include "utility.hpp"
 #include "array.hpp"
