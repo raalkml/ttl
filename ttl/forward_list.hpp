@@ -13,21 +13,6 @@ namespace ttl
    class forward_list
    {
    public:
-      class iterator
-      {
-         typedef T value_type;
-         typedef T *pointer;
-         typedef T &reference;
-         typedef ttl::ptrdiff_t difference_type;
-      };
-      class const_iterator
-      {
-         typedef forward_list<T>::iterator iterator;
-         typedef T value_type;
-         typedef const T *pointer;
-         typedef const T &reference;
-         typedef ttl::ptrdiff_t difference_type;
-      };
       typedef T value_type;
       typedef T *pointer;
       typedef const T *const_pointer;
@@ -36,21 +21,64 @@ namespace ttl
       typedef std::size_t size_type;
       typedef std::ptrdiff_t difference_type;
    private:
-      struct node
+      struct node_base
       {
-         struct node *next;
+         node_base *next;
+      };
+      struct node: node_base
+      {
          T value;
          node(const T &v): value(v) {}
       };
-      node *head_;
+      node_base head_;
    public:
-      forward_list(): head_(NULL) {}
-      forward_list(const forward_list &other): head_(NULL)
+      class const_iterator;
+
+      class iterator
       {
-         copy_nodes_inorder(&head_, other.head_);
+      public:
+         typedef T value_type;
+         typedef T *pointer;
+         typedef T &reference;
+         typedef ttl::ptrdiff_t difference_type;
+
+         ~iterator() {}
+         iterator &operator++() { head_ = head_->next; return *this; }
+         iterator operator++(int) { iterator tmp(head_); head_ = head_->next; return tmp; }
+
+         bool operator==(const iterator &other) const { return head_ == other.head_; }
+         bool operator!=(const iterator &other) const { return head_ != other.head_; }
+         bool operator==(const const_iterator &other) const { return head_ == other.head_; }
+         bool operator!=(const const_iterator &other) const { return head_ != other.head_; }
+
+      private:
+         forward_list<T>::node_base *head_;
+         friend class forward_list<T>;
+         iterator(forward_list<T>::node_base *head): head_(head) {}
+      };
+      class const_iterator
+      {
+      public:
+         typedef forward_list<T>::iterator iterator;
+         typedef T value_type;
+         typedef const T *pointer;
+         typedef const T &reference;
+         typedef ttl::ptrdiff_t difference_type;
+      private:
+         friend class forward_list<T>;
+         friend class forward_list<T>::iterator;
+         forward_list<T>::node_base *head_;
+      };
+
+      forward_list() { head_.next = NULL; }
+      forward_list(const forward_list &other)
+      {
+         head_.next = NULL;
+         copy_nodes_inorder(&head_.next, other.head_.next);
       }
-      forward_list(size_type n, const T &value): head_(NULL)
+      forward_list(size_type n, const T &value)
       {
+         head_.next = NULL;
          push_nodes_front(n, value);
       }
       ~forward_list() { clear(); }
@@ -58,13 +86,13 @@ namespace ttl
       forward_list &operator=(const forward_list &other)
       {
          clear();
-         copy_nodes_inorder(&head_, other.head_);
+         copy_nodes_inorder(&head_.next, other.head_.next);
          return *this;
       }
 
       iterator before_begin();
-      iterator begin();
-      iterator end();
+      iterator begin() { return iterator(head_.next); }
+      iterator end() { return iterator(NULL); }
       const_iterator before_begin() const;
       const_iterator begin() const;
       const_iterator end() const;
@@ -72,7 +100,7 @@ namespace ttl
       const_iterator cbegin() const;
       const_iterator cend() const;
 
-      bool empty() const { return !head_; }
+      bool empty() const { return !head_.next; }
       size_type max_size() const { return (size_type)-1/sizeof(node); }
 
       reference front();
@@ -93,8 +121,8 @@ namespace ttl
 
       void pop_front()
       {
-         node *n = head_;
-         head_ = head_->next;
+         node_base *n = head_.next;
+         head_.next = n->next;
          delete n;
       }
 
@@ -113,11 +141,11 @@ namespace ttl
 
       void clear()
       {
-         while (head_)
+         for (node_base *n = head_.next; head_.next;)
          {
-            node *n = head_->next;
-            delete head_;
-            head_ = n;
+            n = n->next;
+            delete static_cast<node *>(head_.next);
+            head_.next = n;
          }
       }
 
@@ -144,26 +172,27 @@ namespace ttl
 
       void reverse()
       {
-         node *reversed = NULL;
-         while (head_)
+         node_base *reversed = NULL;
+         node_base *orig = head_.next;
+         while (orig)
          {
-            node *n = head_;
-            head_ = head_->next;
+            node_base *n = orig;
+            orig = n->next;
             n->next = reversed;
             reversed = n;
          }
-         head_ = reversed;
+         head_.next = reversed;
       }
    private:
-      void copy_nodes_inorder(node **tail, const node *other);
+      void copy_nodes_inorder(node_base **tail, const node_base *other);
       void push_nodes_front(size_type n, const T &value);
    };
    template<typename T>
-   void forward_list<T>::copy_nodes_inorder(node **tail, const node *other)
+   void forward_list<T>::copy_nodes_inorder(node_base **tail, const node_base *other)
    {
-      for (const node *h = other; h; h = h->next)
+      for (const node_base *h = other; h; h = h->next)
       {
-         node *t = new node(h->value);
+         node *t = new node(static_cast<const node *>(h)->value);
          t->next = NULL;
          *tail = t;
          tail = &t->next;
@@ -175,8 +204,8 @@ namespace ttl
       while (n--)
       {
          node *t = new node(value);
-         t->next = head_;
-         head_ = t;
+         t->next = head_.next;
+         head_.next = t;
       }
    }
 }

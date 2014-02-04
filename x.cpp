@@ -170,8 +170,8 @@ void test_forward_list()
    ttl::forward_list<testtype> fl1 = fl;
    ttl::forward_list<testtype> fl2 = fl;
    ttl::forward_list<testtype> fl3 = fl;
-//   for (auto i = fl.begin(); i != fl.end(); ++i)
-//      ;
+   for (ttl::forward_list<testtype>::iterator i = fl.begin(); i != fl.end(); ++i)
+      ;
    fl.reverse();
 }
 
