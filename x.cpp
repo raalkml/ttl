@@ -261,6 +261,9 @@ void test_forward_list()
 
    ttl::forward_list<int> flI(data, data + countof(data));
    print_iter("<int> init from data: ", flI.cbegin(), flI.cend());
+   ttl::forward_list<int> flI2(data, data + countof(data));
+   flI.splice_after(flI.cbefore_begin(), flI2, flI2.cbefore_begin(), flI2.cend());
+   print_iter("<int> splice_after: ", flI.cbegin(), flI.cend());
    printf("dtors\n");
 }
 

@@ -185,7 +185,10 @@ namespace ttl
          delete static_cast<node *>(head_.unlink_next());
       }
 
-      void splice_after(const_iterator pos, forward_list &other);
+      void splice_after(const_iterator pos, forward_list &other)
+      {
+         const_cast<forward_list_node *>(pos.head_)->splice_after(&other.head_, NULL);
+      }
       void splice_after(const_iterator pos, forward_list &, const_iterator it)
       {
          forward_list_node *p = const_cast<forward_list_node *>(pos.head_);
@@ -194,25 +197,7 @@ namespace ttl
             return;
          p->splice_after(o);
       }
-      void splice_after(const_iterator pos, forward_list &, const_iterator first, const_iterator last)
-      {
-         forward_list_node *p = const_cast<forward_list_node *>(pos.head_);
-         forward_list_node *n = p->next;
-
-         forward_list_node *f = const_cast<forward_list_node *>(first.head_);
-
-         if (!f)
-            return;
-
-         p->next = f->next;
-
-         forward_list_node *o = f;
-         forward_list_node *l = const_cast<forward_list_node *>(last.head_);
-         while (o->next != l)
-            o = o->next;
-         o->next = n;
-         f->next = l;
-      }
+      void splice_after(const_iterator pos, forward_list &, const_iterator first, const_iterator last);
 
       iterator insert_after(const_iterator pos, const T &value)
       {
@@ -303,19 +288,14 @@ namespace ttl
       head_.next = reversed;
    }
    template<typename T>
-   void forward_list<T>::splice_after(const_iterator pos, forward_list &other)
+   void forward_list<T>::splice_after(const_iterator pos, forward_list &, const_iterator first, const_iterator last)
    {
-      forward_list_node *p = const_cast<forward_list_node *>(pos.head_);
-      forward_list_node *o = other.head_.next;
-      other.head_.next = NULL;
-      while (o)
-      {
-         forward_list_node *n = o;
-         o = o->next;
-         n->next = p->next;
-         p->next = n;
-         p = n;
-      }
+      forward_list_node *f = const_cast<forward_list_node *>(first.head_);
+
+      if (!f)
+         return;
+
+      const_cast<forward_list_node *>(pos.head_)->splice_after(f, const_cast<forward_list_node *>(last.head_));
    }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_FORWARD_LIST_HPP_
