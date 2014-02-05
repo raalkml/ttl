@@ -178,14 +178,24 @@ inline Iterator advanceIt(Iterator i, Distance d)
    return i;
 }
 
+template<class Iterator>
+void print_iter(const char *title, Iterator first, Iterator last)
+{
+   fputs(title, stdout);
+   for (; first != last; ++first)
+   {
+      typename Iterator::reference &r = *first;
+      printf('\x20' <= r.value && r.value < 256 ? " %c": " %d", first->value);
+   }
+   fputc('\n', stdout);
+}
+
 void test_forward_list()
 {
    printf("\nXXX %s\n", __func__);
 
    ttl::forward_list<testtype> fl(10, testtype(9));
    ttl::forward_list<testtype> fl1 = fl;
-   ttl::forward_list<testtype> fl2 = fl;
-   ttl::forward_list<testtype> fl3 = fl;
    int c = 0;
    for (ttl::forward_list<testtype>::iterator i = fl.begin(); i != fl.end(); ++i)
    {
@@ -205,6 +215,27 @@ void test_forward_list()
    }
    printf("\n");
    fl.reverse();
+   static const int data[] = {'0','1','2','3'};
+   fl1.insert_after(fl1.cbefore_begin(), data, data + countof(data));
+   for (ttl::forward_list<testtype>::const_iterator i = fl1.cbegin(); i != fl1.cend(); ++i)
+   {
+      printf('\x20' <= i->value && i->value < 256 ? " %c": " %d", i->value);
+   }
+   printf("\n");
+   ttl::forward_list<testtype> fl2 = fl1;
+   for (ttl::forward_list<testtype>::const_iterator i = fl2.cbegin(); i != fl2.cend(); ++i)
+   {
+      printf('\x20' <= i->value && i->value < 256 ? " %c": " %d", i->value);
+   }
+   printf("\n");
+   ttl::forward_list<testtype> fl3 = fl;
+   print_iter("before swap fl1:", fl1.cbegin(), fl1.cend());
+   print_iter("before swap fl3:", fl3.cbegin(), fl3.cend());
+   fl3.swap(fl1);
+   print_iter("after swap fl1:", fl1.cbegin(), fl1.cend());
+   print_iter("after swap fl3:", fl3.cbegin(), fl3.cend());
+
+   printf("dtors\n");
 }
 
 template class ttl::bitset<128>;

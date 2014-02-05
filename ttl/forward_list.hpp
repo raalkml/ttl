@@ -20,6 +20,7 @@ namespace ttl
       typedef const T &const_reference;
       typedef std::size_t size_type;
       typedef std::ptrdiff_t difference_type;
+
    private:
       struct node_base
       {
@@ -31,6 +32,21 @@ namespace ttl
          node(const T &v): value(v) {}
       };
       node_base head_;
+
+      static node_base *insert_after(node_base *pos, const T &value)
+      {
+         node *n = new node(value);
+         n->next = pos->next;
+         pos->next = n;
+         return n;
+      }
+      static void erase_after_internal(node_base *pos)
+      {
+         node *n = static_cast<node *>(pos->next);
+         pos->next = n->next;
+         delete n;
+      }
+
    public:
       class const_iterator;
 
@@ -69,7 +85,6 @@ namespace ttl
          typedef ttl::ptrdiff_t difference_type;
 
          const_iterator() /* head_ left uninitialized */ {}
-         const_iterator(const const_iterator &o): head_(o.head_) {}
          const_iterator(const iterator &o): head_(o.head_) {}
          ~const_iterator() {}
          const_iterator &operator++() { head_ = head_->next; return *this; }
@@ -91,19 +106,25 @@ namespace ttl
       forward_list(const forward_list &other)
       {
          head_.next = NULL;
-         copy_nodes_inorder(&head_.next, other.head_.next);
+         insert_after(cbefore_begin(), other.cbegin(), other.cend());
       }
       forward_list(size_type n, const T &value)
       {
          head_.next = NULL;
-         push_nodes_front(n, value);
+         insert_after(cbefore_begin(), n, value);
+      }
+      template<typename InputIterator>
+      forward_list(InputIterator first, InputIterator last)
+      {
+         head_.next = NULL;
+         insert_after(cbefore_begin(), first, last);
       }
       ~forward_list() { clear(); }
 
       forward_list &operator=(const forward_list &other)
       {
          clear();
-         copy_nodes_inorder(&head_.next, other.head_.next);
+         insert_after(cbefore_begin(), other.cbegin(), other.cend());
          return *this;
       }
 
@@ -124,29 +145,18 @@ namespace ttl
       const_reference front() const { return static_cast<const node *>(head_.next)->value; }
 
       template<typename InputIterator>
-      void assign(InputIterator first, InputIterator last);
+      void assign(InputIterator first, InputIterator last)
+      {
+         clear();
+         insert_after(cbefore_begin(), first, last);
+      }
+
       void assign(size_type n, const T &value)
       {
          clear();
-         push_nodes_front(n, value);
+         insert_after(cbefore_begin(), n, value);
       }
 
-   private:
-      static node_base *insert_after(node_base *pos, const T &value)
-      {
-         node *n = new node(value);
-         n->next = pos->next;
-         pos->next = n;
-         return n;
-      }
-      static void erase_after_internal(node_base *pos)
-      {
-         node *n = static_cast<node *>(pos->next);
-         pos->next = n->next;
-         delete n;
-      }
-
-   public:
       void push_front(const T &value)
       {
          insert_after(&head_, value);
@@ -165,11 +175,7 @@ namespace ttl
       {
          return iterator(insert_after(const_cast<node_base *>(pos.head_), value));
       }
-      void insert_after(const_iterator pos, size_type n, const T &value)
-      {
-         forward_list tmp(n, value);
-         splice_after(pos, tmp);
-      }
+      void insert_after(const_iterator pos, size_type n, const T &value);
       template<typename InputIterator>
       void insert_after(const_iterator pos, InputIterator first, InputIterator last);
 
@@ -179,28 +185,17 @@ namespace ttl
          erase_after_internal(p);
          return iterator(p->next);
       }
-      iterator erase_after(const_iterator pos, const_iterator last)
-      {
-         node_base *p = const_cast<node_base *>(pos.head_);
-         while (p->next != last.head_)
-            erase_after_internal(p);
-         return iterator(p->next);
-      }
+      iterator erase_after(const_iterator pos, const_iterator last);
 
-      void swap(forward_list &other);
+      void swap(forward_list &other)
+      {
+         ttl::swap(head_.next, other.head_.next);
+      }
 
       void resize(size_type);
       void resize(size_type, const T &value);
 
-      void clear()
-      {
-         for (node_base *n = head_.next; head_.next;)
-         {
-            n = n->next;
-            delete static_cast<node *>(head_.next);
-            head_.next = n;
-         }
-      }
+      void clear();
 
       void remove(const T &);
       template<typename Predicate>
@@ -219,43 +214,53 @@ namespace ttl
       template<typename Compare>
       void sort(Compare);
 
-      void reverse()
-      {
-         node_base *reversed = NULL;
-         node_base *orig = head_.next;
-         while (orig)
-         {
-            node_base *n = orig;
-            orig = n->next;
-            n->next = reversed;
-            reversed = n;
-         }
-         head_.next = reversed;
-      }
-   private:
-      void copy_nodes_inorder(node_base **tail, const node_base *other);
-      void push_nodes_front(size_type n, const T &value);
+      void reverse();
    };
    template<typename T>
-   void forward_list<T>::copy_nodes_inorder(node_base **tail, const node_base *other)
+   void forward_list<T>::insert_after(const_iterator pos, size_type n, const T &value)
    {
-      for (const node_base *h = other; h; h = h->next)
+      node_base *p = const_cast<node_base *>(pos.head_);
+      while (n--)
+         p = insert_after(p, value);
+   }
+   template<typename T>
+   template<typename InputIterator>
+   void forward_list<T>::insert_after(const_iterator pos, InputIterator first, InputIterator last)
+   {
+      for ( ; first != last; ++first)
+         pos = insert_after(pos, *first);
+   }
+   template<typename T>
+   void forward_list<T>::clear()
+   {
+      for (node_base *n = head_.next; head_.next;)
       {
-         node *t = new node(static_cast<const node *>(h)->value);
-         t->next = NULL;
-         *tail = t;
-         tail = &t->next;
+         n = n->next;
+         delete static_cast<node *>(head_.next);
+         head_.next = n;
       }
    }
    template<typename T>
-   void forward_list<T>::push_nodes_front(size_type n, const T &value)
+   typename forward_list<T>::iterator forward_list<T>::erase_after(const_iterator pos, const_iterator last)
    {
-      while (n--)
+      node_base *p = const_cast<node_base *>(pos.head_);
+      while (p->next != last.head_)
+         erase_after_internal(p);
+      return iterator(p->next);
+   }
+   template<typename T>
+   void forward_list<T>::reverse()
+   {
+      node_base *reversed = NULL;
+      node_base *orig = head_.next;
+      while (orig)
       {
-         node *t = new node(value);
-         t->next = head_.next;
-         head_.next = t;
+         node_base *n = orig;
+         orig = n->next;
+         n->next = reversed;
+         reversed = n;
       }
+      head_.next = reversed;
    }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_FORWARD_LIST_HPP_
