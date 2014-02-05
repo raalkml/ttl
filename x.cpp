@@ -41,8 +41,6 @@ inline bool operator==(const testtype &a, const testtype &b)
 
 void test_array()
 {
-   printf("\nXXX %s\n", __func__);
-
    ttl::array<int, 3> i3 = { {1,2,3} };
    for (ttl::array<int, 3>::const_iterator i = i3.begin(); i != i3.end(); ++i)
       printf("%ld/%d: %d\n", long(i - i3.begin()), i3.size(), *i);
@@ -53,8 +51,6 @@ void test_array()
 
 void test_pair()
 {
-   printf("\nXXX %s\n", __func__);
-
    ttl::pair<int, char> pp1(-1, 'a');
    ttl::pair<int, char> pp2 = ttl::make_pair(-2, 'b');
    printf("%d, '%c'\n", pp1.first, pp1.second);
@@ -66,8 +62,6 @@ template class ttl::vector<testtype>;
 
 void test_vector()
 {
-   printf("\nXXX %s\n", __func__);
-
    typedef ttl::vector<testtype> testvector;
 
    printf("default ctor:\n");
@@ -145,8 +139,6 @@ void print_map(const char *s, const ttl::map<char, int> &m)
 
 void test_map()
 {
-   printf("\nXXX %s\n", __func__);
-
    ttl::map<char, int> m;
    ttl::map<char, int> m1 = m;
    ttl::map<char, int> m2;
@@ -192,8 +184,6 @@ void print_iter(const char *title, Iterator first, Iterator last)
 
 void test_forward_list()
 {
-   printf("\nXXX %s\n", __func__);
-
    ttl::forward_list<testtype> fl(10, testtype(9));
    ttl::forward_list<testtype> fl1 = fl;
    int c = 0;
@@ -254,8 +244,6 @@ template<typename T> void print_bitset(const char *s, const T &bs)
 
 void test_bitset()
 {
-   printf("\nXXX %s\n", __func__);
-
    ttl::bitset<128> bs0(0xfefeffUL);
    ttl::bitset<128> bs064(0xfefe00000000ULL);
    ttl::bitset<128> bs1("1010101010_");
@@ -355,13 +343,6 @@ static void test_types()
    printf("uint: is_unsigned: %d\n", ttl::is_unsigned<unsigned int>::value);
 }
 
-static bool has_arg(char **argv, const char *arg)
-{
-   while (*argv)
-      if (strcasecmp(*argv++, arg) == 0)
-         return true;
-   return false;
-}
 static const struct
 {
    const char *name;
@@ -382,14 +363,20 @@ int main(int argc, char* argv[], char* envp[])
    printf("unsigned long: %lu\n", (unsigned long)sizeof(unsigned long));
    printf("unsigned long long: %lu\n", (unsigned long)sizeof(unsigned long long));
    if (argc <= 1)
+   {
       printf("%s", argv[0]);
-   for (unsigned i = 0; i < sizeof(tests)/sizeof(*tests); ++i)
-      if (argc <= 1)
+      for (unsigned i = 0; i < sizeof(tests)/sizeof(*tests); ++i)
          printf(" %s", tests[i].name);
-      else if (has_arg(argv, tests[i].name))
-         (tests[i].fn)();
-   if (argc <= 1)
       printf("\n");
+   }
+   for (int arg = 1; arg < argc; ++arg)
+      for (unsigned i = 0; i < sizeof(tests)/sizeof(*tests); ++i)
+         if (strcasecmp(argv[arg], tests[i].name) == 0)
+         {
+            printf("*** %s ****\n", tests[i].name);
+            (tests[i].fn)();
+            printf("*** %s finished ****\n", tests[i].name);
+         }
    return 0;
 }
 
