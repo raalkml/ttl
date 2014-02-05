@@ -169,6 +169,15 @@ void test_map()
 
 template class ttl::forward_list<testtype>;
 
+
+template<class Iterator, typename Distance>
+inline Iterator advanceIt(Iterator i, Distance d)
+{
+   while (d--)
+      ++i;
+   return i;
+}
+
 void test_forward_list()
 {
    printf("\nXXX %s\n", __func__);
@@ -182,6 +191,14 @@ void test_forward_list()
    {
       i->value = c++;
    }
+   fl.erase_after(fl.begin(), advanceIt(fl.begin(), 9)); // fl = [0, 9]
+   fl.push_front(testtype(999));  // fl = [999, 0, 9]
+   fl.push_front(testtype(1000)); // fl = [1000, 999, 0, 9]
+   fl.pop_front();                // fl = [999, 0, 9]
+   fl.insert_after(fl.before_begin(), testtype(1001));   // fl = [1001, 999, 0, 9]
+   fl.insert_after(++fl.before_begin(), testtype(1002)); // fl = [1001, 1002, 999, 0, 9]
+   fl.insert_after(++fl.begin(), testtype(1003));        // fl = [1001, 1002, 1003, 999, 0, 9]
+   fl.erase_after(fl.cbegin());                          // fl = [1001, 1003, 999, 0, 9]
    for (ttl::forward_list<testtype>::const_iterator i = fl.cbegin(); i != fl.cend(); ++i)
    {
       printf(" %d", i->value);
@@ -331,8 +348,8 @@ static const struct
 
 int main(int argc, char* argv[], char* envp[])
 {
-   printf("unsigned long: %lu\n", sizeof(unsigned long));
-   printf("unsigned long long: %lu\n", sizeof(unsigned long long));
+   printf("unsigned long: %lu\n", (unsigned long)sizeof(unsigned long));
+   printf("unsigned long long: %lu\n", (unsigned long)sizeof(unsigned long long));
    if (argc <= 1)
       printf("%s", argv[0]);
    for (unsigned i = 0; i < sizeof(tests)/sizeof(*tests); ++i)
