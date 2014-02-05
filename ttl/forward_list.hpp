@@ -6,6 +6,7 @@
 #define _TINY_TEMPLATE_LIBRARY_FORWARD_LIST_HPP_ 1
 
 #include "types.hpp"
+#include "utility.hpp"
 
 namespace ttl
 {
@@ -33,7 +34,7 @@ namespace ttl
       };
       node_base head_;
 
-      static node_base *insert_after(node_base *pos, const T &value)
+      static node_base *insert_after_internal(node_base *pos, const T &value)
       {
          node *n = new node(value);
          n->next = pos->next;
@@ -159,7 +160,7 @@ namespace ttl
 
       void push_front(const T &value)
       {
-         insert_after(&head_, value);
+         insert_after_internal(&head_, value);
       }
 
       void pop_front()
@@ -167,13 +168,41 @@ namespace ttl
          erase_after_internal(&head_);
       }
 
-      void splice_after(const_iterator pos, forward_list &other) {}
-      void splice_after(const_iterator pos, forward_list &other, const_iterator it);
-      void splice_after(const_iterator pos, forward_list &other, const_iterator first, const_iterator last);
+      void splice_after(const_iterator pos, forward_list &other);
+      void splice_after(const_iterator pos, forward_list &, const_iterator it)
+      {
+         node_base *p = const_cast<node_base *>(pos.head_);
+         node_base *o = const_cast<node_base *>(it.head_);
+         if (o == p)
+            return;
+         node_base *n = o->next;
+         o->next = n->next;
+         n->next = p->next;
+         p->next = n;
+      }
+      void splice_after(const_iterator pos, forward_list &, const_iterator first, const_iterator last)
+      {
+         node_base *p = const_cast<node_base *>(pos.head_);
+         node_base *n = p->next;
+
+         node_base *f = const_cast<node_base *>(first.head_);
+
+         if (!f)
+            return;
+
+         p->next = f->next;
+
+         node_base *o = f;
+         node_base *l = const_cast<node_base *>(last.head_);
+         while (o->next != l)
+            o = o->next;
+         o->next = n;
+         f->next = l;
+      }
 
       iterator insert_after(const_iterator pos, const T &value)
       {
-         return iterator(insert_after(const_cast<node_base *>(pos.head_), value));
+         return iterator(insert_after_internal(const_cast<node_base *>(pos.head_), value));
       }
       void insert_after(const_iterator pos, size_type n, const T &value);
       template<typename InputIterator>
@@ -221,7 +250,7 @@ namespace ttl
    {
       node_base *p = const_cast<node_base *>(pos.head_);
       while (n--)
-         p = insert_after(p, value);
+         p = insert_after_internal(p, value);
    }
    template<typename T>
    template<typename InputIterator>
@@ -261,6 +290,21 @@ namespace ttl
          reversed = n;
       }
       head_.next = reversed;
+   }
+   template<typename T>
+   void forward_list<T>::splice_after(const_iterator pos, forward_list &other)
+   {
+      node_base *p = const_cast<node_base *>(pos.head_);
+      node_base *o = other.head_.next;
+      other.head_.next = NULL;
+      while (o)
+      {
+         node_base *n = o;
+         o = o->next;
+         n->next = p->next;
+         p->next = n;
+         p = n;
+      }
    }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_FORWARD_LIST_HPP_

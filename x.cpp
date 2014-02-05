@@ -177,9 +177,9 @@ void print_iter(const char *title, Iterator first, Iterator last)
    for (; first != last; ++first)
    {
       typename Iterator::reference &r = *first;
-      printf('\x20' <= r.value && r.value < 256 ? " %c": " %d", first->value);
+      printf('\x21' <= r.value && r.value < 127 ? " '%c'": " %d", first->value);
    }
-   fputc('\n', stdout);
+   fputs(".\n", stdout);
 }
 
 void test_forward_list()
@@ -199,31 +199,54 @@ void test_forward_list()
    fl.insert_after(++fl.before_begin(), testtype(1002)); // fl = [1001, 1002, 999, 0, 9]
    fl.insert_after(++fl.begin(), testtype(1003));        // fl = [1001, 1002, 1003, 999, 0, 9]
    fl.erase_after(fl.cbegin());                          // fl = [1001, 1003, 999, 0, 9]
-   for (ttl::forward_list<testtype>::const_iterator i = fl.cbegin(); i != fl.cend(); ++i)
-   {
-      printf(" %d", i->value);
-   }
-   printf("\n");
+   print_iter("after erase_after, fl:", fl.cbegin(), fl.cend());
+
    fl.reverse();
+   print_iter("after reverse, fl:", fl.cbegin(), fl.cend());
+
    static const int data[] = {'0','1','2','3'};
    fl1.insert_after(fl1.cbefore_begin(), data, data + countof(data));
-   for (ttl::forward_list<testtype>::const_iterator i = fl1.cbegin(); i != fl1.cend(); ++i)
-   {
-      printf('\x20' <= i->value && i->value < 256 ? " %c": " %d", i->value);
-   }
-   printf("\n");
+   print_iter("after insert_after<InputIt>:", fl1.cbegin(), fl1.cend());
+
    ttl::forward_list<testtype> fl2 = fl1;
-   for (ttl::forward_list<testtype>::const_iterator i = fl2.cbegin(); i != fl2.cend(); ++i)
-   {
-      printf('\x20' <= i->value && i->value < 256 ? " %c": " %d", i->value);
-   }
-   printf("\n");
+   print_iter("after copy ctor:", fl2.cbegin(), fl2.cend());
+
    ttl::forward_list<testtype> fl3 = fl;
    print_iter("before swap fl1:", fl1.cbegin(), fl1.cend());
    print_iter("before swap fl3:", fl3.cbegin(), fl3.cend());
    fl3.swap(fl1);
    print_iter("after swap fl1:", fl1.cbegin(), fl1.cend());
    print_iter("after swap fl3:", fl3.cbegin(), fl3.cend());
+
+   fl3.erase_after(advanceIt(fl3.cbegin(), 3), fl3.cend());
+   fl1.splice_after(advanceIt(fl1.cbefore_begin(), 3), fl3);
+   print_iter("after splice_after fl1<-fl3: fl1:", fl1.cbegin(), fl1.cend());
+   print_iter("after splice_after fl1<-fl3: fl3:", fl3.cbegin(), fl3.cend());
+
+   fl1.assign(data, data + countof(data));
+   fl2.assign(data, data + countof(data));
+   print_iter("after assign fl1:", fl1.cbegin(), fl1.cend());
+   print_iter("after assign fl2:", fl2.cbegin(), fl2.cend());
+
+   fl1.splice_after(fl1.cbefore_begin(), fl2, fl2.cbefore_begin());
+   print_iter("after splice_after (one) fl1:", fl1.cbegin(), fl1.cend());
+   print_iter("after splice_after (one) fl2:", fl2.cbegin(), fl2.cend());
+
+   fl2.splice_after(fl2.cbefore_begin(), fl1, fl1.cbefore_begin(), advanceIt(fl1.cbegin(),2));
+   print_iter("after splice_after (range) fl1:", fl1.cbegin(), fl1.cend());
+   print_iter("after splice_after (range) fl2:", fl2.cbegin(), fl2.cend());
+
+   fl1.splice_after(fl1.cbefore_begin(), fl2, fl2.cend(), fl2.cend());
+   print_iter("after splice_after (end,end) fl1:", fl1.cbegin(), fl1.cend());
+
+   fl1.splice_after(fl1.cbefore_begin(), fl2, fl2.cbefore_begin(), fl2.cend());
+   print_iter("after splice_after (before_begin,end) fl1:", fl1.cbegin(), fl1.cend());
+
+   // Undefined behaviour:
+   // splice past end should crash:
+   // fl1.splice_after(fl1.cend(), fl2, fl2.cbefore_begin(), fl2.cend());
+   // splice inside the spliced range loops:
+   // fl1.splice_after(fl1.cbegin(), fl1, fl1.cbefore_begin(), fl1.cend());
 
    printf("dtors\n");
 }
