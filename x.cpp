@@ -176,8 +176,19 @@ void print_iter(const char *title, Iterator first, Iterator last)
    fputs(title, stdout);
    for (; first != last; ++first)
    {
-      typename Iterator::reference &r = *first;
+      typename Iterator::reference r = *first;
       printf('\x21' <= r.value && r.value < 127 ? " '%c'": " %d", first->value);
+   }
+   fputs(".\n", stdout);
+}
+template<>
+void print_iter(const char *title, ttl::forward_list<int>::const_iterator first, ttl::forward_list<int>::const_iterator last)
+{
+   fputs(title, stdout);
+   for (; first != last; ++first)
+   {
+      ttl::forward_list<int>::const_iterator::reference r = *first;
+      printf('\x21' <= r && r < 127 ? " '%c'": " %d", *first);
    }
    fputs(".\n", stdout);
 }
@@ -248,6 +259,8 @@ void test_forward_list()
    // splice inside the spliced range loops:
    // fl1.splice_after(fl1.cbegin(), fl1, fl1.cbefore_begin(), fl1.cend());
 
+   ttl::forward_list<int> flI(data, data + countof(data));
+   print_iter("<int> init from data: ", flI.cbegin(), flI.cend());
    printf("dtors\n");
 }
 

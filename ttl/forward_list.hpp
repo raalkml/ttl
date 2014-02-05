@@ -10,6 +10,41 @@
 
 namespace ttl
 {
+   struct forward_list_node
+   {
+      forward_list_node *next;
+
+      forward_list_node *insert_after(forward_list_node *n)
+      {
+         n->next = next;
+         next = n;
+         return n;
+      }
+      forward_list_node *unlink_next()
+      {
+         forward_list_node *n = next;
+         next = n->next;
+         return n;
+      }
+      void splice_after(forward_list_node *o)
+      {
+         forward_list_node *n = o->next;
+         o->next = n->next;
+         n->next = next;
+         next = n;
+      }
+      void splice_after(forward_list_node *f, forward_list_node *l)
+      {
+         forward_list_node *n = next;
+         next = f->next;
+         forward_list_node *o = f;
+         while (o->next != l)
+            o = o->next;
+         o->next = n;
+         f->next = l;
+      }
+   };
+
    template<typename T>
    class forward_list
    {
@@ -23,30 +58,12 @@ namespace ttl
       typedef std::ptrdiff_t difference_type;
 
    private:
-      struct node_base
-      {
-         node_base *next;
-      };
-      struct node: node_base
+      struct node: forward_list_node
       {
          T value;
          node(const T &v): value(v) {}
       };
-      node_base head_;
-
-      static node_base *insert_after_internal(node_base *pos, const T &value)
-      {
-         node *n = new node(value);
-         n->next = pos->next;
-         pos->next = n;
-         return n;
-      }
-      static void erase_after_internal(node_base *pos)
-      {
-         node *n = static_cast<node *>(pos->next);
-         pos->next = n->next;
-         delete n;
-      }
+      forward_list_node head_;
 
    public:
       class const_iterator;
@@ -72,9 +89,9 @@ namespace ttl
          bool operator!=(const const_iterator &other) const { return head_ != other.head_; }
 
       private:
-         forward_list<T>::node_base *head_;
+         forward_list_node *head_;
          friend class forward_list<T>;
-         iterator(forward_list<T>::node_base *head): head_(head) {}
+         iterator(forward_list_node *head): head_(head) {}
       };
       class const_iterator
       {
@@ -99,8 +116,8 @@ namespace ttl
       private:
          friend class forward_list<T>;
          friend class forward_list<T>::iterator;
-         const forward_list<T>::node_base *head_;
-         const_iterator(const forward_list<T>::node_base *head): head_(head) {}
+         const forward_list_node *head_;
+         const_iterator(const forward_list_node *head): head_(head) {}
       };
 
       forward_list() { head_.next = NULL; }
@@ -160,40 +177,37 @@ namespace ttl
 
       void push_front(const T &value)
       {
-         insert_after_internal(&head_, value);
+         head_.insert_after(new node(value));
       }
 
       void pop_front()
       {
-         erase_after_internal(&head_);
+         delete static_cast<node *>(head_.unlink_next());
       }
 
       void splice_after(const_iterator pos, forward_list &other);
       void splice_after(const_iterator pos, forward_list &, const_iterator it)
       {
-         node_base *p = const_cast<node_base *>(pos.head_);
-         node_base *o = const_cast<node_base *>(it.head_);
+         forward_list_node *p = const_cast<forward_list_node *>(pos.head_);
+         forward_list_node *o = const_cast<forward_list_node *>(it.head_);
          if (o == p)
             return;
-         node_base *n = o->next;
-         o->next = n->next;
-         n->next = p->next;
-         p->next = n;
+         p->splice_after(o);
       }
       void splice_after(const_iterator pos, forward_list &, const_iterator first, const_iterator last)
       {
-         node_base *p = const_cast<node_base *>(pos.head_);
-         node_base *n = p->next;
+         forward_list_node *p = const_cast<forward_list_node *>(pos.head_);
+         forward_list_node *n = p->next;
 
-         node_base *f = const_cast<node_base *>(first.head_);
+         forward_list_node *f = const_cast<forward_list_node *>(first.head_);
 
          if (!f)
             return;
 
          p->next = f->next;
 
-         node_base *o = f;
-         node_base *l = const_cast<node_base *>(last.head_);
+         forward_list_node *o = f;
+         forward_list_node *l = const_cast<forward_list_node *>(last.head_);
          while (o->next != l)
             o = o->next;
          o->next = n;
@@ -202,7 +216,7 @@ namespace ttl
 
       iterator insert_after(const_iterator pos, const T &value)
       {
-         return iterator(insert_after_internal(const_cast<node_base *>(pos.head_), value));
+         return iterator(const_cast<forward_list_node *>(pos.head_)->insert_after(new node(value)));
       }
       void insert_after(const_iterator pos, size_type n, const T &value);
       template<typename InputIterator>
@@ -210,8 +224,8 @@ namespace ttl
 
       iterator erase_after(const_iterator pos)
       {
-         node_base *p = const_cast<node_base *>(pos.head_);
-         erase_after_internal(p);
+         forward_list_node *p = const_cast<forward_list_node *>(pos.head_);
+         delete static_cast<node *>(p->unlink_next());
          return iterator(p->next);
       }
       iterator erase_after(const_iterator pos, const_iterator last);
@@ -248,43 +262,40 @@ namespace ttl
    template<typename T>
    void forward_list<T>::insert_after(const_iterator pos, size_type n, const T &value)
    {
-      node_base *p = const_cast<node_base *>(pos.head_);
+      forward_list_node *p = const_cast<forward_list_node *>(pos.head_);
       while (n--)
-         p = insert_after_internal(p, value);
+         p = p->insert_after(new node(value));
    }
    template<typename T>
    template<typename InputIterator>
    void forward_list<T>::insert_after(const_iterator pos, InputIterator first, InputIterator last)
    {
+      forward_list_node *p = const_cast<forward_list_node *>(pos.head_);
       for ( ; first != last; ++first)
-         pos = insert_after(pos, *first);
+         p = p->insert_after(new node(*first));
    }
    template<typename T>
    void forward_list<T>::clear()
    {
-      for (node_base *n = head_.next; head_.next;)
-      {
-         n = n->next;
-         delete static_cast<node *>(head_.next);
-         head_.next = n;
-      }
+      while (head_.next)
+         delete static_cast<node *>(head_.unlink_next());
    }
    template<typename T>
    typename forward_list<T>::iterator forward_list<T>::erase_after(const_iterator pos, const_iterator last)
    {
-      node_base *p = const_cast<node_base *>(pos.head_);
+      forward_list_node *p = const_cast<forward_list_node *>(pos.head_);
       while (p->next != last.head_)
-         erase_after_internal(p);
+         delete static_cast<node *>(p->unlink_next());
       return iterator(p->next);
    }
    template<typename T>
    void forward_list<T>::reverse()
    {
-      node_base *reversed = NULL;
-      node_base *orig = head_.next;
+      forward_list_node *reversed = NULL;
+      forward_list_node *orig = head_.next;
       while (orig)
       {
-         node_base *n = orig;
+         forward_list_node *n = orig;
          orig = n->next;
          n->next = reversed;
          reversed = n;
@@ -294,12 +305,12 @@ namespace ttl
    template<typename T>
    void forward_list<T>::splice_after(const_iterator pos, forward_list &other)
    {
-      node_base *p = const_cast<node_base *>(pos.head_);
-      node_base *o = other.head_.next;
+      forward_list_node *p = const_cast<forward_list_node *>(pos.head_);
+      forward_list_node *o = other.head_.next;
       other.head_.next = NULL;
       while (o)
       {
-         node_base *n = o;
+         forward_list_node *n = o;
          o = o->next;
          n->next = p->next;
          p->next = n;
