@@ -43,6 +43,19 @@ namespace ttl
          o->next = n;
          f->next = l;
       }
+      void reverse()
+      {
+         forward_list_node *reversed = NULL;
+         forward_list_node *orig = next;
+         while (orig)
+         {
+            forward_list_node *n = orig;
+            orig = n->next;
+            n->next = reversed;
+            reversed = n;
+         }
+         next = reversed;
+      }
    };
 
    template<typename T>
@@ -276,16 +289,7 @@ namespace ttl
    template<typename T>
    void forward_list<T>::reverse()
    {
-      forward_list_node *reversed = NULL;
-      forward_list_node *orig = head_.next;
-      while (orig)
-      {
-         forward_list_node *n = orig;
-         orig = n->next;
-         n->next = reversed;
-         reversed = n;
-      }
-      head_.next = reversed;
+      head_.reverse();
    }
    template<typename T>
    void forward_list<T>::splice_after(const_iterator pos, forward_list &, const_iterator first, const_iterator last)
