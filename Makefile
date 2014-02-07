@@ -9,10 +9,12 @@ V := @
 all: x.o.report a.out.report
 	-$(V)for f in $+; do echo -n "$$f: "; cat "$$f"; done
 
-x.o: x.cpp ttl/ttl.hpp
+x.o: x.cpp
 	$(CXX) -c -o $@ $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
-x.s: x.cpp ttl/ttl.hpp
+x.s: x.cpp
 	$(CXX) -S -o $@ $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
+x.E: x.cpp
+	$(CXX) -E -o $@ $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
 -include x.d
 %.d: %.cpp
 	$(CC) -MM -MG -o $@ -MQ '$(patsubst %.cpp,%.o,$<)' $< $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags)
