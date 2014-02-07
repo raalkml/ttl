@@ -17,8 +17,6 @@
 #include <bitset>
 #include "ttl/ttl.hpp"
 
-#define countof(a) (sizeof(a)/sizeof(*a))
-
 
 struct testtype
 {

@@ -34,7 +34,7 @@ namespace ttl
 {
 #if __cplusplus < 201103L
    template<typename T, unsigned int N> char (&_char_array_ref(const T (&)[N]))[N];
-#define countof(a) sizeof(_char_array_ref(a))
+#define countof(a) sizeof(ttl::_char_array_ref(a))
 #else
    template<typename T, unsigned int N> constexpr unsigned int countof(const T (&)[N]) { return N; }
 #endif
