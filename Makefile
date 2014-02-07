@@ -1,6 +1,7 @@
 CPPFLAGS :=
 CFLAGS := -Wall -ggdb
 CXXFLAGS := -fno-exceptions -fno-rtti
+ASMFLAGS := -fverbose-asm -dP
 flags := -O3
 SHELL := bash
 ARGS :=
@@ -12,12 +13,12 @@ all: x.o.report a.out.report
 x.o: x.cpp
 	$(CXX) -c -o $@ $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
 x.s: x.cpp
-	$(CXX) -S -o $@ $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
+	$(CXX) -S -o $@ $(CPPFLAGS) $(ASMFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
 x.E: x.cpp
 	$(CXX) -E -o $@ $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
 -include x.d
 %.d: %.cpp
-	$(CC) -MM -MG -o $@ -MQ '$(patsubst %.cpp,%.o,$<)' $< $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags)
+	$(CPP) -MM -MG -o $@ -MQ '$(patsubst %.cpp,%.o,$<)' $< $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags)
 a.out: x.o
 	$(CXX) $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) $(flags) -o $@ $+
 
