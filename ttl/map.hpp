@@ -94,6 +94,13 @@ namespace ttl
       map(InputIt first, InputIt last, const Compare & = Compare());
       map &operator=(const map &other);
 
+      ~map()
+      {
+         for (value_type **i = elements_; i != last_; ++i)
+            delete *i;
+         delete [] elements_;
+      }
+
       T &operator[](const KT &key)
       {
          iterator i = find(key);
