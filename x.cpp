@@ -142,12 +142,19 @@ void test_map()
    ttl::map<char, int> m2;
    ttl::map<char, int>();
    ttl::map<char, int>();
-   for (unsigned char c = 0; c < 255u; ++c)
-      m1[(char)c] = c;
+   m1[(char)'1'] = 1;
+   m1[(char)'2'] = 2;
+   m1[(char)'3'] = 3;
+   m1[(char)'4'] = 4;
+   m1[(char)'5'] = 5;
    m1[(char)255] = 255;
    print_map("[]\n", m1);
-   for (unsigned char c = 0; c < 255u; ++c)
-      m1.insert(ttl::make_pair((char)c, (int)c));
+   m1.insert(ttl::make_pair((char)'a', (int)0xa));
+   m1.insert(ttl::make_pair((char)'b', (int)0xb));
+   m1.insert(ttl::make_pair((char)'c', (int)0xc));
+   m1.insert(ttl::make_pair((char)'d', (int)0xd));
+   m1.insert(ttl::make_pair((char)'e', (int)0xe));
+   m1.insert(ttl::make_pair((char)'f', (int)0xf));
    m1.insert(ttl::make_pair((char)255, 255));
    print_map("insert\n", m1);
    //for (char c = 0; (unsigned)c <= 127u; ++c)
