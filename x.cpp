@@ -265,6 +265,27 @@ void test_forward_list()
    printf("dtors\n");
 }
 
+void test_lazy_queue()
+{
+   ttl::lazy_queue<testtype> lq;
+   printf("lazy_queue %s\n", lq.empty() ? "empty": "not empty");
+   lq.push_front(1);
+   print_iter("lazy_queue: push_front: ", lq.cbegin(), lq.cend());
+   printf("lazy_queue: front %d\n", lq.front().value);
+   printf("lazy_queue: back %d\n", lq.back().value);
+   lq.pop_front();
+   printf("lazy_queue: pop_front: %s\n", lq.empty() ? "empty": "not empty");
+   lq.push_back(2);
+   lq.push_back(999);
+   print_iter("lazy_queue: push_back: ", lq.cbegin(), lq.cend());
+   lq.pop_front();
+   static const int nums[] = { 1, 2,3,4,5,};
+   lq.insert_after(lq.cbefore_end(), nums, nums + countof(nums));
+   print_iter("lazy_queue: insert_after(pos, first, last):", lq.cbegin(), lq.cend());
+   lq.roll_head();
+   print_iter("lazy_queue: roll_head:", lq.cbegin(), lq.cend());
+}
+
 template class ttl::bitset<128>;
 
 template<typename T> void print_bitset(const char *s, const T &bs)
@@ -391,6 +412,7 @@ static const struct
    { "vector", &test_vector },
    { "map",    &test_map },
    { "list",   &test_forward_list },
+   { "lazy_queue", &test_lazy_queue },
    { "bitset", &test_bitset },
    { "types",  &test_types },
 };
