@@ -35,13 +35,6 @@
 
 namespace ttl
 {
-#if __cplusplus < 201103L
-   template<typename T, unsigned int N> char (&_char_array_ref(const T (&)[N]))[N];
-#define countof(a) sizeof(ttl::_char_array_ref(a))
-#else
-   template<typename T, unsigned int N> constexpr unsigned int countof(const T (&)[N]) { return N; }
-#endif
-
    // a template for single-linked list with O(1) insertion in the back
    // (keeps tail pointer)
    template<typename T> class backward_list {};

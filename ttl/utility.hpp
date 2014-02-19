@@ -9,6 +9,14 @@
 
 namespace ttl
 {
+#if __cplusplus >= 201103L
+   template<typename T, unsigned int N> constexpr unsigned int countof(const T (&)[N]) { return N; }
+#define countof(a) ttl::countof(a)
+#else
+   template<typename T, unsigned int N> char (&_char_array_ref(const T (&)[N]))[N];
+#define countof(a) sizeof(ttl::_char_array_ref(a))
+#endif
+
    template<typename RandomAccessIterator>
    inline ttl::ptrdiff_t distance(RandomAccessIterator first, RandomAccessIterator last)
    {
