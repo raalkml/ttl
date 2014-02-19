@@ -2,6 +2,8 @@
 //
 //                        Tiny Template Library
 //
+//                     This code is Public Domain
+//
 // A library of STL-inspired templates designed to work in conditions
 // of constrained resources, but also without RTTI and exceptions.
 //
