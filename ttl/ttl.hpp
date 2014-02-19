@@ -29,6 +29,7 @@
 #include "array.hpp"
 #include "vector.hpp"
 #include "forward_list.hpp"
+#include "lazy_queue.hpp"
 #include "map.hpp"
 #include "bitset.hpp"
 
