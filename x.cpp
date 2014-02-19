@@ -385,6 +385,19 @@ static void test_new()
    ::operator delete(p);
 }
 
+static void test_countof()
+{
+   const static int a[] = {1,2,23,4};
+   typedef int arr[10];
+   struct { int a[10]; } s = { {1,2,2,3} };
+   printf("countof %u\n", countof(a));
+   printf("countof %u\n", countof(s.a));
+#ifdef TEST_COUNTOF_FAIL
+   //printf("countof %u\n", countof(arr));
+   printf("countof %u\n", countof(s.a[0]));
+#endif
+}
+
 static void test_types()
 {
    printf("int:      is_integral: %d\n", ttl::is_integral<int>::value);
@@ -414,6 +427,7 @@ static const struct
    { "list",   &test_forward_list },
    { "lazy_queue", &test_lazy_queue },
    { "bitset", &test_bitset },
+   { "countof", &test_countof },
    { "types",  &test_types },
 };
 
