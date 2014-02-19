@@ -103,10 +103,10 @@ namespace ttl
 
       T &operator[](const KT &key)
       {
-         iterator i = find(key);
-         if (i == end())
-            i = insert_and_sort(ttl::make_pair(key, T()));
-         return i->second;
+         iterator i = find_insert_pos(key);
+         if (i != end() && i->first == key)
+            return i->second;
+         return insert_before(i, ttl::make_pair(key, T()))->second;
       }
 
       T &at(const KT &key) { return find(key)->second; }
@@ -131,10 +131,10 @@ namespace ttl
 
       ttl::pair<iterator,bool> insert(const value_type &value)
       {
-         iterator i = find(value.first);
-         if (i != end())
+         iterator i = find_insert_pos(value.first);
+         if (i != end() && i->first == value.first)
             return ttl::pair<iterator, bool>(i, false);
-         return ttl::pair<iterator, bool>(insert_and_sort(value), true);
+         return ttl::pair<iterator, bool>(insert_before(i, value), true);
       }
       iterator insert(iterator, const value_type &);
 
@@ -169,20 +169,20 @@ namespace ttl
          return ttl::make_pair(i1, i2);
       }
 
-      iterator lower_bound(const KT &key) { return find(key); }
-      const_iterator lower_bound(const KT &key) const { return find(key); }
+      iterator lower_bound(const KT &key) { return find_insert_pos(key); }
+      const_iterator lower_bound(const KT &key) const { return find_insert_pos(key); }
 
       iterator upper_bound(const KT &key)
       {
-         iterator i = find(key);
-         if (i != end())
+         iterator i = find_insert_pos(key);
+         while (i != end() && i->first == key)
             ++i;
          return i;
       }
       const_iterator upper_bound(const KT &key) const
       {
-         const_iterator i = find(key);
-         if (i != cend())
+         const_iterator i = find_insert_pos(key);
+         while (i != cend() && i->first == key)
             ++i;
          return i;
       }
@@ -210,7 +210,8 @@ namespace ttl
    private:
       value_type **elements_, **last_, **end_of_elements_;
       Compare comp_;
-      iterator insert_and_sort(const value_type &);
+      iterator insert_before(iterator, const value_type &);
+      iterator find_insert_pos(const KT &key) const;
    };
 
    template<typename KT, typename T, typename Compare>
@@ -242,7 +243,8 @@ namespace ttl
    typename map<KT,T,Compare>::const_iterator map<KT,T,Compare>::find(const KT &key) const
    {
       unsigned L = 0, H = size();
-      while (L < H) {
+      while (L < H)
+      {
          unsigned m = L + (H - L) / 2;
          if (elements_[m]->first == key)
             return const_iterator(elements_ + m);
@@ -254,7 +256,24 @@ namespace ttl
       return cend();
    }
    template<typename KT, typename T, typename Compare>
-   typename map<KT,T,Compare>::iterator map<KT,T,Compare>::insert_and_sort(const value_type& value)
+   typename map<KT,T,Compare>::iterator map<KT,T,Compare>::find_insert_pos(const KT &key) const
+   {
+      unsigned L = 0, H = size();
+      while (L < H)
+      {
+         unsigned m = L + (H - L) / 2;
+         if (elements_[m]->first == key)
+            return iterator(elements_ + m);
+         if (comp_(elements_[m]->first, key))
+            L = m + 1;
+         else
+            H = m;
+      }
+      return iterator(elements_ + L);
+   }
+   template<typename KT, typename T, typename Compare>
+   typename map<KT,T,Compare>::iterator map<KT,T,Compare>::insert_before(iterator pos,
+                                                                         const value_type& value)
    {
       if (end_of_elements_ - last_ < 1)
       {
@@ -265,7 +284,11 @@ namespace ttl
          if (!newcapacity)
             newcapacity = 2;
          value_type **newelements = o = new value_type *[newcapacity];
-         for (i = elements_; i != last_;)
+         for (i = elements_; i != pos.ptr_;)
+            *o++ = *i++;
+         *o = new value_type(value);
+         pos = iterator(o++);
+         for (; i != last_;)
             *o++ = *i++;
          delete [] elements_;
          elements_ = newelements;
@@ -273,25 +296,13 @@ namespace ttl
          last_ = o;
          while (o < end_of_elements_)
             *o++ = NULL;
+         return pos;
       }
-      value_type *newvalue = new value_type(value);
-      *last_++ = newvalue;
-      for (size_type i = 1, n = last_ - elements_; i < n; ++i)
-      {
-         value_type *k = elements_[i];
-         size_type j = i - 1;
-         while (comp_(k->first, elements_[j]->first))
-         {
-            elements_[j + 1] = elements_[j];
-            if (j-- == 0)
-               break;
-         }
-         elements_[j + 1] = k;
-      }
-      value_type **i = elements_;
-      for (; i != last_; ++i)
-         if (*i == newvalue)
-            break;
+      value_type **i = last_++;
+      value_type **o = last_;
+      while (i != pos.ptr_)
+         *--o = *--i;
+      *i = new value_type(value);
       return iterator(i);
    }
 }
