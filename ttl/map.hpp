@@ -126,7 +126,7 @@ namespace ttl
       void clear()
       {
          while (last_ > elements_)
-            delete *last_--;
+            delete *--last_;
       }
 
       ttl::pair<iterator,bool> insert(const value_type &value)
