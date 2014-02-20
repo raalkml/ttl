@@ -6,6 +6,8 @@
 // needed. The dead nodes can be deallocated on explicit request (with the
 // method "clean").
 //
+// This code is Public Domain
+//
 #ifndef _TINY_TEMPLATE_LIBRARY_LAZY_QUEUE_HPP_
 #define _TINY_TEMPLATE_LIBRARY_LAZY_QUEUE_HPP_ 1
 

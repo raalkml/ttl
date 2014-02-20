@@ -2,6 +2,8 @@
 //
 // Tiny Template Library: types
 //
+// This code is Public Domain
+//
 #ifndef _TINY_TEMPLATE_LIBRARY_TYPE_TRAITS_HPP_
 #define _TINY_TEMPLATE_LIBRARY_TYPE_TRAITS_HPP_
 

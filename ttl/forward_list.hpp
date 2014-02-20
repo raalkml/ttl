@@ -2,6 +2,8 @@
 //
 // Tiny Template Library: an implementation of STL forward_list
 //
+// This code is Public Domain
+//
 #ifndef _TINY_TEMPLATE_LIBRARY_FORWARD_LIST_HPP_
 #define _TINY_TEMPLATE_LIBRARY_FORWARD_LIST_HPP_ 1
 

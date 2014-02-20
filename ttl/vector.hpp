@@ -2,6 +2,8 @@
 //
 // Tiny Template Library: an implementation of STL vector.
 //
+// This code is Public Domain
+//
 #ifndef _TINY_TEMPLATE_LIBRARY_VECTOR_HPP_
 #define _TINY_TEMPLATE_LIBRARY_VECTOR_HPP_ 1
 

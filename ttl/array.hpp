@@ -2,6 +2,8 @@
 //
 // Tiny Template Library: implementation of STL array
 //
+// This code is Public Domain
+//
 #ifndef _TINY_TEMPLATE_LIBRARY_ARRAY_HPP_
 #define _TINY_TEMPLATE_LIBRARY_ARRAY_HPP_
 

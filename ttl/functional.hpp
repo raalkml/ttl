@@ -2,6 +2,8 @@
 //
 // Tiny Template Library: implementation of <functional> templates
 //
+// This code is Public Domain
+//
 #ifndef _TINY_TEMPLATE_LIBRARY_FUNCTIONAL_HPP_
 #define _TINY_TEMPLATE_LIBRARY_FUNCTIONAL_HPP_ 1
 

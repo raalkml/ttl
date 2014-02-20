@@ -2,6 +2,8 @@
 //
 // Tiny Template Library: the implementation of STL bitset
 //
+// This code is Public Domain
+//
 #ifndef _TINY_TEMPLATE_LIBRARY_BITSET_HPP_
 #define _TINY_TEMPLATE_LIBRARY_BITSET_HPP_ 1
 
