@@ -14,7 +14,7 @@
 #include <new>
 #include "types.hpp"
 #include "utility.hpp"
-#include "forward_list.hpp"
+#include "slist_node.hpp"
 
 namespace ttl
 {
@@ -32,14 +32,14 @@ namespace ttl
       typedef std::ptrdiff_t difference_type;
 
    private:
-      struct node: forward_list_node
+      struct node: slist_node
       {
          T value;
          node(const T &v): value(v) {}
       };
-      forward_list_node head_;
-      forward_list_node *tail_;
-      forward_list_node dead_;
+      slist_node head_;
+      slist_node *tail_;
+      slist_node dead_;
 
       node *get_node(const T &v)
       {
@@ -77,9 +77,9 @@ namespace ttl
          bool operator!=(const const_iterator &other) const { return head_ != other.head_; }
 
       private:
-         forward_list_node *head_;
+         slist_node *head_;
          friend class lazy_queue<T>;
-         iterator(forward_list_node *head): head_(head) {}
+         iterator(slist_node *head): head_(head) {}
       };
       class const_iterator
       {
@@ -104,8 +104,8 @@ namespace ttl
       private:
          friend class lazy_queue<T>;
          friend class lazy_queue<T>::iterator;
-         const forward_list_node *head_;
-         const_iterator(const forward_list_node *head): head_(head) {}
+         const slist_node *head_;
+         const_iterator(const slist_node *head): head_(head) {}
       };
 
       lazy_queue()
@@ -171,7 +171,7 @@ namespace ttl
 
       void push_front(const T &value)
       {
-         forward_list_node *n = head_.insert_after(get_node(value));
+         slist_node *n = head_.insert_after(get_node(value));
          if (tail_ == &head_)
             tail_ = n;
       }
@@ -189,8 +189,8 @@ namespace ttl
 
       iterator insert_after(const_iterator pos, const T &value)
       {
-         forward_list_node *pn = const_cast<forward_list_node *>(pos.head_);
-         forward_list_node *n = pn->insert_after(get_node(value));
+         slist_node *pn = const_cast<slist_node *>(pos.head_);
+         slist_node *n = pn->insert_after(get_node(value));
          if (pn == tail_)
             tail_ = n;
          return iterator(n);
@@ -218,7 +218,7 @@ namespace ttl
       {
          if (head_.next && head_.next != tail_)
          {
-            forward_list_node *n = head_.unlink_next();
+            slist_node *n = head_.unlink_next();
             tail_ = tail_->insert_after(n);
          }
       }
@@ -226,8 +226,8 @@ namespace ttl
    template<typename T>
    void lazy_queue<T>::insert_after(const_iterator pos, size_type n, const T &value)
    {
-      forward_list_node *pn = const_cast<forward_list_node *>(pos.head_);
-      forward_list_node *p = pn;
+      slist_node *pn = const_cast<slist_node *>(pos.head_);
+      slist_node *p = pn;
       while (n--)
          p = p->insert_after(get_node(value));
       if (pn == tail_)
@@ -237,8 +237,8 @@ namespace ttl
    template<typename InputIterator>
    void lazy_queue<T>::insert_after(const_iterator pos, InputIterator first, InputIterator last)
    {
-      forward_list_node *pn = const_cast<forward_list_node *>(pos.head_);
-      forward_list_node *p = pn;
+      slist_node *pn = const_cast<slist_node *>(pos.head_);
+      slist_node *p = pn;
       for ( ; first != last; ++first)
          p = p->insert_after(get_node(*first));
       if (pn == tail_)
@@ -247,8 +247,8 @@ namespace ttl
    template<typename T>
    typename lazy_queue<T>::iterator lazy_queue<T>::erase_after(const_iterator pos)
    {
-      forward_list_node *pn = const_cast<forward_list_node *>(pos.head_);
-      forward_list_node *p = pn->unlink_next();
+      slist_node *pn = const_cast<slist_node *>(pos.head_);
+      slist_node *p = pn->unlink_next();
       if (p == tail_)
          tail_ = pn;
       put_node(static_cast<node *>(p));
@@ -257,7 +257,7 @@ namespace ttl
    template<typename T>
    typename lazy_queue<T>::iterator lazy_queue<T>::erase_after(const_iterator pos, const_iterator last)
    {
-      forward_list_node *p = const_cast<forward_list_node *>(pos.head_);
+      slist_node *p = const_cast<slist_node *>(pos.head_);
       while (p->next != last.head_)
          put_node(static_cast<node *>(p->unlink_next()));
       if (last == cend())
