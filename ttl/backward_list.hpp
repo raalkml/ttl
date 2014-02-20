@@ -243,8 +243,8 @@ namespace ttl
       template<typename Compare>
       void sort(Compare);
 
-      void reverse();
 #endif
+      void reverse();
    };
    template<typename T>
    void backward_list<T>::insert_after(const_iterator pos, size_type n, const T &value)
@@ -284,12 +284,13 @@ namespace ttl
          tail_ = p;
       return iterator(p->next);
    }
-#if TODO
    template<typename T>
    void backward_list<T>::reverse()
    {
+      tail_ = head_.next;
       head_.reverse();
    }
+#if TODO
    template<typename T>
    void backward_list<T>::splice_after(const_iterator pos, backward_list &, const_iterator first, const_iterator last)
    {

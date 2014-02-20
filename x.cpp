@@ -305,10 +305,9 @@ void test_backward_list()
    fl.erase_after(fl.cbegin());                          // fl = [1001, 1003, 0, 9, 1002]
    print_iter("after erase_after, fl:", fl.cbegin(), fl.cend());
    printf("fl.front %d, fl.back %d\n", fl.front().value, fl.back().value);
-#if TODO
    fl.reverse();
-   print_iter("after reverse, fl:", fl.cbegin(), fl.cend());
-#endif
+   print_iter("after reverse, fl    :", fl.cbegin(), fl.cend());
+   printf("fl.front %d, fl.back %d\n", fl.front().value, fl.back().value);
    static const int data[] = {'0','1','2','3'};
    fl1.insert_after(fl1.cbefore_begin(), data, data + countof(data));
    print_iter("after insert_after<InputIt>:", fl1.cbegin(), fl1.cend());
