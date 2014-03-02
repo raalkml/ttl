@@ -110,18 +110,25 @@ void test_vector()
    v1.assign(in, in + countof(in));
    v1.insert(v1.begin() + 1, in, in + countof(in));
 
-   printf("\nctor(first, last):\n");
-   ttl::vector<testtype>(in, in + countof(in));
+   {
+      printf("\nctor(first, last):\n");
+      ttl::vector<testtype>(in, in + countof(in));
+      testvector v(in, in + countof(in));
+      assert(v[0].value == 1 &&
+             v[1].value == 2 &&
+             v[2].value == 3 &&
+             v[3].value == 4 &&
+             v[4].value == 5 &&
+             v.size() == 5);
+   }
 
-   testvector(in, in + countof(in));
-   testvector(in, in + countof(in));
-   testvector(in, in + countof(in));
-   testvector(in, in + countof(in));
-   testvector(in, in + countof(in));
-
-   ttl::vector<testtype> pushpop;
-   pushpop.push_back(999);
-   pushpop.pop_back();
+   {
+      testvector v;
+      v.push_back(999);
+      assert(v.size() == 1 && v[0].value == 999);
+      v.pop_back();
+      assert(v.empty());
+   }
    printf("\ndestructors:\n");
 }
 
