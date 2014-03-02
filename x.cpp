@@ -734,7 +734,7 @@ int main(int argc, char* argv[], char* envp[])
    printf("unsigned long long: %lu\n", (unsigned long)sizeof(unsigned long long));
    if (argc <= 1)
    {
-      printf("%s", argv[0]);
+      printf("%s tests...\nTests:\n", argv[0]);
       for (unsigned i = 0; i < sizeof(tests)/sizeof(*tests); ++i)
          printf(" %s", tests[i].name);
       printf("\n");
