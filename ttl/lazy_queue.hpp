@@ -210,9 +210,9 @@ namespace ttl
 
       void clear();
 
-      void remove(const T &);
+      void remove(const T &); // TODO
       template<typename Predicate>
-      void remove_if(Predicate);
+      void remove_if(Predicate); // TODO
 
       void roll_head()
       {
