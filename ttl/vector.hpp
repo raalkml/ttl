@@ -115,8 +115,7 @@ namespace ttl
 
       void pop_back()
       {
-         last_->~T();
-         --last_;
+         (--last_)->~T();
       }
 
       iterator erase(const_iterator first, const_iterator last);
