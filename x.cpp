@@ -117,6 +117,10 @@ void test_vector()
    testvector(in, in + countof(in));
    testvector(in, in + countof(in));
    testvector(in, in + countof(in));
+
+   ttl::vector<testtype> pushpop;
+   pushpop.push_back(999);
+   pushpop.pop_back();
    printf("\ndestructors:\n");
 }
 
