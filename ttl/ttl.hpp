@@ -28,6 +28,7 @@
 #include "utility.hpp"
 #include "array.hpp"
 #include "vector.hpp"
+#include "fixed_vector.hpp"
 #include "forward_list.hpp"
 #include "backward_list.hpp"
 #include "lazy_queue.hpp"

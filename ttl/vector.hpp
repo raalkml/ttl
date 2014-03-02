@@ -280,9 +280,6 @@ namespace ttl
    {
       return !(a == b);
    }
-
-   // A template for a vector with fixed preallocated capacity
-   template<typename T, const ttl::size_t N> class fixed_vector {};
 }
 
 #endif // _TINY_TEMPLATE_LIBRARY_VECTOR_HPP_
