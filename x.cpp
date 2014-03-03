@@ -731,7 +731,6 @@ static void test_rbtree()
       newnode->first = c;
       newnode->second = -c;
       ttl::rbnode *pos = t.insert(newnode, ttl::less<int>());
-      t.post_insert(pos);
       printf("%p %d (%d)\n", pos, newnode->first, newnode->second);
    }
    inorder(t.__root());

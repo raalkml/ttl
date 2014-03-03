@@ -18,6 +18,14 @@ namespace ttl
       rbnode *parent, *left, *right;
       enum { RED, BLACK } color;
 
+      void flip_color()
+      {
+         if (color == RED)
+            color = BLACK;
+         else
+            color = RED;
+      }
+
       struct rbnode *grandparent() const
       {
          return parent ? parent->parent: NULL;
@@ -46,19 +54,7 @@ namespace ttl
    };
 
    //
-   // Red-Black Tree: a binary tree with special property to stop it from
-   // becoming unbalanced.
-   //
-   // 1. A node is either red or black
-   // 2. The root is black
-   // 3. All leaves (the NULL children) are black (same as root)
-   // 4. Every red node must have two black child nodes
-   // 5. Every path from a given node to any of its descendant leaves
-   //    contains the same number of black nodes.
-   //
-   // Wikipedia: "This constraints enforce the critical property of
-   // red-black trees: that the path from the root to the furthest leaf is
-   // no more twice as long as the path from the root to the nearest leaf".
+   // Left-leaning red-black tree (Sedgwick)
    //
    class rbtree
    {
@@ -73,103 +69,30 @@ namespace ttl
 
       rbnode *__root() const { return root_; }
 
-      void post_insert(rbnode *n)
-      {
-         insert_case1(n);
-      }
    private:
-      // the node is at the root. Just paint it black to satisfy the
-      // Red-Black tree property 2, and since this operation adds a black
-      // node to all the paths in the tree, the rule 5 is also not violated
-      void insert_case1(rbnode *n)
+      template<typename Node, typename Pred>
+      rbnode *insert(rbnode *root, Node *newnode, Pred pred);
+      static rbnode *rotate_left(rbnode *h)
       {
-         fprintf(stderr, "%s\n", __func__);
-         if (!n->parent)
-            n->color = rbnode::BLACK;
-         else
-            insert_case2(n);
+         rbnode *x = h->right;
+         h->right = x->left;
+         x->left = h;
+         x->color = h->color;
+         h->color = rbnode::RED;
+         return x;
       }
-      void insert_case2(rbnode *n)
+      static rbnode *rotate_right(rbnode *h)
       {
-         fprintf(stderr, "%s\n", __func__);
-         if (n->parent->color == rbnode::BLACK)
-            return; // tree is still valid
-         else
-            insert_case3(n);
+         rbnode *x = h->left;
+         h->left = x->right;
+         x->right = h;
+         x->color = h->color;
+         h->color = rbnode::RED;
+         return x;
       }
-      void insert_case3(rbnode *n)
+      static bool is_red(rbnode *h)
       {
-         fprintf(stderr, "%s\n", __func__);
-         rbnode *u = n->uncle();
-         if (u && u->color == rbnode::RED)
-         {
-            n->parent->color = rbnode::BLACK;
-            u->color = rbnode::BLACK;
-            rbnode *g = n->grandparent();
-            g->color = rbnode::RED;
-            insert_case1(n);
-         }
-         else
-            insert_case4(n);
-      }
-      static void rotate_left(rbnode *P, rbnode **root)
-      {
-         rbnode *Q = P->right;
-         P->right = Q->left;
-         if (Q->left)
-            Q->left->parent = P;
-         Q->parent = P->parent;
-         if (P == *root)
-            *root = Q;
-         else if (P == P->parent->left)
-            P->parent->left = Q;
-         else
-            P->parent->right = Q;
-         Q->left = P;
-         P->parent = Q;
-      }
-      void rotate_right(rbnode *P, rbnode **root)
-      {
-         rbnode *Q = P->left;
-         P->left = Q->right;
-         if (Q->right)
-            Q->right->parent = P;
-         Q->parent = P->parent;
-         if (P == *root)
-            *root = Q;
-         else if (P == P->parent->right)
-            P->parent->right = Q;
-         else
-            P->parent->left = Q;
-         Q->right = P;
-         P->parent = Q;
-      }
-      void insert_case4(rbnode *n)
-      {
-         fprintf(stderr, "%s\n", __func__);
-         rbnode *g = n->grandparent();
-         if (n == n->parent->right && n->parent == g->left)
-         {
-            rotate_left(n->parent, &n->parent->right);
-            n = n->left;
-         }
-         else if (n == n->parent->left && n->parent == g->right)
-         {
-            rotate_right(n->parent, &n->parent->left);
-            n = n->right;
-         }
-         insert_case5(n);
-      }
-      void insert_case5(rbnode *n)
-      {
-         fprintf(stderr, "%s\n", __func__);
-         rbnode *g = n->grandparent();
-         n->parent->color = rbnode::BLACK;
-         g->color = rbnode::RED;
-         if (n == n->parent->left)
-            rotate_right(g, !g->parent ? &root_: g->parent->left == g ? &g->parent->left: &g->parent->right);
-         else
-            rotate_left(g, !g->parent ? &root_: g->parent->left == g ? &g->parent->left: &g->parent->right);
+         return h && h->color == rbnode::RED;
       }
    };
 
@@ -178,35 +101,35 @@ namespace ttl
    {
       newnode->color = rbnode::RED;
       newnode->left = newnode->right = NULL;
-      rbnode *n = root_;
-      while (n)
-      {
-         if (pred(newnode->first, static_cast<Node *>(n)->first))
-         {
-            if (n->left)
-               n = n->left;
-            else
-            {
-               newnode->parent = n;
-               n->left = newnode;
-               return newnode;
-            }
-         }
-         else
-         {
-            if (n->right)
-               n = n->right;
-            else
-            {
-               newnode->parent = n;
-               n->right = newnode;
-               return newnode;
-            }
-         }
-      }
-      newnode->parent = NULL;
-      root_ = newnode;
+      root_ = insert(root_, newnode, pred);
+      root_->color = rbnode::BLACK;
       return newnode;
+   }
+   template<typename Node, typename Pred>
+   rbnode *rbtree::insert(rbnode *h, Node *newnode, Pred pred)
+   {
+      if (!h)
+         return newnode;
+      if (is_red(h->left) && is_red(h->right))
+      {
+         h->flip_color();
+         h->left->flip_color();
+         h->right->flip_color();
+      }
+      if (newnode->first == static_cast<Node *>(h)->first)
+      {
+         fprintf(stderr, "duplicate!\n");
+      }
+      else if (pred(newnode->first, static_cast<Node *>(h)->first))
+         h->left = insert(h->left, newnode, pred);
+      else
+         h->right = insert(h->right, newnode, pred);
+
+      if (is_red(h->right) && !is_red(h->left))
+         h = rotate_left(h);
+      if (is_red(h->left) && is_red(h->left->left))
+         h = rotate_right(h);
+      return h;
    }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_RBTREE_HPP_
