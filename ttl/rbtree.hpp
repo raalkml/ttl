@@ -112,15 +112,15 @@ namespace ttl
          else
             insert_case4(n);
       }
-      void rotate_left(rbnode *P)
+      static void rotate_left(rbnode *P, rbnode **root)
       {
          rbnode *Q = P->right;
          P->right = Q->left;
          if (Q->left)
             Q->left->parent = P;
          Q->parent = P->parent;
-         if (P == root_)
-            root_ = Q;
+         if (P == *root)
+            *root = Q;
          else if (P == P->parent->left)
             P->parent->left = Q;
          else
@@ -128,15 +128,15 @@ namespace ttl
          Q->left = P;
          P->parent = Q;
       }
-      void rotate_right(rbnode *P)
+      void rotate_right(rbnode *P, rbnode **root)
       {
          rbnode *Q = P->left;
          P->left = Q->right;
          if (Q->right)
             Q->right->parent = P;
          Q->parent = P->parent;
-         if (P == root_)
-            root_ = Q;
+         if (P == *root)
+            *root = Q;
          else if (P == P->parent->right)
             P->parent->right = Q;
          else
@@ -150,12 +150,12 @@ namespace ttl
          rbnode *g = n->grandparent();
          if (n == n->parent->right && n->parent == g->left)
          {
-            rotate_left(n->parent);
+            rotate_left(n->parent, &n->parent->right);
             n = n->left;
          }
          else if (n == n->parent->left && n->parent == g->right)
          {
-            rotate_right(n->parent);
+            rotate_right(n->parent, &n->parent->left);
             n = n->right;
          }
          insert_case5(n);
@@ -167,9 +167,9 @@ namespace ttl
          n->parent->color = rbnode::BLACK;
          g->color = rbnode::RED;
          if (n == n->parent->left)
-            rotate_right(g);
+            rotate_right(g, !g->parent ? &root_: g->parent->left == g ? &g->parent->left: &g->parent->right);
          else
-            rotate_left(g);
+            rotate_left(g, !g->parent ? &root_: g->parent->left == g ? &g->parent->left: &g->parent->right);
       }
    };
 
