@@ -100,12 +100,12 @@ namespace ttl
       void insert_case3(rbnode *n)
       {
          fprintf(stderr, "%s\n", __func__);
-         rbnode *u = n->uncle(), *g;
+         rbnode *u = n->uncle();
          if (u && u->color == rbnode::RED)
          {
             n->parent->color = rbnode::BLACK;
             u->color = rbnode::BLACK;
-            g = n->grandparent();
+            rbnode *g = n->grandparent();
             g->color = rbnode::RED;
             insert_case1(n);
          }
@@ -176,6 +176,7 @@ namespace ttl
    template<typename Node, typename Pred>
    rbnode *rbtree::insert(Node *newnode, Pred pred)
    {
+      newnode->color = rbnode::RED;
       newnode->left = newnode->right = NULL;
       rbnode *n = root_;
       while (n)

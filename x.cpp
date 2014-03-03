@@ -728,7 +728,6 @@ static void test_rbtree()
    for (unsigned c = 10; c--; )
    {
       treenode *newnode = new treenode;
-      newnode->color = ttl::rbnode::RED;
       newnode->first = c;
       newnode->second = -c;
       ttl::rbnode *pos = t.insert(newnode, ttl::less<int>());
