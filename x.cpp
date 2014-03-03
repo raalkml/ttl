@@ -709,6 +709,22 @@ static void test_types()
    printf("uint: is_unsigned: %d\n", ttl::is_unsigned<unsigned int>::value);
 }
 
+struct treenode: ttl::rbnode, ttl::pair<int,char> {};
+
+static void test_rbtree()
+{
+   ttl::rbtree t;
+   for (unsigned c = 10; c--; )
+   {
+      treenode *newnode = new treenode;
+      newnode->first = c;
+      newnode->second = -c;
+      ttl::rbnode *pos = t.insert(newnode, ttl::less<int>());
+      t.post_insert(pos);
+      printf("%p\n", pos);
+   }
+}
+
 static const struct
 {
    const char *name;
@@ -726,6 +742,7 @@ static const struct
    { "bitset", &test_bitset },
    { "countof", &test_countof },
    { "types",  &test_types },
+   { "rbtree",  &test_rbtree },
 };
 
 int main(int argc, char* argv[], char* envp[])
