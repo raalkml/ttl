@@ -71,6 +71,8 @@ namespace ttl
       template<typename Node, typename Pred>
       rbnode *insert(Node *n, Pred pred);
 
+      rbnode *__root() const { return root_; }
+
       void post_insert(rbnode *n)
       {
          insert_case1(n);
@@ -81,6 +83,7 @@ namespace ttl
       // node to all the paths in the tree, the rule 5 is also not violated
       void insert_case1(rbnode *n)
       {
+         fprintf(stderr, "%s\n", __func__);
          if (!n->parent)
             n->color = rbnode::BLACK;
          else
@@ -88,6 +91,7 @@ namespace ttl
       }
       void insert_case2(rbnode *n)
       {
+         fprintf(stderr, "%s\n", __func__);
          if (n->parent->color == rbnode::BLACK)
             return; // tree is still valid
          else
@@ -95,6 +99,7 @@ namespace ttl
       }
       void insert_case3(rbnode *n)
       {
+         fprintf(stderr, "%s\n", __func__);
          rbnode *u = n->uncle(), *g;
          if (u && u->color == rbnode::RED)
          {
@@ -107,45 +112,64 @@ namespace ttl
          else
             insert_case4(n);
       }
-      void rotate_left(rbnode *n, rbnode *g)
+      void rotate_left(rbnode *P)
       {
-         rbnode *saved_p = g->left, *saved_left_n = n->left;
-         g->left = n;
-         n->left = saved_p;
-         saved_p->right = saved_left_n;
-         // XXX? ... and modify the parent's nodes properly
+         rbnode *Q = P->right;
+         P->right = Q->left;
+         if (Q->left)
+            Q->left->parent = P;
+         Q->parent = P->parent;
+         if (P == root_)
+            root_ = Q;
+         else if (P == P->parent->left)
+            P->parent->left = Q;
+         else
+            P->parent->right = Q;
+         Q->left = P;
+         P->parent = Q;
       }
-      void rotate_right(rbnode *n, rbnode *g)
+      void rotate_right(rbnode *P)
       {
-         rbnode *saved_p = g->right, *saved_right_n = n->right;
-         g->right = n;
-         n->right = saved_p;
-         saved_p->left = saved_right_n;
+         rbnode *Q = P->left;
+         P->left = Q->right;
+         if (Q->right)
+            Q->right->parent = P;
+         Q->parent = P->parent;
+         if (P == root_)
+            root_ = Q;
+         else if (P == P->parent->right)
+            P->parent->right = Q;
+         else
+            P->parent->left = Q;
+         Q->right = P;
+         P->parent = Q;
       }
       void insert_case4(rbnode *n)
       {
+         fprintf(stderr, "%s\n", __func__);
          rbnode *g = n->grandparent();
          if (n == n->parent->right && n->parent == g->left)
          {
-            rotate_left(n->parent, g);
+            rotate_left(n->parent);
             n = n->left;
          }
          else if (n == n->parent->left && n->parent == g->right)
          {
-            rotate_right(n->parent, g);
+            rotate_right(n->parent);
             n = n->right;
          }
          insert_case5(n);
       }
       void insert_case5(rbnode *n)
       {
+         fprintf(stderr, "%s\n", __func__);
          rbnode *g = n->grandparent();
          n->parent->color = rbnode::BLACK;
          g->color = rbnode::RED;
          if (n == n->parent->left)
-            rotate_right(g, g->grandparent());
+            rotate_right(g);
          else
-            rotate_left(g, g->grandparent());
+            rotate_left(g);
       }
    };
 
