@@ -709,11 +709,10 @@ static void test_types()
    printf("uint: is_unsigned: %d\n", ttl::is_unsigned<unsigned int>::value);
 }
 
-struct rbnodecmp
-{
-   bool operator()(const ttl::pair<int,char> &a, const ttl::pair<int,char> &b) const { return a.first < b.first; }
-};
-typedef ttl::rbtree<ttl::pair<int,char>, rbnodecmp> testrbtree;
+typedef ttl::rbtree<int,
+        ttl::pair<int,char>,
+        ttl::select_first< ttl::pair<int,char> >,
+        ttl::less<int> > testrbtree;
 
 static void inorder(const testrbtree::const_hint &h, int depth = 0)
 {

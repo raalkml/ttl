@@ -248,26 +248,26 @@ namespace ttl
       return insert(h, newnode);
    }
 
-   template <class T, class Compare>
+   template <class K, class KV, class KeyOfValue, class Compare>
    class rbtree: public llrbtree
    {
    public:
       struct node: rbnode
       {
-         T data;
-         node(const T &d): data(d) {}
+         KV data;
+         node(const KV &d): data(d) {}
       };
 
       rbtree() {}
       ~rbtree() {}
 
-      node *insert_equal(const T &data)
+      node *insert_equal(const KV &data)
       {
          Compare compare;
          hint h = get_root();
          while (*h)
          {
-            if (compare(data, static_cast<const node *>(*h)->data))
+            if (compare(KeyOfValue()(data), KeyOfValue()(static_cast<const node *>(*h)->data)))
                h = h.left();
             else
                h = h.right();
@@ -277,15 +277,15 @@ namespace ttl
          return newnode;
       }
 
-      node *insert_unique(const T &data)
+      node *insert_unique(const KV &data)
       {
          Compare compare;
          hint h = get_root();
          while (*h)
          {
-            if (compare(data, static_cast<const node *>(*h)->data))
+            if (compare(KeyOfValue()(data), KeyOfValue()(static_cast<const node *>(*h)->data)))
                h = h.left();
-            else if (data == static_cast<const node *>(*h)->data)
+            else if (KeyOfValue()(data) == KeyOfValue()(static_cast<const node *>(*h)->data))
                return NULL;
             else
                h = h.right();
