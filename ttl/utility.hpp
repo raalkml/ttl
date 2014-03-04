@@ -111,6 +111,23 @@ namespace ttl
    {
       return pair<T1, T2>(first, second);
    }
+
+   //
+   // pair<> type selection:
+   //
+   template<typename Pair>
+   struct select_first
+   {
+      typename Pair::first_type &operator()(Pair &r) const { return r.first; }
+      const typename Pair::first_type &operator()(const Pair &r) const { return r.first; }
+   };
+   template<typename Pair>
+   struct select_second
+   {
+      typename Pair::second_type &operator()(Pair &r) const { return r.second; }
+      const typename Pair::second_type &operator()(const Pair &r) const { return r.second; }
+   };
+
 }
 
 #endif // _TINY_TEMPLATE_LIBRARY_UTILITY_HPP_
