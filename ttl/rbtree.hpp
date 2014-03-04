@@ -16,15 +16,9 @@ namespace ttl
    struct rbnode
    {
       rbnode *parent, *left, *right;
-      enum { RED, BLACK } color;
-
-      void flip_color()
-      {
-         if (color == RED)
-            color = BLACK;
-         else
-            color = RED;
-      }
+      bool color;
+      static const bool RED = true;
+      static const bool BLACK = false;
 
       struct rbnode *grandparent() const
       {
@@ -35,7 +29,7 @@ namespace ttl
       {
          struct rbnode *g = grandparent();
 
-         if (g == NULL)
+         if (!g)
             return NULL; // No grandparent means no uncle
 
          return parent == g->left ? g->right: g->left;
@@ -54,7 +48,13 @@ namespace ttl
    };
 
    //
-   // Left-leaning red-black tree (Sedgwick)
+   // Left-leaning red-black tree
+   //
+   // Robert Sedgwick, "Left-leaning Red-black Trees", September 2008
+   //
+   // Iterative implementation of insertion and deletion inspired by
+   // LLRB.h by William Ahern, 2013,
+   // http://www.25thandclement.com/~william/projects/llrb.h.html
    //
    class rbtree
    {
@@ -70,66 +70,95 @@ namespace ttl
       rbnode *__root() const { return root_; }
 
    private:
-      template<typename Node, typename Pred>
-      rbnode *insert(rbnode *root, Node *newnode, Pred pred);
-      static rbnode *rotate_left(rbnode *h)
+      static rbnode *rotate_left(rbnode *a)
       {
-         rbnode *x = h->right;
-         h->right = x->left;
-         x->left = h;
-         x->color = h->color;
-         h->color = rbnode::RED;
-         return x;
+         rbnode *b = a->right;
+         a->right = b->left;
+         if (a->right)
+            a->right->parent = a;
+         b->left = a;
+         b->color = a->color;
+         a->color = rbnode::RED;
+         b->parent = a->parent;
+         a->parent = b;
+         return b;
       }
-      static rbnode *rotate_right(rbnode *h)
+      static rbnode *rotate_right(rbnode *b)
       {
-         rbnode *x = h->left;
-         h->left = x->right;
-         x->right = h;
-         x->color = h->color;
-         h->color = rbnode::RED;
-         return x;
+         rbnode *a = b->left;
+         b->left = a->right;
+         if (b->left)
+            b->left->parent = b;
+         a->right = b;
+         a->color = b->color;
+         b->color = rbnode::RED;
+         a->parent = b->parent;
+         b->parent = a;
+         return a;
+      }
+      static void flip_colors(rbnode *root)
+      {
+         root->color = !root->color;
+         root->left->color = !root->left->color;
+         root->right->color = !root->right->color;
       }
       static bool is_red(rbnode *h)
       {
          return h && h->color == rbnode::RED;
+      }
+      static rbnode *fixup(rbnode *root)
+      {
+         if (is_red(root->right) && !is_red(root->left))
+            root = rotate_left(root);
+         if (is_red(root->left) && is_red(root->left->left))
+            root = rotate_right(root);
+         if (is_red(root->left) && is_red(root->right))
+            flip_colors(root);
+         return root;
+      }
+      rbnode **edge(rbnode *h)
+      {
+         if (h == root_)
+            return &root_;
+         if (h == h->parent->left)
+            return &h->parent->left;
+         return &h->parent->right;
+      }
+      void rebalance(rbnode **root, rbnode *parent)
+      {
+         while (parent && (is_red(parent->left) || is_red(parent->right)))
+         {
+            root = edge(parent);
+            parent = parent->parent;
+            *root = fixup(*root);
+         }
+         root_->color = rbnode::BLACK;
       }
    };
 
    template<typename Node, typename Pred>
    rbnode *rbtree::insert(Node *newnode, Pred pred)
    {
+      rbnode **root = &root_, *parent = NULL;
+      while (*root)
+      {
+         parent = *root;
+         if (pred(newnode->first, static_cast<const Node *>(*root)->first))
+            root = &(*root)->left;
+         else if (newnode->first == static_cast<const Node *>(*root)->first)
+         {
+            fprintf(stderr, "the key already present\n");
+            return NULL;
+         }
+         else
+            root = &(*root)->right;
+      }
       newnode->color = rbnode::RED;
       newnode->left = newnode->right = NULL;
-      root_ = insert(root_, newnode, pred);
-      root_->color = rbnode::BLACK;
+      newnode->parent = parent;
+      *root = newnode;
+      rebalance(root, parent);
       return newnode;
-   }
-   template<typename Node, typename Pred>
-   rbnode *rbtree::insert(rbnode *h, Node *newnode, Pred pred)
-   {
-      if (!h)
-         return newnode;
-      if (is_red(h->left) && is_red(h->right))
-      {
-         h->flip_color();
-         h->left->flip_color();
-         h->right->flip_color();
-      }
-      if (newnode->first == static_cast<Node *>(h)->first)
-      {
-         fprintf(stderr, "duplicate!\n");
-      }
-      else if (pred(newnode->first, static_cast<Node *>(h)->first))
-         h->left = insert(h->left, newnode, pred);
-      else
-         h->right = insert(h->right, newnode, pred);
-
-      if (is_red(h->right) && !is_red(h->left))
-         h = rotate_left(h);
-      if (is_red(h->left) && is_red(h->left->left))
-         h = rotate_right(h);
-      return h;
    }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_RBTREE_HPP_

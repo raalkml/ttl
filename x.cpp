@@ -724,6 +724,7 @@ static void inorder(const ttl::rbnode *n, int depth = 0)
 
 static void test_rbtree()
 {
+   printf("sizeof rbnode %u, treenode %u\n", sizeof(ttl::rbnode), sizeof(treenode));
    ttl::rbtree t;
    for (unsigned c = 10; c--; )
    {
@@ -733,6 +734,9 @@ static void test_rbtree()
       ttl::rbnode *pos = t.insert(newnode, ttl::less<int>());
       printf("%p %d (%d)\n", pos, newnode->first, newnode->second);
    }
+   treenode dupe;
+   dupe.first = 5;
+   assert(NULL == t.insert(&dupe, ttl::less<int>()));
    inorder(t.__root());
    printf("\n");
 }
