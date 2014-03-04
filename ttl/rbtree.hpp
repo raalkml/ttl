@@ -26,20 +26,20 @@ namespace ttl
    //
    // Robert Sedgwick, "Left-leaning Red-black Trees", September 2008
    //
-   // Iterative implementation of insertion and deletion inspired by
+   // Iterative implementation of insertion and deletion based on
    // LLRB.h by William Ahern, 2013,
    // http://www.25thandclement.com/~william/projects/llrb.h.html
    //
-   class llrbtree
+   class rbtree_base
    {
    private:
-      llrbtree(const llrbtree &);
-      llrbtree &operator=(const llrbtree &);
+      rbtree_base(const rbtree_base &);
+      rbtree_base &operator=(const rbtree_base &);
    protected:
       rbnode *root_;
    public:
-      llrbtree(): root_(NULL) {}
-      ~llrbtree() {}
+      rbtree_base(): root_(NULL) {}
+      ~rbtree_base() {}
 
       struct hint
       {
@@ -100,10 +100,15 @@ namespace ttl
          return NULL;
       }
 
-      rbnode *insert(const hint &, rbnode *newnode);
-
-      template<typename Node, typename Pred>
-      rbnode *insert(Node *n, const Pred &pred);
+      rbnode *insert(const hint &pos, rbnode *newnode)
+      {
+         newnode->color = rbnode::RED;
+         newnode->left = newnode->right = NULL;
+         newnode->parent = pos.parent;
+         *pos.pos = newnode;
+         insert_rebalance(pos);
+         return newnode;
+      }
 
       static rbnode *rotate_left(rbnode *a)
       {
@@ -222,34 +227,9 @@ namespace ttl
 
    };
 
-   inline rbnode *llrbtree::insert(const hint &pos, rbnode *newnode)
-   {
-      newnode->color = rbnode::RED;
-      newnode->left = newnode->right = NULL;
-      newnode->parent = pos.parent;
-      *pos.pos = newnode;
-      insert_rebalance(pos);
-      return newnode;
-   }
-
-   template<typename Node, typename Pred>
-   rbnode *llrbtree::insert(Node *newnode, const Pred &pred)
-   {
-      hint h = get_root();
-      while (*h)
-      {
-         if (pred(newnode->first, static_cast<const Node *>(*h)->first))
-            h = h.left();
-         else if (newnode->first == static_cast<const Node *>(*h)->first)
-            return NULL;
-         else
-            h = h.right();
-      }
-      return insert(h, newnode);
-   }
 
    template <class K, class KV, class KeyOfValue, class Compare>
-   class rbtree: public llrbtree
+   class rbtree: public rbtree_base
    {
    public:
       struct node: rbnode
@@ -261,49 +241,114 @@ namespace ttl
       rbtree() {}
       ~rbtree() {}
 
-      node *insert_equal(const KV &data)
-      {
-         Compare compare;
-         hint h = get_root();
-         while (*h)
-         {
-            if (compare(KeyOfValue()(data), KeyOfValue()(static_cast<const node *>(*h)->data)))
-               h = h.left();
-            else
-               h = h.right();
-         }
-         node *newnode = new node(data);
-         (void)llrbtree::insert(h, newnode);
-         return newnode;
-      }
-
-      node *insert_unique(const KV &data)
-      {
-         Compare compare;
-         hint h = get_root();
-         while (*h)
-         {
-            if (compare(KeyOfValue()(data), KeyOfValue()(static_cast<const node *>(*h)->data)))
-               h = h.left();
-            else if (KeyOfValue()(data) == KeyOfValue()(static_cast<const node *>(*h)->data))
-               return NULL;
-            else
-               h = h.right();
-         }
-         node *newnode = new node(data);
-         (void)llrbtree::insert(h, newnode);
-         return newnode;
-      }
-
-      node *remove(rbnode *elm)
-      {
-         rbnode **root  = &root_, *parent = NULL, *deleted = NULL;
-         while (*root)
-         {
-            parent = (*root)->parent;
-         }
-      }
+      node *insert_equal(const KV &data);
+      node *insert_unique(const KV &data);
+      node *remove(const K &key);
    };
 
+   template <class K, class KV, class KeyOfValue, class Compare>
+   typename rbtree<K,KV,KeyOfValue,Compare>::node *rbtree<K,KV,KeyOfValue,Compare>::insert_equal(const KV &data)
+   {
+      Compare compare;
+      KeyOfValue keyof;
+      hint h = get_root();
+      while (*h)
+      {
+         if (compare(keyof(data), keyof(static_cast<const node *>(*h)->data)))
+            h = h.left();
+         else
+            h = h.right();
+      }
+      node *newnode = new node(data);
+      (void)rbtree_base::insert(h, newnode);
+      return newnode;
+   }
+
+   template <class K, class KV, class KeyOfValue, class Compare>
+   typename rbtree<K,KV,KeyOfValue,Compare>::node *rbtree<K,KV,KeyOfValue,Compare>::insert_unique(const KV &data)
+   {
+      Compare compare;
+      KeyOfValue keyof;
+      hint h = get_root();
+      while (*h)
+      {
+         if (compare(keyof(data), keyof(static_cast<const node *>(*h)->data)))
+            h = h.left();
+         else if (keyof(data) == keyof(static_cast<const node *>(*h)->data))
+            return NULL;
+         else
+            h = h.right();
+      }
+      node *newnode = new node(data);
+      (void)rbtree_base::insert(h, newnode);
+      return newnode;
+   }
+
+   template <class K, class KV, class KeyOfValue, class Compare>
+   typename rbtree<K,KV,KeyOfValue,Compare>::node *rbtree<K,KV,KeyOfValue,Compare>::remove(const K &key)
+   {
+      Compare compare;
+      KeyOfValue keyof;
+      rbnode **root  = &root_, *parent = NULL, *deleted = NULL;
+      while (*root)
+      {
+         parent = (*root)->parent;
+         bool isless = compare(key, keyof(static_cast<const node *>(*root)->data));
+         if (isless)
+         {
+            if ((*root)->left && !is_red((*root)->left) && !is_red((*root)->left->left))
+               *root = move_left(*root);
+            root = &(*root)->left;
+         }
+         else
+         {
+            if (is_red((*root)->left))
+            {
+               *root = rotate_right(*root);
+               isless = compare(key, keyof(static_cast<const node *>(*root)->data));
+            }
+            if (!isless &&
+                key == keyof(static_cast<const node *>(*root)->data) &&
+                !(*root)->right)
+            {
+               deleted = *root;
+               *root = NULL;
+               break;
+            }
+            if ((*root)->right && !is_red((*root)->right) && !is_red((*root)->right->left))
+            {
+               *root = move_right(*root);
+               isless = compare(key, keyof(static_cast<const node *>(*root)->data));
+            }
+            if (key == keyof(static_cast<const node *>(*root)->data))
+            {
+               rbnode *orphan = delete_min(&(*root)->right);
+               orphan->color = (*root)->color;
+               orphan->parent = (*root)->parent;
+               orphan->right = (*root)->right;
+               if (orphan->right)
+                  orphan->right->parent = orphan;
+               orphan->left = (*root)->left;
+               if (orphan->left)
+                  orphan->left->parent = orphan;
+               deleted = *root;
+               *root = orphan;
+               parent = *root;
+               break;
+            }
+            else
+               root = &(*root)->right;
+         }
+      }
+      while (parent)
+      {
+         root = edge(parent);
+         parent = parent->parent;
+         *root = fixup(*root);
+      }
+      if (root_)
+         root_->color = rbnode::BLACK;
+      return static_cast<node *>(deleted);
+   }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_RBTREE_HPP_

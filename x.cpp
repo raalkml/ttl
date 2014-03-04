@@ -729,7 +729,9 @@ static void inorder(const testrbtree::const_hint &h, int depth = 0)
 
 static void test_rbtree()
 {
-   printf("sizeof rbnode %u, treenode %u\n", sizeof(ttl::rbnode), sizeof(testrbtree::node));
+   printf("sizeof rbnode %lu, treenode %lu\n",
+          (unsigned long)sizeof(ttl::rbnode),
+          (unsigned long)sizeof(testrbtree::node));
    testrbtree t;
    for (unsigned c = 10; c--; )
    {
@@ -738,22 +740,26 @@ static void test_rbtree()
       printf("%p %d (%d)\n", pos, d.first, d.second);
    }
 
+   printf("red-black tree with 10 elements\n");
    inorder(t.get_croot());
-   printf("\n");
 
    ttl::pair<int,char> dupe(5, -5);
    assert(NULL == t.insert_unique(dupe));
    assert(NULL != t.insert_equal(dupe));
 
+   printf("inserted dupe (5)\n");
    inorder(t.get_croot());
-   printf("\n");
 
    t.delete_min(t.get_root().pos);
    t.delete_min(t.get_root().pos);
    t.delete_min(t.get_root().pos);
 
+   printf("3 calls to delete_min from root\n");
    inorder(t.get_croot());
-   printf("\n");
+
+   t.remove(7);
+   printf("remove 7\n");
+   inorder(t.get_croot());
 }
 
 static const struct
