@@ -19,32 +19,6 @@ namespace ttl
       bool color;
       static const bool RED = true;
       static const bool BLACK = false;
-
-      struct rbnode *grandparent() const
-      {
-         return parent ? parent->parent: NULL;
-      }
-
-      struct rbnode *uncle() const
-      {
-         struct rbnode *g = grandparent();
-
-         if (!g)
-            return NULL; // No grandparent means no uncle
-
-         return parent == g->left ? g->right: g->left;
-      }
-
-      struct rbnode *sibling() const
-      {
-         return this == parent->left ? parent->right: parent->left;
-      }
-
-      void init_root()
-      {
-         parent = left = right = NULL;
-         color = BLACK;
-      }
    };
 
    //
@@ -58,16 +32,49 @@ namespace ttl
    //
    class rbtree
    {
+   private:
+      rbtree(const rbtree &);
+      rbtree &operator=(const rbtree &);
    protected:
       rbnode *root_;
    public:
       rbtree(): root_(NULL) {}
       ~rbtree() {}
 
-      template<typename Node, typename Pred>
-      rbnode *insert(Node *n, Pred pred);
+      struct hint
+      {
+         rbnode **pos;
+         rbnode *parent;
+         hint(rbnode **p, rbnode *pp): pos(p), parent(pp) {}
 
-      rbnode *__root() const { return root_; }
+         rbnode *operator*() { return *pos; }
+         const rbnode *operator*() const { return *pos; }
+
+         hint left() { return hint(&(*pos)->left, *pos); }
+         hint right() { return hint(&(*pos)->right, *pos); }
+      };
+      struct const_hint
+      {
+         rbnode * const *pos;
+         rbnode *parent;
+         const_hint(const hint &h): pos(h.pos), parent(h.parent) {}
+         const_hint(rbnode * const *p, rbnode *pp): pos(p), parent(pp) {}
+
+         rbnode *operator*() { return *pos; }
+         const rbnode *operator*() const { return *pos; }
+
+         const_hint left() const { return const_hint(&(*pos)->left, *pos); }
+         const_hint right() const { return const_hint(&(*pos)->right, *pos); }
+      };
+
+      hint get_root() { return hint(&root_, NULL); }
+      const_hint get_root() const { return const_hint(&root_, NULL); }
+      const_hint get_croot() const { return const_hint(&root_, NULL); }
+
+      rbnode *insert(const hint &, rbnode *newnode);
+
+      template<typename Node, typename Pred>
+      rbnode *insert(Node *n, const Pred &pred);
 
    private:
       static rbnode *rotate_left(rbnode *a)
@@ -124,8 +131,9 @@ namespace ttl
             return &h->parent->left;
          return &h->parent->right;
       }
-      void rebalance(rbnode **root, rbnode *parent)
+      void insert_rebalance(const hint &h)
       {
+         rbnode **root = h.pos, *parent = h.parent;
          while (parent && (is_red(parent->left) || is_red(parent->right)))
          {
             root = edge(parent);
@@ -136,29 +144,30 @@ namespace ttl
       }
    };
 
-   template<typename Node, typename Pred>
-   rbnode *rbtree::insert(Node *newnode, Pred pred)
+   inline rbnode *rbtree::insert(const hint &pos, rbnode *newnode)
    {
-      rbnode **root = &root_, *parent = NULL;
-      while (*root)
-      {
-         parent = *root;
-         if (pred(newnode->first, static_cast<const Node *>(*root)->first))
-            root = &(*root)->left;
-         else if (newnode->first == static_cast<const Node *>(*root)->first)
-         {
-            fprintf(stderr, "the key already present\n");
-            return NULL;
-         }
-         else
-            root = &(*root)->right;
-      }
       newnode->color = rbnode::RED;
       newnode->left = newnode->right = NULL;
-      newnode->parent = parent;
-      *root = newnode;
-      rebalance(root, parent);
+      newnode->parent = pos.parent;
+      *pos.pos = newnode;
+      insert_rebalance(pos);
       return newnode;
+   }
+
+   template<typename Node, typename Pred>
+   rbnode *rbtree::insert(Node *newnode, const Pred &pred)
+   {
+      hint h = get_root();
+      while (*h)
+      {
+         if (pred(newnode->first, static_cast<const Node *>(*h)->first))
+            h = h.left();
+         else if (newnode->first == static_cast<const Node *>(*h)->first)
+            return NULL;
+         else
+            h = h.right();
+      }
+      return insert(h, newnode);
    }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_RBTREE_HPP_

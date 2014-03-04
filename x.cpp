@@ -711,15 +711,17 @@ static void test_types()
 
 struct treenode: ttl::rbnode, ttl::pair<int,char> {};
 
-static void inorder(const ttl::rbnode *n, int depth = 0)
+static void inorder(const ttl::rbtree::const_hint &h, int depth = 0)
 {
-   if (n->left)
-      inorder(n->left, depth + 1);
+   ttl::rbtree::const_hint c = h.left();
+   if (*c)
+      inorder(c, depth + 1);
    for (int i = depth; i--;)
       fputc(' ', stdout);
-   printf("%d\n", static_cast<const treenode *>(n)->first);
-   if (n->right)
-      inorder(n->right, depth + 1);
+   printf("%d\n", static_cast<const treenode *>(*h)->first);
+   c = h.right();
+   if (*c)
+      inorder(c, depth + 1);
 }
 
 static void test_rbtree()
@@ -737,7 +739,7 @@ static void test_rbtree()
    treenode dupe;
    dupe.first = 5;
    assert(NULL == t.insert(&dupe, ttl::less<int>()));
-   inorder(t.__root());
+   inorder(t.get_croot());
    printf("\n");
 }
 
