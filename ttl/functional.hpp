@@ -17,6 +17,33 @@ namespace ttl
       typedef bool result_type;
       bool operator()(const T &a, const T &b) const { return a < b; }
    };
+
+   template<typename T>
+   struct greater
+   {
+      typedef T first_argument_type;
+      typedef T second_argument_type;
+      typedef bool result_type;
+      bool operator()(const T &a, const T &b) const { return a > b; }
+   };
+
+   template<typename T>
+   struct equal_to
+   {
+      typedef T first_argument_type;
+      typedef T second_argument_type;
+      typedef bool result_type;
+      bool operator()(const T &a, const T &b) const { return a == b; }
+   };
+
+   template<typename T>
+   struct not_equal_to
+   {
+      typedef T first_argument_type;
+      typedef T second_argument_type;
+      typedef bool result_type;
+      bool operator()(const T &a, const T &b) const { return a != b; }
+   };
 }
 
 #endif // _TINY_TEMPLATE_LIBRARY_FUNCTIONAL_HPP_
