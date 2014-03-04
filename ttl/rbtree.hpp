@@ -232,6 +232,8 @@ namespace ttl
    class rbtree: public rbtree_base
    {
    public:
+      typedef KeyOfValue keyof_type;
+
       struct node: rbnode
       {
          KV data;
