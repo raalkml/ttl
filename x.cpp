@@ -709,16 +709,20 @@ static void test_types()
    printf("uint: is_unsigned: %d\n", ttl::is_unsigned<unsigned int>::value);
 }
 
-struct treenode: ttl::rbnode, ttl::pair<int,char> {};
-
-static void inorder(const ttl::rbtree::const_hint &h, int depth = 0)
+struct rbnodecmp
 {
-   ttl::rbtree::const_hint c = h.left();
+   bool operator()(const ttl::pair<int,char> &a, const ttl::pair<int,char> &b) const { return a.first < b.first; }
+};
+typedef ttl::rbtree<ttl::pair<int,char>, rbnodecmp> testrbtree;
+
+static void inorder(const testrbtree::const_hint &h, int depth = 0)
+{
+   testrbtree::const_hint c = h.left();
    if (*c)
       inorder(c, depth + 1);
    for (int i = depth; i--;)
       fputc(' ', stdout);
-   printf("%d\n", static_cast<const treenode *>(*h)->first);
+   printf("%d\n", static_cast<const testrbtree::node *>(*h)->data.first);
    c = h.right();
    if (*c)
       inorder(c, depth + 1);
@@ -726,19 +730,29 @@ static void inorder(const ttl::rbtree::const_hint &h, int depth = 0)
 
 static void test_rbtree()
 {
-   printf("sizeof rbnode %u, treenode %u\n", sizeof(ttl::rbnode), sizeof(treenode));
-   ttl::rbtree t;
+   printf("sizeof rbnode %u, treenode %u\n", sizeof(ttl::rbnode), sizeof(testrbtree::node));
+   testrbtree t;
    for (unsigned c = 10; c--; )
    {
-      treenode *newnode = new treenode;
-      newnode->first = c;
-      newnode->second = -c;
-      ttl::rbnode *pos = t.insert(newnode, ttl::less<int>());
-      printf("%p %d (%d)\n", pos, newnode->first, newnode->second);
+      ttl::pair<int,char> d(c, -c);
+      testrbtree::node *pos = t.insert_equal(d);
+      printf("%p %d (%d)\n", pos, d.first, d.second);
    }
-   treenode dupe;
-   dupe.first = 5;
-   assert(NULL == t.insert(&dupe, ttl::less<int>()));
+
+   inorder(t.get_croot());
+   printf("\n");
+
+   ttl::pair<int,char> dupe(5, -5);
+   assert(NULL == t.insert_unique(dupe));
+   assert(NULL != t.insert_equal(dupe));
+
+   inorder(t.get_croot());
+   printf("\n");
+
+   t.delete_min(t.get_root().pos);
+   t.delete_min(t.get_root().pos);
+   t.delete_min(t.get_root().pos);
+
    inorder(t.get_croot());
    printf("\n");
 }

@@ -30,16 +30,16 @@ namespace ttl
    // LLRB.h by William Ahern, 2013,
    // http://www.25thandclement.com/~william/projects/llrb.h.html
    //
-   class rbtree
+   class llrbtree
    {
    private:
-      rbtree(const rbtree &);
-      rbtree &operator=(const rbtree &);
+      llrbtree(const llrbtree &);
+      llrbtree &operator=(const llrbtree &);
    protected:
       rbnode *root_;
    public:
-      rbtree(): root_(NULL) {}
-      ~rbtree() {}
+      llrbtree(): root_(NULL) {}
+      ~llrbtree() {}
 
       struct hint
       {
@@ -71,12 +71,40 @@ namespace ttl
       const_hint get_root() const { return const_hint(&root_, NULL); }
       const_hint get_croot() const { return const_hint(&root_, NULL); }
 
+      static rbnode *min_node(rbnode *n)
+      {
+         while (n && n->left)
+            n = n->left;
+         return n;
+      }
+
+      static rbnode *max_node(rbnode *n)
+      {
+         while (n && n->right)
+            n = n->right;
+         return n;
+      }
+
+      static rbnode *next_node(rbnode *n)
+      {
+         if  (n->right)
+            return min_node(n->right);
+         if (n->parent)
+         {
+            if (n == n->parent->left)
+               return n->parent;
+            while (n->parent && n == n->parent->right)
+               n = n->parent;
+            return n->parent;
+         }
+         return NULL;
+      }
+
       rbnode *insert(const hint &, rbnode *newnode);
 
       template<typename Node, typename Pred>
       rbnode *insert(Node *n, const Pred &pred);
 
-   private:
       static rbnode *rotate_left(rbnode *a)
       {
          rbnode *b = a->right;
@@ -90,6 +118,7 @@ namespace ttl
          a->parent = b;
          return b;
       }
+
       static rbnode *rotate_right(rbnode *b)
       {
          rbnode *a = b->left;
@@ -103,16 +132,19 @@ namespace ttl
          b->parent = a;
          return a;
       }
-      static void flip_colors(rbnode *root)
+
+      static void flip_colors(rbnode *n)
       {
-         root->color = !root->color;
-         root->left->color = !root->left->color;
-         root->right->color = !root->right->color;
+         n->color = !n->color;
+         n->left->color = !n->left->color;
+         n->right->color = !n->right->color;
       }
-      static bool is_red(rbnode *h)
+
+      static bool is_red(rbnode *n)
       {
-         return h && h->color == rbnode::RED;
+         return n && n->color == rbnode::RED;
       }
+
       static rbnode *fixup(rbnode *root)
       {
          if (is_red(root->right) && !is_red(root->left))
@@ -123,6 +155,7 @@ namespace ttl
             flip_colors(root);
          return root;
       }
+
       rbnode **edge(rbnode *h)
       {
          if (h == root_)
@@ -131,6 +164,7 @@ namespace ttl
             return &h->parent->left;
          return &h->parent->right;
       }
+
       void insert_rebalance(const hint &h)
       {
          rbnode **root = h.pos, *parent = h.parent;
@@ -142,9 +176,53 @@ namespace ttl
          }
          root_->color = rbnode::BLACK;
       }
+
+      static rbnode *move_left(rbnode *pivot)
+      {
+         flip_colors(pivot);
+         if (is_red(pivot->right->left))
+         {
+            pivot->right = rotate_right(pivot->right);
+            pivot = rotate_left(pivot);
+            flip_colors(pivot);
+         }
+         return pivot;
+      }
+      static rbnode *move_right(rbnode *pivot)
+      {
+         flip_colors(pivot);
+         if (is_red(pivot->left->left))
+         {
+            pivot = rotate_right(pivot);
+            flip_colors(pivot);
+         }
+         return pivot;
+      }
+
+      rbnode *delete_min(rbnode **root)
+      {
+         rbnode **pivot = root;
+         while ((*pivot)->left)
+         {
+            if (!is_red((*pivot)->left) && !is_red((*pivot)->left->left))
+               *pivot = move_left(*pivot);
+            pivot = &(*pivot)->left;
+         }
+         rbnode *deleted = *pivot;
+         rbnode *parent = deleted->parent;
+         *pivot = NULL;
+         while (root != pivot)
+         {
+            pivot = edge(parent);
+            parent = parent->parent;
+            *pivot = fixup(*pivot);
+         }
+         return deleted;
+      }
+
    };
 
-   inline rbnode *rbtree::insert(const hint &pos, rbnode *newnode)
+   inline rbnode *llrbtree::insert(const hint &pos, rbnode *newnode)
    {
       newnode->color = rbnode::RED;
       newnode->left = newnode->right = NULL;
@@ -155,7 +233,7 @@ namespace ttl
    }
 
    template<typename Node, typename Pred>
-   rbnode *rbtree::insert(Node *newnode, const Pred &pred)
+   rbnode *llrbtree::insert(Node *newnode, const Pred &pred)
    {
       hint h = get_root();
       while (*h)
@@ -169,5 +247,63 @@ namespace ttl
       }
       return insert(h, newnode);
    }
+
+   template <class T, class Compare>
+   class rbtree: public llrbtree
+   {
+   public:
+      struct node: rbnode
+      {
+         T data;
+         node(const T &d): data(d) {}
+      };
+
+      rbtree() {}
+      ~rbtree() {}
+
+      node *insert_equal(const T &data)
+      {
+         Compare compare;
+         hint h = get_root();
+         while (*h)
+         {
+            if (compare(data, static_cast<const node *>(*h)->data))
+               h = h.left();
+            else
+               h = h.right();
+         }
+         node *newnode = new node(data);
+         (void)llrbtree::insert(h, newnode);
+         return newnode;
+      }
+
+      node *insert_unique(const T &data)
+      {
+         Compare compare;
+         hint h = get_root();
+         while (*h)
+         {
+            if (compare(data, static_cast<const node *>(*h)->data))
+               h = h.left();
+            else if (data == static_cast<const node *>(*h)->data)
+               return NULL;
+            else
+               h = h.right();
+         }
+         node *newnode = new node(data);
+         (void)llrbtree::insert(h, newnode);
+         return newnode;
+      }
+
+      node *remove(rbnode *elm)
+      {
+         rbnode **root  = &root_, *parent = NULL, *deleted = NULL;
+         while (*root)
+         {
+            parent = (*root)->parent;
+         }
+      }
+   };
+
 }
 #endif // _TINY_TEMPLATE_LIBRARY_RBTREE_HPP_
