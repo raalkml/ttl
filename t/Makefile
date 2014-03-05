@@ -73,7 +73,13 @@ all-in-one: $(patsubst %.cpp,%.to,$(testsrcs)) t.o
 	       echo "$$bss" >$<.prevbss; \
 	       echo "$$dec" >$<.prevdec; \
 	    done > $@
-	@test -t 1 && echo -ne '\033[01m$@:	';cat $@;test -t 1 && echo -ne '\033[0m'
+	@ink=;\
+	    if [ -t 1 ]; then \
+	    grep >/dev/null -E ' dec:[0-9]+[+][1-9]' $@ && ink='31;'; \
+	    grep >/dev/null -E ' dec:[0-9]+-[1-9]' $@ && ink='32;';\
+	    echo -ne '\033['"$$ink"'01m$@:	'; fi; \
+	    cat $@;\
+	    test -t 1 && echo -ne '\033[0m'
 
 reports .NOTPARALLEL: $(patsubst %.cpp,%.report,$(testsrcs)) all-in-one.report
 	$(V)for r in $(patsubst %.cpp,%.report,$(testsrcs)) all-in-one.report; do echo -n "$$r:	"; cat "$$r"; done
