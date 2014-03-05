@@ -28,8 +28,14 @@ clean:
 test%: t.o test%.o
 	$(CXX) -o $@ $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) $(flags) $+
 
+mangled_test_name := $(shell echo 'void test(){}' | \
+   $(CXX) -x c++ -o t.to.tmp -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) - && \
+   nm -g -f posix t.to.tmp | if read f eol; then echo $$f; fi; $(RM) t.to.tmp)
+
 %.to: %.o
-	objcopy $< $@ --redefine-sym _Z4testv=_Z$(shell echo -n $(*F)|wc -c)$(*F)v
+	objcopy $< $@ --redefine-sym $(mangled_test_name)=$(shell echo 'void $(*F)(){}' | \
+	   $(CXX) -x c++ -o $@.tmp -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) - && \
+	   nm -g -f posix $@.tmp | if read f eol; then echo $$f; fi; $(RM) $@.tmp)
 
 all-in-one: $(patsubst %.cpp,%.to,$(testsrcs)) t.o
 	$(V)$(subst s,:,$(findstring s,$(MAKEFLAGS))) echo "generating test() function for $@..."
