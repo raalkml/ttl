@@ -66,6 +66,28 @@ void test()
    printf("remove 7\n");
    inorder<rbtree_map>(t.get_croot());
 
+   printf("find & lower_boundary\n");
+   {
+      ttl::rbtree_base::const_hint h = t.find(3);
+      int k = rbtree_map::keyof_type()(static_cast<const rbtree_map::node *>(*h)->data);
+      printf("find: %d\n", k);
+      assert(3 == k);
+
+      h = t.lower_bound(3);
+      k = h.pos ? rbtree_map::keyof_type()(static_cast<const rbtree_map::node *>(*h)->data): 0;
+      printf("lower_boundary(%d): %d\n", 3, k);
+      assert(k >= 3);
+
+      h = t.lower_bound(100);
+      k = h.pos ? rbtree_map::keyof_type()(static_cast<const rbtree_map::node *>(*h)->data): 0;
+      printf("lower_boundary(%d): %p %d\n", 100, h.pos ? *h: NULL, k);
+
+      h = t.lower_bound(7); // removed value
+      k = h.pos ? rbtree_map::keyof_type()(static_cast<const rbtree_map::node *>(*h)->data): 0;
+      printf("lower_boundary(%d): %p %d\n", 7, h.pos ? *h: NULL, k);
+      assert(k >= 7);
+   }
+
    rbtree_set s;
    s.insert_unique(1);
    s.insert_unique(2);

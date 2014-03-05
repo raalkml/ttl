@@ -246,7 +246,51 @@ namespace ttl
       node *insert_equal(const KV &data);
       node *insert_unique(const KV &data);
       node *remove(const K &key);
+
+      const_hint find(const K &) const;
+      const_hint lower_bound(const K &) const;
    };
+
+   template <class K, class KV, class KeyOfValue, class Compare>
+   rbtree_base::const_hint rbtree<K,KV,KeyOfValue,Compare>::find(const K &key) const
+   {
+      Compare compare;
+      KeyOfValue keyof;
+      const_hint h = get_root();
+      while (*h)
+      {
+         const K &hkey = keyof(static_cast<const node *>(*h)->data);
+         if (compare(key, hkey))
+            h = h.left();
+         else if (key == hkey)
+            break;
+         else
+            h = h.right();
+      }
+      return h;
+   }
+
+   template <class K, class KV, class KeyOfValue, class Compare>
+   rbtree_base::const_hint rbtree<K,KV,KeyOfValue,Compare>::lower_bound(const K &key) const
+   {
+      Compare compare;
+      KeyOfValue keyof;
+      const_hint h = get_root();
+      const_hint prev(0, 0);
+      while (*h)
+      {
+         const K &hkey = keyof(static_cast<const node *>(*h)->data);
+         prev = h;
+         if (compare(key, hkey))
+            h = h.left();
+         else if (key == hkey)
+            return h;
+         else
+            h = h.right();
+      }
+
+      return compare(key, keyof(static_cast<const node *>(*prev)->data)) ? prev: const_hint(0, 0);
+   }
 
    template <class K, class KV, class KeyOfValue, class Compare>
    typename rbtree<K,KV,KeyOfValue,Compare>::node *rbtree<K,KV,KeyOfValue,Compare>::insert_equal(const KV &data)
