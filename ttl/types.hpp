@@ -11,7 +11,7 @@
 
 namespace ttl
 {
-   typedef ::size_t size_t;
-   typedef ::ptrdiff_t ptrdiff_t;
+   using ::size_t;
+   using ::ptrdiff_t;
 }
 #endif // _TINY_TEMPLATE_LIBRARY_TYPES_HPP_
