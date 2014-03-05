@@ -29,4 +29,9 @@ void test()
    assert(!ta.empty());
    assert(ta.size() == 3);
    assert(ta.max_size() == ta.size());
+
+   ta = ttl::array<testtype, 3>();
+   assert(ta[0] == int());
+   assert(ta[1] == int());
+   assert(ta[2] == int());
 }
