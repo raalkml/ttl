@@ -7,11 +7,11 @@
 #ifndef _TINY_TEMPLATE_LIBRARY_TYPES_HPP_
 #define _TINY_TEMPLATE_LIBRARY_TYPES_HPP_
 
-// #include <stdint.h>
+#include <stddef.h>
 
 namespace ttl
 {
-   typedef unsigned int size_t;
-   typedef int ptrdiff_t;
+   typedef ::size_t size_t;
+   typedef ::ptrdiff_t ptrdiff_t;
 }
 #endif // _TINY_TEMPLATE_LIBRARY_TYPES_HPP_
