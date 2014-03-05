@@ -45,7 +45,7 @@ all-in-one: $(patsubst %.cpp,%.to,$(testsrcs)) t.o
 	   do echo "void $$n();"; done; \
 	   echo 'void test() {'; \
 	   for n in $(tests); \
-	   do echo 'fputs(" *** '$$n' ***\\n", stdout);'$$n'();'; done; \
+	   do echo 'puts(" *** '$$n' ***");'$$n'();'; done; \
 	   echo '}'; \
 	) | $(CXX) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) -x c++ -c - -o t.to
 	$(CXX) -o $@ $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) $(flags) $+ t.to
