@@ -2,24 +2,24 @@ CPPFLAGS :=
 CFLAGS := -Wall -ggdb
 CXXFLAGS := -fno-exceptions -fno-rtti
 ASMFLAGS := -fverbose-asm -dP
-flags := -O3
+flags := -O1
 SHELL := bash
 ARGS :=
 V := @
 
-all: x.o.report a.out.report
+all: ttltest.o.report ttltest.report
 	-$(V)for f in $+; do echo -n "$$f: "; cat "$$f"; done
 
-x.o: x.cpp
+ttltest.o: ttltest.cpp
 	$(CXX) -c -o $@ $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
-x.s: x.cpp
+ttltest.s: ttltest.cpp
 	$(CXX) -S -o $@ $(CPPFLAGS) $(ASMFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
-x.E: x.cpp
+ttltest.E: ttltest.cpp
 	$(CXX) -E -o $@ $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
--include x.d
+-include ttltest.d
 %.d: %.cpp
-	$(CPP) -MM -MG -o $@ -MQ '$(patsubst %.cpp,%.o,$<)' $< $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags)
-a.out: x.o
+	$(CXX) -MM -MG -o $@ -MQ '$(patsubst %.cpp,%.o,$<)' $< $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags)
+ttltest: ttltest.o
 	$(CXX) $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) $(flags) -o $@ $+
 
 %.report: %
@@ -45,12 +45,12 @@ a.out: x.o
 	       echo "$$dec" >$<.prevdec; \
 	    done > $@
 
-valgrind: a.out
+valgrind: ttltest
 	valgrind --tool=memcheck --leak-check=full $(abspath $<) $(ARGS)
 gdb:
 	-tmp=$$(tempfile -p gdb || echo gdb$$$$.tmp) && echo run >"$$tmp"; \
 	test -f "$$tmp" && opt="-x $$tmp";\
-	gdb -q $$opt --args a.out $(ARGS);\
+	gdb -q $$opt --args ttltest $(ARGS);\
 	rc=$$?;\
 	rm -f "$$tmp";\
 	exit $$rc
