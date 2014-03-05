@@ -1,20 +1,25 @@
-CPPFLAGS :=
-CFLAGS := -Wall -ggdb
-CXXFLAGS := -fno-exceptions -fno-rtti
-ASMFLAGS := -fverbose-asm -dP
-flags := -O1
-ARGS :=
-TESTS ?= all-in-one
-V := @
+export CPPFLAGS :=
+export CFLAGS := -Wall -ggdb
+export CXXFLAGS := -fno-exceptions -fno-rtti
+export ASMFLAGS := -fverbose-asm -dP
+export flags := -O1
+export ARGS :=
+export V := @
+
+TESTS ?= $(sort $(basename $(notdir $(wildcard t/test*)))) all-in-one
 
 all: ttltest.o.report ttltest.report
 	-$(V)for f in $+; do echo -n "$$f: "; cat "$$f"; done
+	$(MAKE) -C t report
 
-test tests:
+tests:
 	$(MAKE) -C t
 
+test: tests
+	./t/all-in-one
+
 runtests: tests
-	$(V)set -e; for t in $(basename $(notdir $(TESTS))); do ./t/$$t; done
+	$(V)set -e; for t in $(basename $(notdir $(TESTS))); do "./t/$$t"; done
 
 ttltest.o: ttltest.cpp
 	$(CXX) -c -o $@ $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
@@ -51,6 +56,7 @@ ttltest: ttltest.o
 	       echo "$$bss" >$<.prevbss; \
 	       echo "$$dec" >$<.prevdec; \
 	    done > $@
+	@test -t 1 && echo -ne '\033[01m$@:	';cat $@;test -t 1 && echo -ne '\033[0m'
 
 valgrind: ttltest
 	valgrind --tool=memcheck --leak-check=full $(abspath $<) $(ARGS)
@@ -61,4 +67,9 @@ gdb:
 	rc=$$?;\
 	rm -f "$$tmp";\
 	exit $$rc
-.PHONY: valgrind gdb all test tests runtests
+
+clean:
+	$(RM) ttltest.o ttltest.d ttltest
+	$(MAKE) -C t $@
+
+.PHONY: valgrind gdb all test tests runtests clean
