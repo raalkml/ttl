@@ -4,6 +4,7 @@ CXXFLAGS := -fno-exceptions -fno-rtti
 ASMFLAGS := -fverbose-asm -dP
 flags := -O1
 ARGS :=
+TESTS ?= all-in-one
 V := @
 
 all: ttltest.o.report ttltest.report
@@ -11,6 +12,9 @@ all: ttltest.o.report ttltest.report
 
 test tests:
 	$(MAKE) -C t
+
+runtests: tests
+	$(V)set -e; for t in $(basename $(notdir $(TESTS))); do ./t/$$t; done
 
 ttltest.o: ttltest.cpp
 	$(CXX) -c -o $@ $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
@@ -57,4 +61,4 @@ gdb:
 	rc=$$?;\
 	rm -f "$$tmp";\
 	exit $$rc
-.PHONY: valgrind gdb all test tests
+.PHONY: valgrind gdb all test tests runtests

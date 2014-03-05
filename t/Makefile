@@ -6,45 +6,43 @@ flags ?= -O1
 V ?= @
 
 sources := $(wildcard test*.cpp) t.cpp
+testsrcs = $(filter test%.cpp,$(sources))
+tests = $(patsubst %.cpp,%,$(testsrcs))
 
-tests: $(patsubst %.cpp,%,$(filter test%.cpp,$(sources))) all-in-one
+tests all: $(tests) all-in-one
 clean:
+	$(RM) $(patsubst %.cpp,%.report,$(testsrcs)) all-in-one.report
+	$(RM) $(patsubst %.cpp,%.to,$(sources)) all-in-one
 	$(RM) $(patsubst %.cpp,%.d,$(sources))
 	$(RM) $(patsubst %.cpp,%.o,$(sources))
-	$(RM) $(patsubst %.cpp,%,$(filter test%.cpp,$(sources)))
-	$(RM) $(patsubst %.cpp,%.to,$(sources)) all-in-one
+	$(RM) $(tests)
 
-%.o: %.cpp
-	$(CXX) -o $@ -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
-%.s: %.cpp
-	$(CXX) -o $@ -S $(CPPFLAGS) $(ASMFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
-%.E: %.cpp
-	$(CXX) -o $@ -E $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
+%.o: %.cpp ; $(CXX) -o $@ -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
+%.s: %.cpp ; $(CXX) -o $@ -S $(CPPFLAGS) $(ASMFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
+%.E: %.cpp ; $(CXX) -o $@ -E $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
+
 -include $(patsubst %.cpp,%.d,$(sources))
 %.d: %.cpp
 	$(CXX) -o $@ -MM -MG -MQ '$(patsubst %.cpp,%.o,$<)' $< $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags)
 
-%: t.o %.o
+test%: t.o test%.o
 	$(CXX) -o $@ $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) $(flags) $+
 
 %.to: %.o
-	objcopy $< $@ --redefine-sym _Z4testv=_Z$$(echo -n '$(basename $(<F))'|wc -c)$(basename $(<F))v
+	objcopy $< $@ --redefine-sym _Z4testv=_Z$(shell echo -n $(*F)|wc -c)$(*F)v
 
-all-in-one: $(patsubst %.cpp,%.to,$(filter test%.cpp,$(sources))) t.o
-	$(V)echo "generating test() function for $@..."
+all-in-one: $(patsubst %.cpp,%.to,$(testsrcs)) t.o
+	$(V)$(subst s,:,$(findstring s,$(MAKEFLAGS))) echo "generating test() function for $@..."
 	$(V)( \
 	   echo '#include <stdio.h>'; \
-	   for n in $(patsubst %.cpp,%,$(filter test%.cpp,$(sources))); \
+	   for n in $(tests); \
 	   do echo "void $$n();"; done; \
 	   echo 'void test() {'; \
-	   for n in $(patsubst %.cpp,%,$(filter test%.cpp,$(sources))); \
+	   for n in $(tests); \
 	   do echo 'fputs(" *** '$$n' ***\\n", stdout);'$$n'();'; done; \
 	   echo '}'; \
 	) | $(CXX) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) -x c++ -c - -o t.to
 	$(CXX) -o $@ $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) $(flags) $+ t.to
-
-reports: $(patsubst %.cpp,%.report,$(filter test%.cpp,$(sources))) all-in-one.report
-	$(V)for r in $+; do echo -n "$$r:	"; cat "$$r"; done
 
 %.report: %
 	-$(V): $(eval SHELL:=bash); \
@@ -71,13 +69,18 @@ reports: $(patsubst %.cpp,%.report,$(filter test%.cpp,$(sources))) all-in-one.re
 	    done > $@
 	@test -t 1 && echo -ne '\033[01m$@:	';cat $@;test -t 1 && echo -ne '\033[0m'
 
-valgrind: ttltest
-	valgrind --tool=memcheck --leak-check=full $(abspath $<) $(ARGS)
-gdb:
-	-tmp=$$(tempfile -p gdb || echo gdb$$$$.tmp) && echo run >"$$tmp"; \
-	test -f "$$tmp" && opt="-x $$tmp";\
-	gdb -q $$opt --args ttltest $(ARGS);\
-	rc=$$?;\
-	rm -f "$$tmp";\
-	exit $$rc
-.PHONY: valgrind gdb all tests reports clean
+reports .NOTPARALLEL: $(patsubst %.cpp,%.report,$(testsrcs)) all-in-one.report
+	$(V)for r in $(patsubst %.cpp,%.report,$(testsrcs)) all-in-one.report; do echo -n "$$r:	"; cat "$$r"; done
+report: tests
+	$(MAKE) reports
+
+#valgrind: ttltest
+#	valgrind --tool=memcheck --leak-check=full $(abspath $<) $(ARGS)
+#gdb:
+#	-tmp=$$(tempfile -p gdb || echo gdb$$$$.tmp) && echo run >"$$tmp"; \
+#	test -f "$$tmp" && opt="-x $$tmp";\
+#	gdb -q $$opt --args ttltest $(ARGS);\
+#	rc=$$?;\
+#	rm -f "$$tmp";\
+#	exit $$rc
+.PHONY: valgrind gdb all tests report reports clean
