@@ -1,20 +1,23 @@
 /////////////////////////////////////////////////// vim: sw=3 ts=8 et
 //
-// Tiny Template Library: the map template implementation
+// Tiny Template Library: a vector of sorted pointers to key-value pairs
+//
+// Can be used as a small map: the underlying data structure is an array,
+// sorted with insertion sort. Has much less element overhead than a
+// red-black tree implementation.
 //
 // This code is Public Domain
 //
-#ifndef _TINY_TEMPLATE_LIBRARY_MAP_HPP_
-#define _TINY_TEMPLATE_LIBRARY_MAP_HPP_ 1
+#ifndef _TINY_TEMPLATE_LIBRARY_PAIR_VECTOR_HPP_
+#define _TINY_TEMPLATE_LIBRARY_PAIR_VECTOR_HPP_ 1
 
 #include "utility.hpp"
 #include "functional.hpp"
 
 namespace ttl
 {
-#if NOT_IMPLEMENTED
    template<typename KT, typename T, typename Compare = ttl::less<KT> >
-   class map // unique keys to values
+   class pair_vector // unique keys to values
    {
    public:
       typedef KT key_type;
@@ -35,7 +38,7 @@ namespace ttl
       struct iterator
       {
       public:
-         typedef map<KT,T,Compare>::value_type value_type;
+         typedef pair_vector<KT,T,Compare>::value_type value_type;
          typedef ttl::ptrdiff_t difference_type;
          typedef value_type *pointer;
          typedef value_type *reference;
@@ -53,14 +56,14 @@ namespace ttl
          bool operator!=(const const_iterator &other) const { return other != *this; }
       private:
          value_type **ptr_;
-         friend class map<KT,T,Compare>;
-         friend class map<KT,T,Compare>::const_iterator;
+         friend class pair_vector<KT,T,Compare>;
+         friend class pair_vector<KT,T,Compare>::const_iterator;
          iterator(value_type **ptr): ptr_(ptr) {}
       };
       struct const_iterator
       {
       public:
-         typedef map<KT,T,Compare>::value_type value_type;
+         typedef pair_vector<KT,T,Compare>::value_type value_type;
          typedef ttl::ptrdiff_t difference_type;
          typedef value_type *pointer;
          typedef value_type *reference;
@@ -80,25 +83,25 @@ namespace ttl
          const_iterator(const iterator &other): ptr_(other.ptr_) {}
       private:
          const value_type * const *ptr_;
-         friend class map<KT,T,Compare>;
+         friend class pair_vector<KT,T,Compare>;
          const_iterator(const value_type * const *ptr): ptr_(ptr) {}
       };
 
    public:
-      explicit map(): elements_(0), last_(0), end_of_elements_(0) {}
-      map(const map& other);
-      explicit map(size_type prealloc)
+      explicit pair_vector(): elements_(0), last_(0), end_of_elements_(0) {}
+      pair_vector(const pair_vector& other);
+      explicit pair_vector(size_type prealloc)
       {
          elements_ = last_ = new value_type*[prealloc];
          end_of_elements_ = elements_ + prealloc;
       }
-      explicit map(const Compare &c): elements_(0), last_(0), end_of_elements_(0), comp_(c) {}
+      explicit pair_vector(const Compare &c): elements_(0), last_(0), end_of_elements_(0), comp_(c) {}
 
       template<class InputIt>
-      map(InputIt first, InputIt last, const Compare & = Compare());
-      map &operator=(const map &other);
+      pair_vector(InputIt first, InputIt last, const Compare & = Compare());
+      pair_vector &operator=(const pair_vector &other);
 
-      ~map()
+      ~pair_vector()
       {
          for (value_type **i = elements_; i != last_; ++i)
             delete *i;
@@ -149,7 +152,7 @@ namespace ttl
       iterator erase(const_iterator first, const_iterator last);
       size_type erase(const key_type &key);
 
-      void swap(map &other);
+      void swap(pair_vector &other);
 
       iterator find(const KT &key);
       const_iterator find(const KT &key) const;
@@ -196,7 +199,7 @@ namespace ttl
       struct value_compare
       {
       protected:
-         friend class map<KT, T, Compare>;
+         friend class pair_vector<KT, T, Compare>;
          Compare comp;
          value_compare(Compare c): comp(c) {}
       public:
@@ -219,7 +222,7 @@ namespace ttl
    };
 
    template<typename KT, typename T, typename Compare>
-   map<KT,T,Compare>::map(const map& other): comp_(other.comp_)
+   pair_vector<KT,T,Compare>::pair_vector(const pair_vector& other): comp_(other.comp_)
    {
       size_type prealloc = other.end_of_elements_ - other.elements_;
       elements_ = last_ = new value_type*[prealloc];
@@ -229,7 +232,7 @@ namespace ttl
    }
 
    template<typename KT, typename T, typename Compare>
-   typename map<KT,T,Compare>::iterator map<KT,T,Compare>::find(const KT &key)
+   typename pair_vector<KT,T,Compare>::iterator pair_vector<KT,T,Compare>::find(const KT &key)
    {
       unsigned L = 0, H = size();
       while (L < H) {
@@ -244,7 +247,7 @@ namespace ttl
       return end();
    }
    template<typename KT, typename T, typename Compare>
-   typename map<KT,T,Compare>::const_iterator map<KT,T,Compare>::find(const KT &key) const
+   typename pair_vector<KT,T,Compare>::const_iterator pair_vector<KT,T,Compare>::find(const KT &key) const
    {
       unsigned L = 0, H = size();
       while (L < H)
@@ -260,7 +263,7 @@ namespace ttl
       return cend();
    }
    template<typename KT, typename T, typename Compare>
-   typename map<KT,T,Compare>::iterator map<KT,T,Compare>::find_insert_pos(const KT &key) const
+   typename pair_vector<KT,T,Compare>::iterator pair_vector<KT,T,Compare>::find_insert_pos(const KT &key) const
    {
       unsigned L = 0, H = size();
       while (L < H)
@@ -276,8 +279,8 @@ namespace ttl
       return iterator(elements_ + L);
    }
    template<typename KT, typename T, typename Compare>
-   typename map<KT,T,Compare>::iterator map<KT,T,Compare>::insert_before(iterator pos,
-                                                                         const value_type& value)
+   typename pair_vector<KT,T,Compare>::iterator
+   pair_vector<KT,T,Compare>::insert_before(iterator pos, const value_type& value)
    {
       if (end_of_elements_ - last_ < 1)
       {
@@ -309,6 +312,5 @@ namespace ttl
       *i = new value_type(value);
       return iterator(i);
    }
-#endif
 }
-#endif // _TINY_TEMPLATE_LIBRARY_MAP_HPP_
+#endif // _TINY_TEMPLATE_LIBRARY_PAIR_VECTOR_HPP_

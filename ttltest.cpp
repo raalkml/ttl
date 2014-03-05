@@ -212,12 +212,13 @@ void test_fixed_vector()
    }
    printf("\ndestructors:\n");
 }
-template class ttl::map<char, int>;
 
-void print_map(const char *s, const ttl::map<char, int> &m)
+template class ttl::pair_vector<char, int>;
+
+void print_pair_vector(const char *s, const ttl::pair_vector<char, int> &m)
 {
    fputs(s, stdout);
-   for (ttl::map<char, int>::const_iterator i = m.cbegin(); i != m.cend(); ++i)
+   for (ttl::pair_vector<char, int>::const_iterator i = m.cbegin(); i != m.cend(); ++i)
       if (i->first < 0)
          printf("--- = %3d ", i->second);
       else if (i->first < 32)
@@ -227,20 +228,20 @@ void print_map(const char *s, const ttl::map<char, int> &m)
    fputs(".\n", stdout);
 }
 
-void test_map()
+void test_pair_vector()
 {
-   ttl::map<char, int> m;
-   ttl::map<char, int> m1 = m;
-   ttl::map<char, int> m2;
-   ttl::map<char, int>();
-   ttl::map<char, int>();
+   ttl::pair_vector<char, int> m;
+   ttl::pair_vector<char, int> m1 = m;
+   ttl::pair_vector<char, int> m2;
+   ttl::pair_vector<char, int>();
+   ttl::pair_vector<char, int>();
    m1[(char)'1'] = 1;
    m1[(char)'2'] = 2;
    m1[(char)'3'] = 3;
    m1[(char)'4'] = 4;
    m1[(char)'5'] = 5;
    m1[(char)255] = 255;
-   print_map("[]\n", m1);
+   print_pair_vector("[]\n", m1);
    m1.insert(ttl::make_pair((char)'a', (int)0xa));
    m1.insert(ttl::make_pair((char)'b', (int)0xb));
    m1.insert(ttl::make_pair((char)'c', (int)0xc));
@@ -248,12 +249,12 @@ void test_map()
    m1.insert(ttl::make_pair((char)'e', (int)0xe));
    m1.insert(ttl::make_pair((char)'f', (int)0xf));
    m1.insert(ttl::make_pair((char)255, 255));
-   print_map("insert\n", m1);
+   print_pair_vector("insert\n", m1);
    //for (char c = 0; (unsigned)c <= 127u; ++c)
    //   m1.insert(m1.end(), ttl::make_pair(c, (int)c));
-   //print_map("insert(iterator)\n", m1);
+   //print_pair_vector("insert(iterator)\n", m1);
    m1.clear();
-   print_map("clear: ", m1);
+   print_pair_vector("clear: ", m1);
 }
 
 template class ttl::forward_list<testtype>;
@@ -795,7 +796,7 @@ static const struct
    { "pair",   &test_pair },
    { "vector", &test_vector },
    { "fixed_vector", &test_fixed_vector },
-   { "map",    &test_map },
+   { "pair_vector",    &test_pair_vector },
    { "list",   &test_forward_list },
    { "backward_list",   &test_backward_list },
    { "lazy_queue", &test_lazy_queue },

@@ -1,13 +1,13 @@
 // vim: sw=3 ts=8 et
-#include "ttl/map.hpp"
+#include "ttl/pair_vector.hpp"
 #include "t.hpp"
 
-template class ttl::map<char, int>;
+template class ttl::pair_vector<char, int>;
 
-static void print_map(const char *s, const ttl::map<char, int> &m)
+static void print_map(const char *s, const ttl::pair_vector<char, int> &m)
 {
    fputs(s, stdout);
-   for (ttl::map<char, int>::const_iterator i = m.cbegin(); i != m.cend(); ++i)
+   for (ttl::pair_vector<char, int>::const_iterator i = m.cbegin(); i != m.cend(); ++i)
       if (i->first < 0)
          printf("--- = %3d ", i->second);
       else if (i->first < 32)
@@ -19,11 +19,11 @@ static void print_map(const char *s, const ttl::map<char, int> &m)
 
 void test()
 {
-   ttl::map<char, int> m;
-   ttl::map<char, int> m1 = m;
-   ttl::map<char, int> m2;
-   ttl::map<char, int>();
-   ttl::map<char, int>();
+   ttl::pair_vector<char, int> m;
+   ttl::pair_vector<char, int> m1 = m;
+   ttl::pair_vector<char, int> m2;
+   ttl::pair_vector<char, int>();
+   ttl::pair_vector<char, int>();
    m1[(char)'1'] = 1;
    m1[(char)'2'] = 2;
    m1[(char)'3'] = 3;
