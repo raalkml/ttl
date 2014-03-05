@@ -307,7 +307,7 @@ namespace ttl
             h = h.right();
       }
       node *newnode = new node(data);
-      (void)rbtree_base::insert(h, newnode);
+      (void)insert(h, newnode);
       return newnode;
    }
 
@@ -329,7 +329,7 @@ namespace ttl
             h = h.right();
       }
       node *newnode = new node(data);
-      (void)rbtree_base::insert(h, newnode);
+      (void)insert(h, newnode);
       return newnode;
    }
 
