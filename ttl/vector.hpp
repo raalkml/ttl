@@ -7,7 +7,6 @@
 #ifndef _TINY_TEMPLATE_LIBRARY_VECTOR_HPP_
 #define _TINY_TEMPLATE_LIBRARY_VECTOR_HPP_ 1
 
-#include <stddef.h>
 #include <new>
 #include "types.hpp"
 #include "utility.hpp"
@@ -32,7 +31,7 @@ namespace ttl
       T *elements_, *last_, *end_of_elements_;
 
    public:
-      vector(): elements_(NULL), last_(NULL), end_of_elements_(NULL) {}
+      vector(): elements_(0), last_(0), end_of_elements_(0) {}
       explicit vector(size_type n, const value_type &value = value_type());
       vector(const vector &other);
       template<typename RandomAccessIterator>
@@ -159,7 +158,7 @@ namespace ttl
    template<typename T>
    template<typename RandomAccessIterator>
    vector<T>::vector(RandomAccessIterator first, RandomAccessIterator last):
-      elements_(NULL), last_(NULL), end_of_elements_(NULL)
+      elements_(0), last_(0), end_of_elements_(0)
    {
       reserve(ttl::distance(first, last));
       for (; first != last; ++first)

@@ -9,7 +9,6 @@
 #ifndef _TINY_TEMPLATE_LIBRARY_BACKWARD_LIST_HPP_
 #define _TINY_TEMPLATE_LIBRARY_BACKWARD_LIST_HPP_ 1
 
-#include <stddef.h>
 #include "types.hpp"
 #include "utility.hpp"
 #include "slist_node.hpp"
@@ -94,25 +93,25 @@ namespace ttl
 
       backward_list()
       {
-         head_.next = NULL;
+         head_.next = 0;
          tail_ = &head_;
       }
       backward_list(const backward_list &other)
       {
-         head_.next = NULL;
+         head_.next = 0;
          tail_ = &head_;
          insert_after(cbefore_begin(), other.cbegin(), other.cend());
       }
       backward_list(size_type n, const T &value)
       {
-         head_.next = NULL;
+         head_.next = 0;
          tail_ = &head_;
          insert_after(cbefore_begin(), n, value);
       }
       template<typename InputIterator>
       backward_list(InputIterator first, InputIterator last)
       {
-         head_.next = NULL;
+         head_.next = 0;
          tail_ = &head_;
          insert_after(cbefore_begin(), first, last);
       }
@@ -127,15 +126,15 @@ namespace ttl
 
       iterator before_begin() { return iterator(&head_); }
       iterator begin() { return iterator(head_.next); }
-      iterator end() { return iterator(NULL); }
+      iterator end() { return iterator(0); }
       iterator before_end() { return iterator(tail_); }
       const_iterator before_begin() const { return const_iterator(&head_); }
       const_iterator begin() const { return const_iterator(head_.next); }
-      const_iterator end() const { return const_iterator(NULL); }
+      const_iterator end() const { return const_iterator(0); }
       const_iterator before_end() const { return const_iterator(tail_); }
       const_iterator cbefore_begin() const { return const_iterator(&head_); }
       const_iterator cbegin() const { return const_iterator(head_.next); }
-      const_iterator cend() const { return const_iterator(NULL); }
+      const_iterator cend() const { return const_iterator(0); }
       const_iterator cbefore_end() const { return const_iterator(tail_); }
 
       bool empty() const { return &head_ == tail_; }
@@ -180,7 +179,7 @@ namespace ttl
 #if TODO
       void splice_after(const_iterator pos, backward_list &other)
       {
-         const_cast<slist_node *>(pos.head_)->splice_after(&other.head_, NULL);
+         const_cast<slist_node *>(pos.head_)->splice_after(&other.head_, 0);
       }
       void splice_after(const_iterator pos, backward_list &, const_iterator it)
       {

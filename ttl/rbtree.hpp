@@ -38,7 +38,7 @@ namespace ttl
    protected:
       rbnode *root_;
    public:
-      rbtree_base(): root_(NULL) {}
+      rbtree_base(): root_(0) {}
       ~rbtree_base() {}
 
       struct hint
@@ -67,9 +67,9 @@ namespace ttl
          const_hint right() const { return const_hint(&(*pos)->right, *pos); }
       };
 
-      hint get_root() { return hint(&root_, NULL); }
-      const_hint get_root() const { return const_hint(&root_, NULL); }
-      const_hint get_croot() const { return const_hint(&root_, NULL); }
+      hint get_root() { return hint(&root_, 0); }
+      const_hint get_root() const { return const_hint(&root_, 0); }
+      const_hint get_croot() const { return const_hint(&root_, 0); }
 
       static rbnode *min_node(rbnode *n)
       {
@@ -97,13 +97,13 @@ namespace ttl
                n = n->parent;
             return n->parent;
          }
-         return NULL;
+         return (rbnode *)0;
       }
 
       rbnode *insert(const hint &pos, rbnode *newnode)
       {
          newnode->color = rbnode::RED;
-         newnode->left = newnode->right = NULL;
+         newnode->left = newnode->right = 0;
          newnode->parent = pos.parent;
          *pos.pos = newnode;
          insert_rebalance(pos);
@@ -215,7 +215,7 @@ namespace ttl
          }
          rbnode *deleted = *pivot;
          rbnode *parent = deleted->parent;
-         *pivot = NULL;
+         *pivot = 0;
          while (root != pivot)
          {
             pivot = edge(parent);
@@ -277,7 +277,7 @@ namespace ttl
          if (compare(keyof(data), keyof(static_cast<const node *>(*h)->data)))
             h = h.left();
          else if (keyof(data) == keyof(static_cast<const node *>(*h)->data))
-            return NULL;
+            return (node *)0;
          else
             h = h.right();
       }
@@ -291,7 +291,7 @@ namespace ttl
    {
       Compare compare;
       KeyOfValue keyof;
-      rbnode **root  = &root_, *parent = NULL, *deleted = NULL;
+      rbnode **root  = &root_, *parent = 0, *deleted = 0;
       while (*root)
       {
          parent = (*root)->parent;
@@ -314,7 +314,7 @@ namespace ttl
                 !(*root)->right)
             {
                deleted = *root;
-               *root = NULL;
+               *root = 0;
                break;
             }
             if ((*root)->right && !is_red((*root)->right) && !is_red((*root)->right->left))

@@ -47,7 +47,7 @@ namespace ttl
       }
       void reverse()
       {
-         slist_node *reversed = NULL;
+         slist_node *reversed = 0;
          slist_node *orig = next;
          while (orig)
          {

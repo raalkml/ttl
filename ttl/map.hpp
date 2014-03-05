@@ -7,7 +7,6 @@
 #ifndef _TINY_TEMPLATE_LIBRARY_MAP_HPP_
 #define _TINY_TEMPLATE_LIBRARY_MAP_HPP_ 1
 
-#include <stddef.h>
 #include "utility.hpp"
 #include "functional.hpp"
 
@@ -85,14 +84,14 @@ namespace ttl
       };
 
    public:
-      explicit map(): elements_(NULL), last_(NULL), end_of_elements_(NULL) {}
+      explicit map(): elements_(0), last_(0), end_of_elements_(0) {}
       map(const map& other);
       explicit map(size_type prealloc)
       {
          elements_ = last_ = new value_type*[prealloc];
          end_of_elements_ = elements_ + prealloc;
       }
-      explicit map(const Compare &c): elements_(NULL), last_(NULL), end_of_elements_(NULL), comp_(c) {}
+      explicit map(const Compare &c): elements_(0), last_(0), end_of_elements_(0), comp_(c) {}
 
       template<class InputIt>
       map(InputIt first, InputIt last, const Compare & = Compare());
@@ -299,7 +298,7 @@ namespace ttl
          end_of_elements_ = elements_ + newcapacity;
          last_ = o;
          while (o < end_of_elements_)
-            *o++ = NULL;
+            *o++ = (value_type *)0;
          return pos;
       }
       value_type **i = last_++;

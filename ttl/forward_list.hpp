@@ -7,7 +7,6 @@
 #ifndef _TINY_TEMPLATE_LIBRARY_FORWARD_LIST_HPP_
 #define _TINY_TEMPLATE_LIBRARY_FORWARD_LIST_HPP_ 1
 
-#include <stddef.h>
 #include "types.hpp"
 #include "utility.hpp"
 #include "slist_node.hpp"
@@ -89,21 +88,21 @@ namespace ttl
          const_iterator(const slist_node *head): head_(head) {}
       };
 
-      forward_list() { head_.next = NULL; }
+      forward_list() { head_.next = 0; }
       forward_list(const forward_list &other)
       {
-         head_.next = NULL;
+         head_.next = 0;
          insert_after(cbefore_begin(), other.cbegin(), other.cend());
       }
       forward_list(size_type n, const T &value)
       {
-         head_.next = NULL;
+         head_.next = 0;
          insert_after(cbefore_begin(), n, value);
       }
       template<typename InputIterator>
       forward_list(InputIterator first, InputIterator last)
       {
-         head_.next = NULL;
+         head_.next = 0;
          insert_after(cbefore_begin(), first, last);
       }
       ~forward_list() { clear(); }
@@ -117,13 +116,13 @@ namespace ttl
 
       iterator before_begin() { return iterator(&head_); }
       iterator begin() { return iterator(head_.next); }
-      iterator end() { return iterator(NULL); }
+      iterator end() { return iterator(0); }
       const_iterator before_begin() const { return const_iterator(&head_); }
       const_iterator begin() const { return const_iterator(head_.next); }
-      const_iterator end() const { return const_iterator(NULL); }
+      const_iterator end() const { return const_iterator(0); }
       const_iterator cbefore_begin() const { return const_iterator(&head_); }
       const_iterator cbegin() const { return const_iterator(head_.next); }
-      const_iterator cend() const { return const_iterator(NULL); }
+      const_iterator cend() const { return const_iterator(0); }
 
       bool empty() const { return !head_.next; }
       size_type max_size() const { return (size_type)-1/sizeof(node); }
@@ -156,7 +155,7 @@ namespace ttl
 
       void splice_after(const_iterator pos, forward_list &other)
       {
-         const_cast<slist_node *>(pos.head_)->splice_after(&other.head_, NULL);
+         const_cast<slist_node *>(pos.head_)->splice_after(&other.head_, 0);
       }
       void splice_after(const_iterator pos, forward_list &, const_iterator it)
       {
