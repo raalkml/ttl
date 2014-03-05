@@ -5,4 +5,5 @@
 *.prevdec
 *.[do]
 *.to
+*.tmp
 ttltest
