@@ -7,6 +7,7 @@
 #ifndef _TINY_TEMPLATE_LIBRARY_BITSET_HPP_
 #define _TINY_TEMPLATE_LIBRARY_BITSET_HPP_ 1
 
+#include <limits.h>
 #include "types.hpp"
 
 namespace ttl

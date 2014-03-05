@@ -11,6 +11,7 @@
 #ifndef _TINY_TEMPLATE_LIBRARY_LAZY_QUEUE_HPP_
 #define _TINY_TEMPLATE_LIBRARY_LAZY_QUEUE_HPP_ 1
 
+#include <stddef.h>
 #include <new>
 #include "types.hpp"
 #include "utility.hpp"

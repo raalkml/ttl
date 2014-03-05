@@ -7,6 +7,9 @@
 #ifndef _TINY_TEMPLATE_LIBRARY_TYPE_TRAITS_HPP_
 #define _TINY_TEMPLATE_LIBRARY_TYPE_TRAITS_HPP_
 
+#include <limits.h>
+#include "types.hpp"
+
 namespace ttl
 {
    template<class T> struct remove_const          { typedef T type; };

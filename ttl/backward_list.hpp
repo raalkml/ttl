@@ -9,6 +9,7 @@
 #ifndef _TINY_TEMPLATE_LIBRARY_BACKWARD_LIST_HPP_
 #define _TINY_TEMPLATE_LIBRARY_BACKWARD_LIST_HPP_ 1
 
+#include <stddef.h>
 #include "types.hpp"
 #include "utility.hpp"
 #include "slist_node.hpp"
@@ -24,8 +25,8 @@ namespace ttl
       typedef const T *const_pointer;
       typedef T &reference;
       typedef const T &const_reference;
-      typedef std::size_t size_type;
-      typedef std::ptrdiff_t difference_type;
+      typedef size_t size_type;
+      typedef ptrdiff_t difference_type;
 
    private:
       struct node: slist_node
