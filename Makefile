@@ -5,6 +5,7 @@ export ASMFLAGS := -fverbose-asm -dP
 export flags := -O1
 export ARGS :=
 export V := @
+export TESTS
 
 TESTS ?= $(sort $(basename $(notdir $(wildcard t/test*)))) all-in-one
 
