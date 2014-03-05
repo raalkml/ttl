@@ -253,10 +253,11 @@ namespace ttl
    {
       Compare compare;
       KeyOfValue keyof;
+      const K &key = keyof(data);
       hint h = get_root();
       while (*h)
       {
-         if (compare(keyof(data), keyof(static_cast<const node *>(*h)->data)))
+         if (compare(key, keyof(static_cast<const node *>(*h)->data)))
             h = h.left();
          else
             h = h.right();
@@ -271,12 +272,14 @@ namespace ttl
    {
       Compare compare;
       KeyOfValue keyof;
+      const K &key = keyof(data);
       hint h = get_root();
       while (*h)
       {
-         if (compare(keyof(data), keyof(static_cast<const node *>(*h)->data)))
+         const K &hkey = keyof(static_cast<const node *>(*h)->data);
+         if (compare(key, hkey))
             h = h.left();
-         else if (keyof(data) == keyof(static_cast<const node *>(*h)->data))
+         else if (key == hkey)
             return (node *)0;
          else
             h = h.right();
