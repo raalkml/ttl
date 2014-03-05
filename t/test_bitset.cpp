@@ -1,5 +1,6 @@
 // vim: sw=3 ts=8 et
 #include <bitset>
+#include "ttl/bitset.hpp"
 #include "t.hpp"
 
 template class ttl::bitset<128>;

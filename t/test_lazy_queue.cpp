@@ -1,4 +1,5 @@
 // vim: sw=3 ts=8 et
+#include "ttl/lazy_queue.hpp"
 #include "t.hpp"
 
 #define TRIVIAL_TEST_TYPE 0

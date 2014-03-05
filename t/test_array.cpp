@@ -1,4 +1,5 @@
 // vim: sw=3 ts=8 et
+#include "ttl/array.hpp"
 #include "t.hpp"
 
 void test()

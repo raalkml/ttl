@@ -1,4 +1,5 @@
 // vim: sw=3 ts=8 et
+#include "ttl/map.hpp"
 #include "t.hpp"
 
 template class ttl::map<char, int>;

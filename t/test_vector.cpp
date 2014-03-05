@@ -1,4 +1,5 @@
 // vim: sw=3 ts=8 et
+#include "ttl/vector.hpp"
 #include "t.hpp"
 
 template class ttl::vector<testtype>;
