@@ -20,8 +20,6 @@
 #ifndef _TINY_TEMPLATE_LIBRARY_HPP_
 #define _TINY_TEMPLATE_LIBRARY_HPP_ 1
 
-#include <new>
-
 #include "types.hpp"
 #include "type_traits.hpp"
 #include "functional.hpp"
