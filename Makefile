@@ -3,12 +3,14 @@ CFLAGS := -Wall -ggdb
 CXXFLAGS := -fno-exceptions -fno-rtti
 ASMFLAGS := -fverbose-asm -dP
 flags := -O1
-SHELL := bash
 ARGS :=
 V := @
 
 all: ttltest.o.report ttltest.report
 	-$(V)for f in $+; do echo -n "$$f: "; cat "$$f"; done
+
+test tests:
+	$(MAKE) -C t
 
 ttltest.o: ttltest.cpp
 	$(CXX) -c -o $@ $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
@@ -23,7 +25,8 @@ ttltest: ttltest.o
 	$(CXX) $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) $(flags) -o $@ $+
 
 %.report: %
-	-$(V)test -f $<.prevtext && prevtext=$$(< $<.prevtext);\
+	-$(V): $(eval SHELL:=bash) ; \
+	    test -f $<.prevtext && prevtext=$$(< $<.prevtext);\
 	    test -n "$$prevtext" || prevtext=0;\
 	    test -f $<.prevdec && prevdec=$$(< $<.prevdec);\
 	    test -n "$$prevdec" || prevdec=0;\
@@ -54,4 +57,4 @@ gdb:
 	rc=$$?;\
 	rm -f "$$tmp";\
 	exit $$rc
-.PHONY: valgrind gdb all
+.PHONY: valgrind gdb all test tests
