@@ -86,6 +86,16 @@ void test()
       k = h.pos ? rbtree_map::keyof_type()(static_cast<const rbtree_map::node *>(*h)->data): 0;
       printf("lower_bound(%d): %p %d\n", 7, h.pos ? *h: NULL, k);
       assert(k >= 7);
+
+      h = t.upper_bound(7); // removed value
+      k = h.pos ? rbtree_map::keyof_type()(static_cast<const rbtree_map::node *>(*h)->data): 0;
+      printf("upper_bound(%d): %p %d\n", 7, h.pos ? *h: NULL, k);
+      assert(k > 7);
+
+      h = t.upper_bound(5); // removed value
+      k = h.pos ? rbtree_map::keyof_type()(static_cast<const rbtree_map::node *>(*h)->data): 0;
+      printf("upper_bound(%d): %p %d\n", 5, h.pos ? *h: NULL, k);
+      assert(k > 5);
    }
 
    rbtree_set s;

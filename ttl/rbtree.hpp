@@ -249,6 +249,7 @@ namespace ttl
 
       const_hint find(const K &) const;
       const_hint lower_bound(const K &) const;
+      const_hint upper_bound(const K &) const;
    };
 
    template <class K, class KV, class KeyOfValue, class Compare>
@@ -290,6 +291,28 @@ namespace ttl
       }
 
       return compare(key, keyof(static_cast<const node *>(*prev)->data)) ? prev: const_hint(0, 0);
+   }
+
+   template <class K, class KV, class KeyOfValue, class Compare>
+   rbtree_base::const_hint rbtree<K,KV,KeyOfValue,Compare>::upper_bound(const K &key) const
+   {
+      Compare compare;
+      KeyOfValue keyof;
+      const_hint h = get_root();
+      while (*h)
+      {
+         const K &hkey = keyof(static_cast<const node *>(*h)->data);
+         if (compare(key, hkey))
+            h = h.left();
+         else if (key == hkey)
+            break;
+         else
+            h = h.right();
+      }
+      while (*h && key == keyof(static_cast<const node *>(*h)->data))
+         h = h.right();
+
+      return h;
    }
 
    template <class K, class KV, class KeyOfValue, class Compare>
