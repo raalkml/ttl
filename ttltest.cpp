@@ -42,7 +42,7 @@ void test_array()
 {
    ttl::array<int, 3> i3 = { {1,2,3} };
    for (ttl::array<int, 3>::const_iterator i = i3.begin(); i != i3.end(); ++i)
-      printf("%ld/%d: %d\n", long(i - i3.begin()), i3.size(), *i);
+      printf("%ld/%lu: %d\n", long(i - i3.begin()), (unsigned long)i3.size(), *i);
    ttl::array<int, 3> i30;
    i30 = i3;
    printf("equal? %s\n", i3 == i30 ? "yes": "no");
@@ -144,7 +144,7 @@ void test_fixed_vector()
    for (testvector::const_iterator i = v0.cbegin(); i != v0.cend(); ++i)
       printf(" %d", i->value);
    testvector vCopy = v0;
-   printf("size of a copy: %u\n", vCopy.size());
+   printf("size of a copy: %lu\n", (unsigned long)vCopy.size());
    printf("copy[0]: %d\n", vCopy[0].value);
    printf("copy[1]: %d\n", vCopy[1].value);
 

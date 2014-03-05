@@ -14,7 +14,7 @@ void test()
    for (testvector::const_iterator i = v0.cbegin(); i != v0.cend(); ++i)
       printf(" %d", i->value);
    testvector vCopy = v0;
-   printf("size of a copy: %u\n", vCopy.size());
+   printf("size of a copy: %lu\n", (unsigned long)vCopy.size());
    printf("copy[0]: %d\n", vCopy[0].value);
    printf("copy[1]: %d\n", vCopy[1].value);
 

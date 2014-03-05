@@ -7,7 +7,7 @@ void test()
    ttl::array<int, 3> i3 = { {1,2,3} };
 
    for (ttl::array<int, 3>::const_iterator i = i3.begin(); i != i3.end(); ++i)
-      printf("%ld/%d: %d\n", long(i - i3.begin()), i3.size(), *i);
+      printf("%ld/%lu: %d\n", long(i - i3.begin()), (unsigned long)i3.size(), *i);
 
    ttl::array<int, 3>::iterator j = i3.begin();
    for (ttl::array<int, 3>::const_iterator i = i3.cbegin(); i != i3.cend(); ++i)
