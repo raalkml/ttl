@@ -306,13 +306,13 @@ namespace ttl
    template <class K, class KV, class KeyOfValue, class Compare>
    rbtree_base::const_link rbtree<K,KV,KeyOfValue,Compare>::find(const K &key) const
    {
-      Compare compare;
+      Compare is_less;
       KeyOfValue keyof;
       const_link h = get_root();
       while (*h)
       {
          const K &hkey = keyof(static_cast<const node *>(*h)->data);
-         if (compare(key, hkey))
+         if (is_less(key, hkey))
             h = h.left();
          else if (key == hkey)
             break;
@@ -325,13 +325,13 @@ namespace ttl
    template <class K, class KV, class KeyOfValue, class Compare>
    rbtree_base::const_link rbtree<K,KV,KeyOfValue,Compare>::lower_bound(const K &key) const
    {
-      Compare compare;
+      Compare is_less;
       KeyOfValue keyof;
       const_link h = get_root();
       const_link prev(0, 0);
       while (*h)
       {
-         if (compare(keyof(static_cast<const node *>(*h)->data), key))
+         if (is_less(keyof(static_cast<const node *>(*h)->data), key))
             h = h.right();
          else
          {
@@ -348,13 +348,13 @@ namespace ttl
    template <class K, class KV, class KeyOfValue, class Compare>
    rbtree_base::const_link rbtree<K,KV,KeyOfValue,Compare>::upper_bound(const K &key) const
    {
-      Compare compare;
+      Compare is_less;
       KeyOfValue keyof;
       const_link h = get_root();
       const_link prev(0, 0);
       while (*h)
       {
-         if (compare(key, keyof(static_cast<const node *>(*h)->data)))
+         if (is_less(key, keyof(static_cast<const node *>(*h)->data)))
             prev = h, h = h.left();
          else
             h = h.right();
@@ -365,13 +365,13 @@ namespace ttl
    template <class K, class KV, class KeyOfValue, class Compare>
    typename rbtree<K,KV,KeyOfValue,Compare>::node *rbtree<K,KV,KeyOfValue,Compare>::insert_equal(const KV &data)
    {
-      Compare compare;
+      Compare is_less;
       KeyOfValue keyof;
       const K &key = keyof(data);
       link h = get_root();
       while (*h)
       {
-         if (compare(key, keyof(static_cast<const node *>(*h)->data)))
+         if (is_less(key, keyof(static_cast<const node *>(*h)->data)))
             h = h.left();
          else
             h = h.right();
@@ -384,14 +384,14 @@ namespace ttl
    template <class K, class KV, class KeyOfValue, class Compare>
    typename rbtree<K,KV,KeyOfValue,Compare>::node *rbtree<K,KV,KeyOfValue,Compare>::insert_unique(const KV &data)
    {
-      Compare compare;
+      Compare is_less;
       KeyOfValue keyof;
       const K &key = keyof(data);
       link h = get_root();
       while (*h)
       {
          const K &hkey = keyof(static_cast<const node *>(*h)->data);
-         if (compare(key, hkey))
+         if (is_less(key, hkey))
             h = h.left();
          else if (key == hkey)
             return (node *)0;
