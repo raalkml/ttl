@@ -49,6 +49,7 @@ namespace ttl
 
          rbnode *operator*() { return *pos; }
          const rbnode *operator*() const { return *pos; }
+         rbnode *node() const { return pos ? *pos: 0; }
 
          link left() { return link(&(*pos)->left, *pos); }
          link right() { return link(&(*pos)->right, *pos); }
@@ -62,6 +63,7 @@ namespace ttl
 
          rbnode *operator*() { return *pos; }
          const rbnode *operator*() const { return *pos; }
+         rbnode *node() const { return pos ? *pos: 0; }
 
          const_link left() const { return const_link(&(*pos)->left, *pos); }
          const_link right() const { return const_link(&(*pos)->right, *pos); }
