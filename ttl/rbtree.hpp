@@ -243,7 +243,7 @@ namespace ttl
       };
 
       rbtree() {}
-      ~rbtree() {}
+      ~rbtree() { clear(); }
 
       node *insert_equal(const KV &data);
       node *insert_unique(const KV &data);
@@ -281,7 +281,28 @@ namespace ttl
       }
 
       size_t count(const K &k) const;
+
+      void clear();
+
+   private:
+
+      void preorder_destroy(node *n)
+      {
+         if (n->left)
+            preorder_destroy(static_cast<node *>(n->left));
+         if (n->right)
+            preorder_destroy(static_cast<node *>(n->right));
+         delete n;
+      }
    };
+
+   template <class K, class KV, class KeyOfValue, class Compare>
+   void rbtree<K,KV,KeyOfValue,Compare>::clear()
+   {
+      node *root = static_cast<node *>(root_);
+      root_ = 0;
+      preorder_destroy(root);
+   }
 
    template <class K, class KV, class KeyOfValue, class Compare>
    size_t rbtree<K,KV,KeyOfValue,Compare>::count(const K &key) const
