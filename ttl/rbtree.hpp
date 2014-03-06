@@ -355,10 +355,7 @@ namespace ttl
       while (*h)
       {
          if (compare(key, keyof(static_cast<const node *>(*h)->data)))
-         {
-            prev = h;
-            h = h.left();
-         }
+            prev = h, h = h.left();
          else
             h = h.right();
       }
