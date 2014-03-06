@@ -17,9 +17,9 @@ struct select_same
 typedef ttl::rbtree<int, int, select_same<int>, ttl::less<int> > rbtree_set;
 
 template<typename Container>
-static void inorder(const ttl::rbtree_base::const_hint &h, int depth = 0)
+static void inorder(const ttl::rbtree_base::const_link &h, int depth = 0)
 {
-   ttl::rbtree_base::const_hint c = h.left();
+   ttl::rbtree_base::const_link c = h.left();
    if (*c)
       inorder<Container>(c, depth + 1);
    for (int i = depth; i--;)
@@ -68,7 +68,7 @@ void test()
 
    printf("find & lower_boundary\n");
    {
-      ttl::rbtree_base::const_hint h = t.find(3);
+      ttl::rbtree_base::const_link h = t.find(3);
       int k = rbtree_map::keyof_type()(static_cast<const rbtree_map::node *>(*h)->data);
       printf("find: %d\n", k);
       assert(3 == k);

@@ -41,35 +41,35 @@ namespace ttl
       rbtree_base(): root_(0) {}
       ~rbtree_base() {}
 
-      struct hint
+      struct link
       {
          rbnode **pos;
          rbnode *parent;
-         hint(rbnode **p, rbnode *pp): pos(p), parent(pp) {}
+         link(rbnode **p, rbnode *pp): pos(p), parent(pp) {}
 
          rbnode *operator*() { return *pos; }
          const rbnode *operator*() const { return *pos; }
 
-         hint left() { return hint(&(*pos)->left, *pos); }
-         hint right() { return hint(&(*pos)->right, *pos); }
+         link left() { return link(&(*pos)->left, *pos); }
+         link right() { return link(&(*pos)->right, *pos); }
       };
-      struct const_hint
+      struct const_link
       {
          rbnode * const *pos;
          rbnode *parent;
-         const_hint(const hint &h): pos(h.pos), parent(h.parent) {}
-         const_hint(rbnode * const *p, rbnode *pp): pos(p), parent(pp) {}
+         const_link(const link &h): pos(h.pos), parent(h.parent) {}
+         const_link(rbnode * const *p, rbnode *pp): pos(p), parent(pp) {}
 
          rbnode *operator*() { return *pos; }
          const rbnode *operator*() const { return *pos; }
 
-         const_hint left() const { return const_hint(&(*pos)->left, *pos); }
-         const_hint right() const { return const_hint(&(*pos)->right, *pos); }
+         const_link left() const { return const_link(&(*pos)->left, *pos); }
+         const_link right() const { return const_link(&(*pos)->right, *pos); }
       };
 
-      hint get_root() { return hint(&root_, 0); }
-      const_hint get_root() const { return const_hint(&root_, 0); }
-      const_hint get_croot() const { return const_hint(&root_, 0); }
+      link get_root() { return link(&root_, 0); }
+      const_link get_root() const { return const_link(&root_, 0); }
+      const_link get_croot() const { return const_link(&root_, 0); }
 
       static rbnode *min_node(rbnode *n)
       {
@@ -100,7 +100,7 @@ namespace ttl
          return (rbnode *)0;
       }
 
-      rbnode *insert(const hint &pos, rbnode *newnode)
+      rbnode *insert(const link &pos, rbnode *newnode)
       {
          newnode->color = rbnode::RED;
          newnode->left = newnode->right = 0;
@@ -170,7 +170,7 @@ namespace ttl
          return &h->parent->right;
       }
 
-      void insert_rebalance(const hint &h)
+      void insert_rebalance(const link &h)
       {
          rbnode **root = h.pos, *parent = h.parent;
          while (parent && (is_red(parent->left) || is_red(parent->right)))
@@ -247,17 +247,17 @@ namespace ttl
       node *insert_unique(const KV &data);
       node *remove(const K &key);
 
-      const_hint find(const K &) const;
-      const_hint lower_bound(const K &) const;
-      const_hint upper_bound(const K &) const;
+      const_link find(const K &) const;
+      const_link lower_bound(const K &) const;
+      const_link upper_bound(const K &) const;
    };
 
    template <class K, class KV, class KeyOfValue, class Compare>
-   rbtree_base::const_hint rbtree<K,KV,KeyOfValue,Compare>::find(const K &key) const
+   rbtree_base::const_link rbtree<K,KV,KeyOfValue,Compare>::find(const K &key) const
    {
       Compare compare;
       KeyOfValue keyof;
-      const_hint h = get_root();
+      const_link h = get_root();
       while (*h)
       {
          const K &hkey = keyof(static_cast<const node *>(*h)->data);
@@ -272,12 +272,12 @@ namespace ttl
    }
 
    template <class K, class KV, class KeyOfValue, class Compare>
-   rbtree_base::const_hint rbtree<K,KV,KeyOfValue,Compare>::lower_bound(const K &key) const
+   rbtree_base::const_link rbtree<K,KV,KeyOfValue,Compare>::lower_bound(const K &key) const
    {
       Compare compare;
       KeyOfValue keyof;
-      const_hint h = get_root();
-      const_hint prev(0, 0);
+      const_link h = get_root();
+      const_link prev(0, 0);
       while (*h)
       {
          if (compare(keyof(static_cast<const node *>(*h)->data), key))
@@ -293,12 +293,12 @@ namespace ttl
    }
 
    template <class K, class KV, class KeyOfValue, class Compare>
-   rbtree_base::const_hint rbtree<K,KV,KeyOfValue,Compare>::upper_bound(const K &key) const
+   rbtree_base::const_link rbtree<K,KV,KeyOfValue,Compare>::upper_bound(const K &key) const
    {
       Compare compare;
       KeyOfValue keyof;
-      const_hint h = get_root();
-      const_hint prev(0, 0);
+      const_link h = get_root();
+      const_link prev(0, 0);
       while (*h)
       {
          if (compare(key, keyof(static_cast<const node *>(*h)->data)))
@@ -318,7 +318,7 @@ namespace ttl
       Compare compare;
       KeyOfValue keyof;
       const K &key = keyof(data);
-      hint h = get_root();
+      link h = get_root();
       while (*h)
       {
          if (compare(key, keyof(static_cast<const node *>(*h)->data)))
@@ -337,7 +337,7 @@ namespace ttl
       Compare compare;
       KeyOfValue keyof;
       const K &key = keyof(data);
-      hint h = get_root();
+      link h = get_root();
       while (*h)
       {
          const K &hkey = keyof(static_cast<const node *>(*h)->data);
