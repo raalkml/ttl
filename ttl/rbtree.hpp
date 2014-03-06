@@ -280,17 +280,16 @@ namespace ttl
       const_hint prev(0, 0);
       while (*h)
       {
-         const K &hkey = keyof(static_cast<const node *>(*h)->data);
-         prev = h;
-         if (compare(key, hkey))
-            h = h.left();
-         else if (key == hkey)
-            return h;
-         else
+         if (compare(keyof(static_cast<const node *>(*h)->data), key))
             h = h.right();
+         else
+         {
+            prev = h;
+            h = h.left();
+         }
       }
 
-      return compare(key, keyof(static_cast<const node *>(*prev)->data)) ? prev: const_hint(0, 0);
+      return prev;
    }
 
    template <class K, class KV, class KeyOfValue, class Compare>
@@ -299,20 +298,18 @@ namespace ttl
       Compare compare;
       KeyOfValue keyof;
       const_hint h = get_root();
+      const_hint prev(0, 0);
       while (*h)
       {
-         const K &hkey = keyof(static_cast<const node *>(*h)->data);
-         if (compare(key, hkey))
+         if (compare(key, keyof(static_cast<const node *>(*h)->data)))
+         {
+            prev = h;
             h = h.left();
-         else if (key == hkey)
-            break;
+         }
          else
             h = h.right();
       }
-      while (*h && key == keyof(static_cast<const node *>(*h)->data))
-         h = h.right();
-
-      return h;
+      return prev;
    }
 
    template <class K, class KV, class KeyOfValue, class Compare>
