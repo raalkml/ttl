@@ -55,14 +55,14 @@ void test()
    printf("inserted dupe (5)\n");
    inorder<rbtree_map>(t.get_croot());
 
-   t.delete_min(t.get_root().pos);
-   t.delete_min(t.get_root().pos);
-   t.delete_min(t.get_root().pos);
+   delete static_cast<rbtree_map::node *>(t.delete_min(t.get_root().pos));
+   delete static_cast<rbtree_map::node *>(t.delete_min(t.get_root().pos));
+   delete static_cast<rbtree_map::node *>(t.delete_min(t.get_root().pos));
 
    printf("3 calls to delete_min from root\n");
    inorder<rbtree_map>(t.get_croot());
 
-   t.remove(7);
+   delete t.remove(7);
    printf("remove 7\n");
    inorder<rbtree_map>(t.get_croot());
 
@@ -127,7 +127,7 @@ void test()
    printf("set of three elements\n");
    inorder<rbtree_set>(s.get_croot());
 
-   s.remove(1);
+   delete s.remove(1);
    printf("set of two elements\n");
    inorder<rbtree_set>(s.get_croot());
 }
