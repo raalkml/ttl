@@ -422,4 +422,37 @@ namespace ttl
       return static_cast<node *>(deleted);
    }
 }
+
+inline bool operator==(const ttl::rbtree_base::link &a, const ttl::rbtree_base::link &b)
+{
+   return a.pos == b.pos;
+}
+inline bool operator==(const ttl::rbtree_base::const_link &a, const ttl::rbtree_base::const_link &b)
+{
+   return a.pos == b.pos;
+}
+inline bool operator==(const ttl::rbtree_base::link &a, const ttl::rbtree_base::const_link &b)
+{
+   return a.pos == b.pos;
+}
+inline bool operator==(const ttl::rbtree_base::const_link &a, const ttl::rbtree_base::link &b)
+{
+   return a.pos == b.pos;
+}
+inline bool operator!=(const ttl::rbtree_base::link &a, const ttl::rbtree_base::link &b)
+{
+   return a.pos != b.pos;
+}
+inline bool operator!=(const ttl::rbtree_base::const_link &a, const ttl::rbtree_base::const_link &b)
+{
+   return a.pos != b.pos;
+}
+inline bool operator!=(const ttl::rbtree_base::link &a, const ttl::rbtree_base::const_link &b)
+{
+   return a.pos != b.pos;
+}
+inline bool operator!=(const ttl::rbtree_base::const_link &a, const ttl::rbtree_base::link &b)
+{
+   return a.pos != b.pos;
+}
 #endif // _TINY_TEMPLATE_LIBRARY_RBTREE_HPP_
