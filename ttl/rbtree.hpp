@@ -284,21 +284,23 @@ namespace ttl
    };
 
    template <class K, class KV, class KeyOfValue, class Compare>
-   size_t rbtree<K,KV,KeyOfValue,Compare>::count(const K &k) const
+   size_t rbtree<K,KV,KeyOfValue,Compare>::count(const K &key) const
    {
-      const_link h = lower_bound(k);
-      if (!h.pos)
-         return 0;
+      Compare is_less;
       KeyOfValue keyof;
+      const_link h = get_root();
       size_t c = 0;
       while (*h)
       {
-         ++c;
-         const_link next = h.left();
-         if (!*next)
-            next = h.right();
-         if (keyof(static_cast<const node *>(*h)->data) == k)
-            h = next;
+         const K &hkey = keyof(static_cast<const node *>(*h)->data);
+         if (is_less(hkey, key))
+            h = h.right();
+         else
+         {
+            if (hkey == key)
+               ++c;
+            h = h.left();
+         }
       }
       return c;
    }
