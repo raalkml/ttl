@@ -336,8 +336,6 @@ namespace ttl
          else
          {
             prev = h;
-            if (keyof(static_cast<const node *>(*h)->data) == key)
-               break;
             h = h.left();
          }
       }
