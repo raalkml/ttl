@@ -111,6 +111,15 @@ namespace ttl
          insert_rebalance(pos);
          return newnode;
       }
+      rbnode *insert(rbnode **pos, rbnode *parent, rbnode *newnode)
+      {
+         newnode->color = rbnode::RED;
+         newnode->left = newnode->right = 0;
+         newnode->parent = parent;
+         *pos = newnode;
+         insert_rebalance(link(pos, parent));
+         return newnode;
+      }
 
       static rbnode *rotate_left(rbnode *a)
       {
@@ -386,16 +395,18 @@ namespace ttl
       Compare is_less;
       KeyOfValue keyof;
       const K &key = keyof(data);
-      link h = get_root();
-      while (*h)
+      rbnode *parent = 0;
+      rbnode **edge = &root_;
+      while (*edge)
       {
-         if (is_less(key, keyof(static_cast<const node *>(*h)->data)))
-            h = h.left();
+         parent = *edge;
+         if (is_less(key, keyof(static_cast<const node *>(*edge)->data)))
+            edge = &(*edge)->left;
          else
-            h = h.right();
+            edge = &(*edge)->right;
       }
       node *newnode = new node(data);
-      (void)insert(h, newnode);
+      (void)insert(edge, parent, newnode);
       return newnode;
    }
 
