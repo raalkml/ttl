@@ -336,10 +336,7 @@ namespace ttl
          if (is_less(keyof(static_cast<const node *>(*h)->data), key))
             h = h.right();
          else
-         {
-            prev = h;
-            h = h.left();
-         }
+            prev = h, h = h.left();
       }
 
       return prev;
