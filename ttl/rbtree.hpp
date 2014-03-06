@@ -247,11 +247,29 @@ namespace ttl
 
       node *insert_equal(const KV &data);
       node *insert_unique(const KV &data);
+
       node *remove(const K &key);
 
       const_link find(const K &) const;
+      link find(const K &key)
+      {
+         const const_link h = static_cast<const rbtree *>(this)->find(key);
+         return link(const_cast<rbnode **>(h.pos), h.parent);
+      }
+
       const_link lower_bound(const K &) const;
+      link lower_bound(const K &key)
+      {
+         const const_link h = static_cast<const rbtree *>(this)->lower_bound(key);
+         return link(const_cast<rbnode **>(h.pos), h.parent);
+      }
+
       const_link upper_bound(const K &) const;
+      link upper_bound(const K &key)
+      {
+         const const_link h = static_cast<const rbtree *>(this)->upper_bound(key);
+         return link(const_cast<rbnode **>(h.pos), h.parent);
+      }
 
       pair<const_link,const_link> equal_range(const K &k) const
       {
