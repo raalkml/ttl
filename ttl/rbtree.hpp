@@ -252,7 +252,38 @@ namespace ttl
       const_link find(const K &) const;
       const_link lower_bound(const K &) const;
       const_link upper_bound(const K &) const;
+
+      pair<const_link,const_link> equal_range(const K &k) const
+      {
+         return pair<const_link,const_link>(lower_bound(k), upper_bound(k));
+      }
+      pair<link,link> equal_range(const K &k)
+      {
+         return pair<link,link>(lower_bound(k), upper_bound(k));
+      }
+
+      size_t count(const K &k) const;
    };
+
+   template <class K, class KV, class KeyOfValue, class Compare>
+   size_t rbtree<K,KV,KeyOfValue,Compare>::count(const K &k) const
+   {
+      const_link h = lower_bound(k);
+      if (!h.pos)
+         return 0;
+      KeyOfValue keyof;
+      size_t c = 0;
+      while (*h)
+      {
+         ++c;
+         const_link next = h.left();
+         if (!*next)
+            next = h.right();
+         if (keyof(static_cast<const node *>(*h)->data) == k)
+            h = next;
+      }
+      return c;
+   }
 
    template <class K, class KV, class KeyOfValue, class Compare>
    rbtree_base::const_link rbtree<K,KV,KeyOfValue,Compare>::find(const K &key) const

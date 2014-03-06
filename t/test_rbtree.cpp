@@ -109,6 +109,14 @@ void test()
       printf("upper_bound(%d): %p %d (out of range)\n", 100, h.node(), k);
       assert(h.pos == NULL);
 
+      ttl::pair<ttl::rbtree_base::link,ttl::rbtree_base::link> r = t.equal_range(5);
+      k = r.first.pos ? keyof(static_cast<const rbtree_map::node *>(*r.first)->data): 0;
+      printf("equal_range(%d): %p(%d) %p\n", 5, r.first.node(), k, r.second.node());
+      assert(keyof(static_cast<const rbtree_map::node *>(*r.first)->data) == 5);
+      assert(r.first != r.second);
+
+      printf("count(%d): %lu\n", 5, (unsigned long)t.count(5));
+      assert(2 == t.count(5));
    }
 
    rbtree_set s;
