@@ -5,9 +5,9 @@ export ASMFLAGS := -fverbose-asm -dP
 export flags := -O1 -foptimize-sibling-calls
 export ARGS :=
 export V := @
-export TESTS
 
-TESTS ?= $(sort $(basename $(notdir $(wildcard t/test*)))) all-in-one
+TESTS := $(sort $(basename $(notdir $(wildcard t/test*)))) all-in-one
+export TESTS
 
 all: ttltest.o.report ttltest.report
 	-$(V)for f in $+; do echo -n "$$f: "; cat "$$f"; done
