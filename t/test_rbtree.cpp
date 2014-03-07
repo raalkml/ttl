@@ -41,6 +41,12 @@ void test()
           (unsigned long)sizeof(rbtree_map),
           (unsigned long)sizeof(rbtree_set),
           (unsigned long)sizeof(ttl::rbtree_base));
+   {
+      printf("empty rbtree construction and destruction\n");
+      rbtree_map();
+      rbtree_set();
+   }
+
    rbtree_map::keyof_type keyof;
    rbtree_map t;
    for (unsigned c = 10; c--; )
