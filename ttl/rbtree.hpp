@@ -250,6 +250,9 @@ namespace ttl
 
       void postorder_destroy(node *n)
       {
+         if (!n)
+            return;
+
          if (n->left)
             postorder_destroy(static_cast<node *>(n->left));
          if (n->right)
