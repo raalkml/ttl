@@ -159,9 +159,23 @@ namespace ttl
       explicit map() {}
       ~map() {}
 
-      map(const map& other);
-      template<class InputIt> map(InputIt first, InputIt last);
-      map &operator=(const map &other);
+      map(const map &other)
+      {
+         rbtree_.assign(other.rbtree_);
+      }
+
+      template<class InputIt> map(InputIt first, InputIt last)
+      {
+         for (; first != last; ++first)
+            rbtree_.insert_unique(value_type(first->first, first->second));
+      }
+
+      map &operator=(const map &other)
+      {
+         clear();
+         rbtree_.assign(other.rbtree_);
+         return *this;
+      }
 
       pair<iterator,bool> insert(const value_type &value)
       {
@@ -169,8 +183,12 @@ namespace ttl
          return pair<iterator,bool>(iterator(n), n);
       }
       iterator insert(iterator, const value_type &);
-      template<class InputIt>
-      void insert(InputIt first, InputIt last);
+
+      template<class InputIt> void insert(InputIt first, InputIt last)
+      {
+         for (; first != last; ++first)
+            rbtree_.insert_unique(value_type(first->first, first->second));
+      }
 
       T &operator[](const KT &key)
       {
