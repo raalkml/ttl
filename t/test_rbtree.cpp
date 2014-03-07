@@ -36,9 +36,9 @@ void test()
           (unsigned long)sizeof(rbtree_map::node),
           (unsigned long)sizeof(rbtree_set::node));
    printf("sizeof rbtree_map %lu, rbtree_set %lu, rbtree_base %lu\n",
-          (unsigned long)sizeof(ttl::rbtree_base),
           (unsigned long)sizeof(rbtree_map),
-          (unsigned long)sizeof(rbtree_set));
+          (unsigned long)sizeof(rbtree_set),
+          (unsigned long)sizeof(ttl::rbtree_base));
    rbtree_map t;
    for (unsigned c = 10; c--; )
    {
