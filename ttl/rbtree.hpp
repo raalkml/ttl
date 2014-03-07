@@ -295,12 +295,12 @@ namespace ttl
 
    private:
 
-      void preorder_destroy(node *n)
+      void postorder_destroy(node *n)
       {
          if (n->left)
-            preorder_destroy(static_cast<node *>(n->left));
+            postorder_destroy(static_cast<node *>(n->left));
          if (n->right)
-            preorder_destroy(static_cast<node *>(n->right));
+            postorder_destroy(static_cast<node *>(n->right));
          delete n;
       }
    };
@@ -310,7 +310,7 @@ namespace ttl
    {
       node *root = static_cast<node *>(root_);
       root_ = 0;
-      preorder_destroy(root);
+      postorder_destroy(root);
    }
 
    template <class K, class KV, class KeyOfValue, class Compare>
