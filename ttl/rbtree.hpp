@@ -41,21 +41,21 @@ namespace ttl
       rbtree_base(): root_(0) {}
       ~rbtree_base() {}
 
-      static rbnode *min_node(rbnode *n)
+      static rbnode *min_node(const rbnode *n)
       {
          while (n && n->left)
             n = n->left;
-         return n;
+         return const_cast<rbnode *>(n);
       }
 
-      static rbnode *max_node(rbnode *n)
+      static rbnode *max_node(const rbnode *n)
       {
          while (n && n->right)
             n = n->right;
-         return n;
+         return const_cast<rbnode *>(n);
       }
 
-      static rbnode *next_node(rbnode *n)
+      static rbnode *next_node(const rbnode *n)
       {
          if  (n->right)
             return min_node(n->right);
