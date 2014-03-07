@@ -82,6 +82,12 @@ namespace ttl
       pair(T1 _first, T2 _second): first(_first), second(_second) {}
       template<typename U1, typename U2>
       pair(const pair<U1,U2> &other): first(other.first), second(other.second) {}
+      pair &operator=(const pair &other)
+      {
+         first = other.first;
+         second = other.second;
+         return *this;
+      }
       template<typename U1, typename U2>
       pair &operator=(const pair<U1,U2> &other)
       {
