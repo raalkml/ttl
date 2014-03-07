@@ -264,19 +264,23 @@ namespace ttl
          delete n;
       }
 
-      void preorder_copy(const node *n, rbnode **root, rbnode *parent)
+      rbnode *preorder_copy(const node *n)
       {
          if (!n)
-            return;
+            return 0;
          node *nc = new node(n->data);
-         nc->parent = parent;
          nc->color = n->color;
-         nc->left = nc->right = 0;
-         *root = nc;
          if (n->left)
-            preorder_copy(static_cast<const node *>(n->left), &nc->left, nc);
+            nc->left = preorder_copy(static_cast<const node *>(n->left)),
+            nc->left->parent = nc;
+         else
+            nc->left = 0;
          if (n->right)
-            preorder_copy(static_cast<const node *>(n->right), &nc->right, nc);
+            nc->right = preorder_copy(static_cast<const node *>(n->right)),
+            nc->right->parent = nc;
+         else
+            nc->right = 0;
+         return nc;
       }
    };
 
@@ -285,7 +289,9 @@ namespace ttl
    {
       if (root_)
          clear();
-      preorder_copy(other.get_croot(), &root_, 0);
+      root_ = preorder_copy(other.get_croot());
+      if (root_)
+         root_->parent = 0;
    }
 
    template <class K, class KV, class KeyOfValue, class Compare>
