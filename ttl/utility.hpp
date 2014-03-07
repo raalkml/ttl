@@ -78,7 +78,7 @@ namespace ttl
       T1 first;
       T2 second;
 
-      pair() {}
+      pair(): first(), second() {}
       pair(T1 _first, T2 _second): first(_first), second(_second) {}
       template<typename U1, typename U2>
       pair(const pair<U1,U2> &other): first(other.first), second(other.second) {}
