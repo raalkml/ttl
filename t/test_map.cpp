@@ -1,6 +1,9 @@
 // vim: sw=3 ts=8 et
 #include "t.hpp"
 #include <map>
+#include <utility>
+#include "ttl/utility.hpp"
+#include "ttl/array.hpp"
 #include "ttl/map.hpp"
 
 // Explicit template instantiation will instantiate complete template
@@ -10,6 +13,21 @@
 typedef ttl::map<int, char> i2cmap;
 
 template <class C> inline const C &constify(C &c) { return c; }
+
+
+namespace ttl
+{
+   inline bool operator==(const std::map<int,char>::value_type &a,
+                          const map<int,char>::value_type &b)
+   {
+      return a.first == b.first && a.second == b.second;
+   }
+
+   inline bool operator==(const pair<const int,char> &a, const pair<int,char> &b)
+   {
+      return a.first == b.first && a.second == b.second;
+   }
+}
 
 void test()
 {
@@ -57,6 +75,9 @@ void test()
          assert(mstd.insert(std::map<int,char>::value_type(i, (char)i + '0')).second == true);
       for (int i = 5; i < 10; ++i)
          mstd[i] = (char)i + '0';
+
+      assert(ttl::equal(mstd.begin(), mstd.end(), m.cbegin()));
+
       std::map<int,char>::const_iterator istd = constify(mstd).begin();
       i2cmap::const_iterator ittl = constify(m).begin();
       while (istd != mstd.end())
@@ -95,4 +116,38 @@ void test()
    i2cmap().clear();
    m.clear();
 
+   printf("copy constructors and assignement operator\n");
+   {
+      ttl::array<ttl::pair<int, char>, 3> arr;
+      arr[0] = ttl::pair<int, char>(100,'\x64');
+      arr[1] = ttl::pair<int, char>(101,'\x65');
+      arr[2] = ttl::pair<int, char>(102,'\x66');
+
+      i2cmap ma(arr.begin(), arr.end());
+      assert(ttl::equal(ma.cbegin(), ma.cend(), arr.cbegin()));
+
+      i2cmap mb = ma;
+      assert(ttl::equal(mb.cbegin(), ma.cend(), arr.cbegin()));
+
+      i2cmap mc;
+      mc = mb;
+      assert(ttl::equal(mc.cbegin(), ma.cend(), arr.cbegin()));
+
+      for (i2cmap::const_iterator it = mc.cbegin(); it != mc.cend(); ++it)
+         printf(" {%d: 0x%02x}", it->first, (unsigned char)it->second);
+      printf("\n");
+   }
+   printf("range insert\n");
+   {
+      ttl::array<ttl::pair<int, char>, 3> arr;
+      arr[0] = ttl::pair<int, char>(10,-'\x0a');
+      arr[1] = ttl::pair<int, char>(11,-'\x0b');
+      arr[2] = ttl::pair<int, char>(12,-'\x0c');
+      i2cmap ma;
+      ma.insert(arr.begin(), arr.end());
+      assert(ttl::equal(ma.cbegin(), ma.cend(), arr.cbegin()));
+      for (i2cmap::const_iterator it = ma.cbegin(); it != ma.cend(); ++it)
+         printf(" {%d: 0x%02x}", it->first, (unsigned char)it->second);
+      printf("\n");
+   }
 }
