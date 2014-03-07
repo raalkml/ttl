@@ -17,16 +17,18 @@ struct select_same
 typedef ttl::rbtree<int, int, select_same<int>, ttl::less<int> > rbtree_set;
 
 template<typename Container>
-static void inorder(const ttl::rbnode *n, int depth = 0)
+static void inorder(const ttl::rbnode *n, bool print_pointer = false, int depth = 0)
 {
    if (n && n->left)
-      inorder<Container>(n->left, depth + 1);
+      inorder<Container>(n->left, print_pointer, depth + 1);
    for (int i = depth; i--;)
       fputc(' ', stdout);
+   if (print_pointer)
+      printf("%p:", n);
    typename Container::keyof_type keyof;
-   printf("%p:%d\n", n, n ? keyof(static_cast<const typename Container::node *>(n)->data): -1);
+   printf("%d\n", n ? keyof(static_cast<const typename Container::node *>(n)->data): -1);
    if (n && n->right)
-      inorder<Container>(n->right, depth + 1);
+      inorder<Container>(n->right, print_pointer, depth + 1);
 }
 
 void test()
@@ -39,86 +41,111 @@ void test()
           (unsigned long)sizeof(rbtree_map),
           (unsigned long)sizeof(rbtree_set),
           (unsigned long)sizeof(ttl::rbtree_base));
+   rbtree_map::keyof_type keyof;
    rbtree_map t;
    for (unsigned c = 10; c--; )
    {
       ttl::pair<int,char> d(c, -c);
-      rbtree_map::node *pos = t.insert_equal(d);
-      printf("%p %d (%d)\n", pos, d.first, d.second);
+      rbtree_map::node *n = t.insert_equal(d);
+      printf("%p %d (%d)\n", n, d.first, d.second);
    }
 
-   printf("red-black tree with 10 elements, root %p\n", t.get_croot());
-   inorder<rbtree_map>(t.get_croot());
+   printf("generated red-black tree with 10 unique elements, root %p\n", t.get_croot());
 
    ttl::pair<int,char> dupe(5, -5);
    assert(NULL == t.insert_unique(dupe));
    assert(NULL != t.insert_equal(dupe));
 
    printf("inserted dupe (5)\n");
+   inorder<rbtree_map>(t.get_croot(), true);
+
+   printf("rbtree_base::min_node() and ...::next_node():\n");
+   {
+      ttl::rbnode *i = ttl::rbtree_base::min_node(t.get_root());
+      while (i)
+      {
+         printf(" %d", keyof(static_cast<rbtree_map::node *>(i)->data));
+         i = ttl::rbtree_base::next_node(i);
+      }
+      printf("\n");
+   }
+
+   delete static_cast<rbtree_map::node *>(t.delete_min(t.edge(t.get_root())));
+   delete static_cast<rbtree_map::node *>(t.delete_min(t.edge(t.get_root())));
+
+   printf("2 calls to delete_min from root\n");
    inorder<rbtree_map>(t.get_croot());
 
-   delete static_cast<rbtree_map::node *>(t.delete_min(t.edge(t.get_root())));
-   delete static_cast<rbtree_map::node *>(t.delete_min(t.edge(t.get_root())));
-   delete static_cast<rbtree_map::node *>(t.delete_min(t.edge(t.get_root())));
-
-   printf("3 calls to delete_min from root\n");
+   delete t.remove(2);
+   printf("remove 2 (leaf)\n");
    inorder<rbtree_map>(t.get_croot());
 
    delete t.remove(7);
    printf("remove 7\n");
    inorder<rbtree_map>(t.get_croot());
 
+   rbtree_map::node *six = t.remove(6);
+   printf("remove 6 (root) and put its values back\n");
+   assert(NULL != t.insert_unique(six->data));
+   delete six;
+   inorder<rbtree_map>(t.get_croot());
+
    printf("find & lower_boundary\n");
    {
-      rbtree_map::keyof_type keyof;
-      rbtree_map::node *h = t.find(3);
-      int k = h ? keyof(h->data): -1;
-      printf("find(%d): %p(%d)\n", 3, h, k);
+      rbtree_map::node *n = t.find(3);
+      int k = n ? keyof(n->data): -1;
+      printf("find(%d): %p(%d)\n", 3, n, k);
       assert(3 == k);
 
-      h = t.lower_bound(3);
-      k = h ? keyof(h->data): -1;
-      printf("lower_bound(%d): %p(%d)\n", 3, h, k);
+      n = t.lower_bound(3);
+      k = n ? keyof(n->data): -1;
+      printf("lower_bound(%d): %p(%d)\n", 3, n, k);
       assert(k >= 3);
 
-      h = t.lower_bound(100);
-      k = h ? keyof(h->data): -1;
-      printf("lower_bound(%d): %p %d (out of range)\n", 100, h, k);
-      assert(h == NULL);
+      n = t.lower_bound(100);
+      k = n ? keyof(n->data): -1;
+      printf("lower_bound(%d): %p %d (out of range)\n", 100, n, k);
+      assert(n == NULL);
 
-      h = t.lower_bound(5);
-      k = h ? keyof(h->data): -1;
-      printf("lower_bound(%d): %p %d (duplicate)\n", 5, h, k);
+      n = t.lower_bound(5);
+      k = n ? keyof(n->data): -1;
+      printf("lower_bound(%d): %p %d (duplicate)\n", 5, n, k);
       assert(k >= 5);
 
-      h = t.lower_bound(7);
-      k = h ? keyof(h->data): -1;
-      printf("lower_bound(%d): %p %d (removed)\n", 7, h, k);
+      n = t.lower_bound(7);
+      k = n ? keyof(n->data): -1;
+      printf("lower_bound(%d): %p %d (removed)\n", 7, n, k);
       assert(k >= 7);
 
-      h = t.upper_bound(7);
-      k = h ? keyof(h->data): -1;
-      printf("upper_bound(%d): %p %d (removed)\n", 7, h, k);
+      n = t.upper_bound(7);
+      k = n ? keyof(n->data): -1;
+      printf("upper_bound(%d): %p %d (removed)\n", 7, n, k);
       assert(k > 7);
 
-      h = t.upper_bound(5);
-      k = h ? keyof(h->data): -1;
-      printf("upper_bound(%d): %p %d\n", 5, h, k);
+      n = t.upper_bound(5);
+      k = n ? keyof(n->data): -1;
+      printf("upper_bound(%d): %p %d\n", 5, n, k);
       assert(k > 5);
 
-      h = t.upper_bound(100);
-      k = h ? keyof(h->data): -1;
-      printf("upper_bound(%d): %p %d (out of range)\n", 100, h, k);
-      assert(h == NULL);
+      n = t.upper_bound(100);
+      k = n ? keyof(n->data): -1;
+      printf("upper_bound(%d): %p %d (out of range)\n", 100, n, k);
+      assert(n == NULL);
 
       ttl::pair<rbtree_map::node *,rbtree_map::node *> r = t.equal_range(5);
       k = r.first ? keyof(r.first->data): -1;
       printf("equal_range(%d): %p(%d) %p\n", 5, r.first, k, r.second);
       assert(keyof(r.first->data) == 5);
       assert(r.first != r.second);
+      for (ttl::rbnode *i = r.first; i != r.second; i = ttl::rbtree_base::next_node(i))
+         assert(5 == keyof(static_cast<rbtree_map::node *>(i)->data));
 
-      printf("count(%d): %lu\n", 5, (unsigned long)t.count(5));
+      printf("count(%d): %lu (not existing)\n", -1, (unsigned long)t.count(-1));
+      assert(0 == t.count(-1));
+      printf("count(%d) (duplicate): %lu\n", 5, (unsigned long)t.count(5));
       assert(2 == t.count(5));
+      printf("count(%d): %lu\n", 8, (unsigned long)t.count(8));
+      assert(1 == t.count(8));
    }
 
    rbtree_set s;
