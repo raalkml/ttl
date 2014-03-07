@@ -9,17 +9,17 @@
 
 #include "utility.hpp"
 #include "functional.hpp"
+#include "rbtree.hpp"
 
 namespace ttl
 {
-#if NOT_IMPLEMENTED
    template<typename KT, typename T, typename Compare = ttl::less<KT> >
    class map // unique keys to values
    {
    public:
       typedef KT key_type;
       typedef T mapped_type;
-      typedef ttl::pair<KT, T> value_type;
+      typedef pair<KT, T> value_type;
       typedef ttl::size_t size_type;
       typedef ttl::ptrdiff_t difference_type;
       typedef Compare key_compare;
@@ -32,6 +32,8 @@ namespace ttl
 
       struct const_iterator;
 
+      rbtree<KT, pair<KT, T>, select_first< pair<KT,T> >, Compare> rbtree_;
+#if NOT_IMPLEMENTED
       struct iterator
       {
       public:
@@ -216,8 +218,10 @@ namespace ttl
       Compare comp_;
       iterator insert_before(iterator, const value_type &);
       iterator find_insert_pos(const KT &key) const;
+#endif // NOT_IMPLEMENTED
    };
 
+#if NOT_IMPLEMENTED
    template<typename KT, typename T, typename Compare>
    map<KT,T,Compare>::map(const map& other): comp_(other.comp_)
    {
