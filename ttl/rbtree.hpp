@@ -206,6 +206,8 @@ namespace ttl
       rbtree() {}
       ~rbtree() { clear(); }
 
+      void assign(const rbtree &);
+
       node *insert_equal(const KV &data);
       node *insert_unique(const KV &data);
 
@@ -261,7 +263,30 @@ namespace ttl
             postorder_destroy(static_cast<node *>(n->right));
          delete n;
       }
+
+      void preorder_copy(const node *n, rbnode **root, rbnode *parent)
+      {
+         if (!n)
+            return;
+         node *nc = new node(n->data);
+         nc->parent = parent;
+         nc->color = n->color;
+         nc->left = nc->right = 0;
+         *root = nc;
+         if (n->left)
+            preorder_copy(static_cast<const node *>(n->left), &nc->left, nc);
+         if (n->right)
+            preorder_copy(static_cast<const node *>(n->right), &nc->right, nc);
+      }
    };
+
+   template <class K, class KV, class KeyOfValue, class Compare>
+   void rbtree<K,KV,KeyOfValue,Compare>::assign(const rbtree &other)
+   {
+      if (root_)
+         clear();
+      preorder_copy(other.get_croot(), &root_, 0);
+   }
 
    template <class K, class KV, class KeyOfValue, class Compare>
    void rbtree<K,KV,KeyOfValue,Compare>::clear()

@@ -96,6 +96,13 @@ void test()
    delete six;
    inorder<rbtree_map>(t.get_croot());
 
+   printf("assign\n");
+   {
+      rbtree_map tmp;
+      tmp.assign(t);
+      inorder<rbtree_map>(tmp.get_croot());
+   }
+
    printf("find & lower_boundary\n");
    {
       rbtree_map::node *n = t.find(3);
