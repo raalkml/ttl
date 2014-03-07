@@ -69,6 +69,8 @@ namespace ttl
          }
          return (rbnode *)0;
       }
+      // TODO: prev_node
+      static rbnode *prev_node(const rbnode *);
 
       static rbnode *rotate_left(rbnode *a)
       {
