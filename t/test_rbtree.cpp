@@ -73,50 +73,50 @@ void test()
    printf("find & lower_boundary\n");
    {
       rbtree_map::keyof_type keyof;
-      ttl::rbtree_base::const_link h = t.find(3);
-      int k = keyof(static_cast<const rbtree_map::node *>(*h)->data);
-      printf("find(%d): %p(%d)\n", 3, h.node(), k);
+      rbtree_map::node *h = t.find(3);
+      int k = h ? keyof(h->data): -1;
+      printf("find(%d): %p(%d)\n", 3, h, k);
       assert(3 == k);
 
       h = t.lower_bound(3);
-      k = h.pos ? keyof(static_cast<const rbtree_map::node *>(*h)->data): 0;
-      printf("lower_bound(%d): %p(%d)\n", 3, h.node(), k);
+      k = h ? keyof(h->data): -1;
+      printf("lower_bound(%d): %p(%d)\n", 3, h, k);
       assert(k >= 3);
 
       h = t.lower_bound(100);
-      k = h.pos ? keyof(static_cast<const rbtree_map::node *>(*h)->data): 0;
-      printf("lower_bound(%d): %p %d (out of range)\n", 100, h.node(), k);
-      assert(h.pos == NULL);
+      k = h ? keyof(h->data): -1;
+      printf("lower_bound(%d): %p %d (out of range)\n", 100, h, k);
+      assert(h == NULL);
 
       h = t.lower_bound(5);
-      k = h.pos ? keyof(static_cast<const rbtree_map::node *>(*h)->data): 0;
-      printf("lower_bound(%d): %p %d (duplicate)\n", 5, h.node(), k);
+      k = h ? keyof(h->data): -1;
+      printf("lower_bound(%d): %p %d (duplicate)\n", 5, h, k);
       assert(k >= 5);
 
       h = t.lower_bound(7);
-      k = h.pos ? keyof(static_cast<const rbtree_map::node *>(*h)->data): 0;
-      printf("lower_bound(%d): %p %d (removed)\n", 7, h.node(), k);
+      k = h ? keyof(h->data): -1;
+      printf("lower_bound(%d): %p %d (removed)\n", 7, h, k);
       assert(k >= 7);
 
       h = t.upper_bound(7);
-      k = h.pos ? keyof(static_cast<const rbtree_map::node *>(*h)->data): 0;
-      printf("upper_bound(%d): %p %d (removed)\n", 7, h.node(), k);
+      k = h ? keyof(h->data): -1;
+      printf("upper_bound(%d): %p %d (removed)\n", 7, h, k);
       assert(k > 7);
 
       h = t.upper_bound(5);
-      k = h.pos ? keyof(static_cast<const rbtree_map::node *>(*h)->data): 0;
-      printf("upper_bound(%d): %p %d\n", 5, h.node(), k);
+      k = h ? keyof(h->data): -1;
+      printf("upper_bound(%d): %p %d\n", 5, h, k);
       assert(k > 5);
 
       h = t.upper_bound(100);
-      k = h.pos ? keyof(static_cast<const rbtree_map::node *>(*h)->data): 0;
-      printf("upper_bound(%d): %p %d (out of range)\n", 100, h.node(), k);
-      assert(h.pos == NULL);
+      k = h ? keyof(h->data): -1;
+      printf("upper_bound(%d): %p %d (out of range)\n", 100, h, k);
+      assert(h == NULL);
 
-      ttl::pair<ttl::rbtree_base::link,ttl::rbtree_base::link> r = t.equal_range(5);
-      k = r.first.pos ? keyof(static_cast<const rbtree_map::node *>(*r.first)->data): 0;
-      printf("equal_range(%d): %p(%d) %p\n", 5, r.first.node(), k, r.second.node());
-      assert(keyof(static_cast<const rbtree_map::node *>(*r.first)->data) == 5);
+      ttl::pair<rbtree_map::node *,rbtree_map::node *> r = t.equal_range(5);
+      k = r.first ? keyof(r.first->data): -1;
+      printf("equal_range(%d): %p(%d) %p\n", 5, r.first, k, r.second);
+      assert(keyof(r.first->data) == 5);
       assert(r.first != r.second);
 
       printf("count(%d): %lu\n", 5, (unsigned long)t.count(5));
