@@ -13,7 +13,7 @@
 
 namespace ttl
 {
-   template<typename KT, typename T, typename Compare = ttl::less<KT> >
+   template<typename KT, typename T, typename Compare = less<KT> >
    class map // unique keys to values
    {
    public:
@@ -23,21 +23,31 @@ namespace ttl
       typedef ttl::size_t size_type;
       typedef ttl::ptrdiff_t difference_type;
       typedef Compare key_compare;
-
       typedef value_type &reference;
       typedef const value_type &const_reference;
-
       typedef value_type *pointer;
       typedef const value_type *const_pointer;
 
-      struct const_iterator;
+      struct value_compare
+      {
+         typedef value_type first_argument_type;
+         typedef value_type second_argument_type;
+         typedef bool result_type;
+
+         bool operator()(const value_type &a, const value_type &b) const
+         {
+            return Compare()(a.first, b.first);
+         }
+      };
 
    private:
       typedef rbtree<KT, pair<KT, T>, select_first< pair<KT,T> >, Compare> tree_type;
       typedef typename tree_type::node node_type;
+
       tree_type rbtree_;
 
    public:
+      struct const_iterator;
 
       struct iterator
       {
@@ -150,8 +160,7 @@ namespace ttl
       ~map() {}
 
       map(const map& other);
-      template<class InputIt>
-      map(InputIt first, InputIt last, const Compare & = Compare());
+      template<class InputIt> map(InputIt first, InputIt last);
       map &operator=(const map &other);
 
       pair<iterator,bool> insert(const value_type &value)
@@ -195,16 +204,16 @@ namespace ttl
 
       void swap(map &other);
 
+      //
+      // The map template has unique keys (so all ranges are either empty or
+      // 1 element long), so the amount of generated template code can be
+      // reduced by using only find and lower_bound. 
+      //
+
       iterator find(const KT &key) { return iterator(rbtree_.find(key)); }
       const_iterator find(const KT &key) const { return const_iterator(rbtree_.find(key)); }
 
       size_type count(const KT &key) const { return !!rbtree_.find(key); }
-
-      //
-      // The map template has unique keys (so all ranges are either empty or
-      // 1 element long), so the amount of included template code can be
-      // reduced by using only lower_bound. 
-      //
 
       iterator lower_bound(const KT &key) { return iterator(rbtree_.lower_bound(key)); }
       const_iterator lower_bound(const KT &key) const { return const_iterator(rbtree_.lower_bound(key)); }
@@ -232,24 +241,6 @@ namespace ttl
          const node_type *up = lo ? static_cast<node_type *>(rbtree_base::next_node(lo)): 0;
          return pair<const_iterator, const_iterator>(const_iterator(lo), const_iterator(up));
       }
-
-      struct value_compare
-      {
-      protected:
-         friend class map<KT, T, Compare>;
-         Compare comp;
-         value_compare(Compare c): comp(c) {}
-      public:
-         typedef value_type first_argument_type;
-         typedef value_type second_argument_type;
-         typedef bool result_type;
-
-         bool operator()(const value_type &a, const value_type &b) const
-         {
-            return comp(a.first, b.first);
-         }
-      };
-      value_compare value_comp() const { return value_compare(Compare()); }
    };
 
 }
