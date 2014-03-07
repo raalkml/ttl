@@ -102,25 +102,6 @@ namespace ttl
          return (rbnode *)0;
       }
 
-      rbnode *insert(const link &pos, rbnode *newnode)
-      {
-         newnode->color = rbnode::RED;
-         newnode->left = newnode->right = 0;
-         newnode->parent = pos.parent;
-         *pos.pos = newnode;
-         insert_rebalance(pos);
-         return newnode;
-      }
-      rbnode *insert(rbnode **pos, rbnode *parent, rbnode *newnode)
-      {
-         newnode->color = rbnode::RED;
-         newnode->left = newnode->right = 0;
-         newnode->parent = parent;
-         *pos = newnode;
-         insert_rebalance(link(pos, parent));
-         return newnode;
-      }
-
       static rbnode *rotate_left(rbnode *a)
       {
          rbnode *b = a->right;
@@ -181,9 +162,10 @@ namespace ttl
          return &h->parent->right;
       }
 
-      void insert_rebalance(const link &h)
+      void insert_rebalance(rbnode **root, rbnode *parent)
       {
-         rbnode **root = h.pos, *parent = h.parent;
+         (*root)->color = rbnode::RED;
+         (*root)->left = (*root)->right = 0;
          while (parent && (is_red(parent->left) || is_red(parent->right)))
          {
             root = edge(parent);
@@ -394,10 +376,9 @@ namespace ttl
    {
       Compare is_less;
       KeyOfValue keyof;
-      const K &key = keyof(data);
       rbnode *parent = 0;
       rbnode **edge = &root_;
-      while (*edge)
+      for (const K &key = keyof(data); *edge;)
       {
          parent = *edge;
          if (is_less(key, keyof(static_cast<const node *>(*edge)->data)))
@@ -406,7 +387,9 @@ namespace ttl
             edge = &(*edge)->right;
       }
       node *newnode = new node(data);
-      (void)insert(edge, parent, newnode);
+      newnode->parent = parent;
+      *edge = newnode;
+      insert_rebalance(edge, parent);
       return newnode;
    }
 
@@ -415,20 +398,22 @@ namespace ttl
    {
       Compare is_less;
       KeyOfValue keyof;
-      const K &key = keyof(data);
-      link h = get_root();
-      while (*h)
+      rbnode *parent = 0;
+      rbnode **edge = &root_;
+      for (const K &key = keyof(data); *edge;)
       {
-         const K &hkey = keyof(static_cast<const node *>(*h)->data);
-         if (is_less(key, hkey))
-            h = h.left();
-         else if (key == hkey)
+         const K &ekey = keyof(static_cast<const node *>(*edge)->data);
+         if (is_less(key, ekey))
+            parent = *edge, edge = &(*edge)->left;
+         else if (key == ekey)
             return (node *)0;
          else
-            h = h.right();
+            parent = *edge, edge = &(*edge)->right;
       }
       node *newnode = new node(data);
-      (void)insert(h, newnode);
+      newnode->parent = parent;
+      *edge = newnode;
+      insert_rebalance(edge, parent);
       return newnode;
    }
 
