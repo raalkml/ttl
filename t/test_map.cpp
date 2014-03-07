@@ -15,8 +15,10 @@ void test()
 {
    i2cmap m;
    printf("sizeof(int-char map): %lu\n", (unsigned long)sizeof(m));
+   assert(m.empty() == true);
 
    printf("insert(value_type)\n");
+   assert(i2cmap().insert(i2cmap::value_type(1, '1')).first->second == '1');
    for (int i = 0; i < 5; ++i)
       assert(m.insert(i2cmap::value_type(i, (char)i + '0')).second == true);
    printf("operator[](key) = value\n");
@@ -72,10 +74,15 @@ void test()
 
    assert(m.find(9) == constify(m).find(9));
 
+   printf("erase(key)\n");
+   i2cmap().erase(0);
    assert(m.erase(9) == 1);
    assert(m.find(9) == m.end());
 
    printf("ranges\n");
+   i2cmap().lower_bound(0);
+   i2cmap().upper_bound(0);
+   i2cmap().equal_range(0);
    assert(m.lower_bound(2)->second == '2');
    assert(m.upper_bound(2)->first == 3);
    assert(m.equal_range(3).first == m.lower_bound(3));
@@ -85,6 +92,7 @@ void test()
    assert(m.equal_range(8).second == m.end());
 
    printf("clear()\n");
+   i2cmap().clear();
    m.clear();
 
 }
