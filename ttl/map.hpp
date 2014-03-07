@@ -32,47 +32,90 @@ namespace ttl
 
       struct const_iterator;
 
-      rbtree<KT, pair<KT, T>, select_first< pair<KT,T> >, Compare> rbtree_;
-#if NOT_IMPLEMENTED
+   private:
+      typedef rbtree<KT, pair<KT, T>, select_first< pair<KT,T> >, Compare> tree_type;
+      typedef typename tree_type::node node_type;
+      tree_type rbtree_;
+
+   public:
+
       struct iterator
       {
+         typedef typename map<KT,T,Compare>::node_type node_type;
       public:
          typedef map<KT,T,Compare>::value_type value_type;
          typedef ttl::ptrdiff_t difference_type;
          typedef value_type *pointer;
          typedef value_type *reference;
 
-         value_type &operator*() const { return **ptr_; }
-         value_type *operator->() const { return *ptr_; }
-         iterator &operator++() { ++ptr_; return *this; }
-         iterator operator++(int) { iterator tmp(*this); ++ptr_; return tmp; }
-         iterator &operator--() { --ptr_; return *this; }
-         iterator operator--(int) { iterator tmp(*this); --ptr_; return tmp; }
+         value_type &operator*() const { return ptr_->data; }
+         value_type *operator->() const { return &ptr_->data; }
+         iterator &operator++()
+         {
+            ptr_ = static_cast<node_type *>(rbtree_base::next_node(ptr_));
+            return *this;
+         }
+         iterator operator++(int)
+         {
+            iterator tmp(*this);
+            ptr_ = static_cast<node_type *>(rbtree_base::next_node(ptr_));
+            return tmp;
+         }
+         iterator &operator--()
+         {
+            ptr_ = static_cast<node_type *>(rbtree_base::prev_node(ptr_));
+            return *this;
+         }
+         iterator operator--(int)
+         {
+            iterator tmp(*this);
+            ptr_ = static_cast<node_type *>(rbtree_base::prev_node(ptr_));
+            return tmp;
+         }
 
          bool operator==(const iterator &other) const { return ptr_ == other.ptr_; }
          bool operator!=(const iterator &other) const { return ptr_ != other.ptr_; }
          bool operator==(const const_iterator &other) const { return other == *this; }
          bool operator!=(const const_iterator &other) const { return other != *this; }
       private:
-         value_type **ptr_;
+         node_type *ptr_;
          friend class map<KT,T,Compare>;
          friend class map<KT,T,Compare>::const_iterator;
-         iterator(value_type **ptr): ptr_(ptr) {}
+         iterator(node_type *ptr): ptr_(ptr) {}
       };
       struct const_iterator
       {
+         typedef typename map<KT,T,Compare>::node_type node_type;
       public:
          typedef map<KT,T,Compare>::value_type value_type;
          typedef ttl::ptrdiff_t difference_type;
          typedef value_type *pointer;
          typedef value_type *reference;
 
-         const value_type &operator*() const { return **ptr_; }
-         const value_type *operator->() const { return *ptr_; }
-         const_iterator &operator++() { ++ptr_; return *this; }
-         const_iterator operator++(int) { const_iterator tmp(*this); ++ptr_; return tmp; }
-         const_iterator &operator--() { --ptr_; return *this; }
-         const_iterator operator--(int) { const_iterator tmp(*this); --ptr_; return tmp; }
+         const value_type &operator*() const { return ptr_->data; }
+         const value_type *operator->() const { return &ptr_->data; }
+         const_iterator &operator++()
+         {
+            ptr_ = static_cast<const node_type *>(rbtree_base::next_node(ptr_));
+            return *this;
+         }
+         const_iterator operator++(int)
+         {
+            const_iterator tmp(*this);
+            ptr_ = static_cast<const node_type *>(rbtree_base::next_node(ptr_));
+            return tmp;
+         }
+         const_iterator &operator--()
+         {
+            ptr_ = static_cast<const node_type *>(rbtree_base::prev_node(ptr_));
+            return *this;
+         }
+         const_iterator operator--(int)
+         {
+            const_iterator tmp(*this);
+            ptr_ = static_cast<const node_type *>(rbtree_base::prev_node(ptr_));
+            return tmp;
+         }
 
          bool operator==(const const_iterator &other) const { return ptr_ == other.ptr_; }
          bool operator==(const iterator &other) const { return ptr_ == other.ptr_; }
@@ -81,119 +124,114 @@ namespace ttl
 
          const_iterator(const iterator &other): ptr_(other.ptr_) {}
       private:
-         const value_type * const *ptr_;
+         const node_type *ptr_;
          friend class map<KT,T,Compare>;
-         const_iterator(const value_type * const *ptr): ptr_(ptr) {}
+         const_iterator(const node_type *ptr): ptr_(ptr) {}
       };
 
-   public:
-      explicit map(): elements_(0), last_(0), end_of_elements_(0) {}
-      map(const map& other);
-      explicit map(size_type prealloc)
+      iterator begin()
       {
-         elements_ = last_ = new value_type*[prealloc];
-         end_of_elements_ = elements_ + prealloc;
+         return iterator(static_cast<node_type *>(rbtree_base::min_node(rbtree_.get_root())));
       }
-      explicit map(const Compare &c): elements_(0), last_(0), end_of_elements_(0), comp_(c) {}
+      const_iterator begin() const
+      {
+         return const_iterator(static_cast<const node_type *>(rbtree_base::min_node(rbtree_.get_croot())));
+      }
+      const_iterator cbegin() const
+      {
+         return const_iterator(static_cast<const node_type *>(rbtree_base::min_node(rbtree_.get_croot())));
+      }
 
+      iterator end() { return iterator(0); }
+      const_iterator end() const { return const_iterator(0); }
+      const_iterator cend() const { return const_iterator(0); }
+
+      explicit map() {}
+      ~map() {}
+
+      map(const map& other);
       template<class InputIt>
       map(InputIt first, InputIt last, const Compare & = Compare());
       map &operator=(const map &other);
 
-      ~map()
+      pair<iterator,bool> insert(const value_type &value)
       {
-         for (value_type **i = elements_; i != last_; ++i)
-            delete *i;
-         delete [] elements_;
-      }
-
-      T &operator[](const KT &key)
-      {
-         iterator i = find_insert_pos(key);
-         if (i != end() && i->first == key)
-            return i->second;
-         return insert_before(i, ttl::make_pair(key, T()))->second;
-      }
-
-      T &at(const KT &key) { return find(key)->second; }
-      const T &at(const KT &key) const { return find(key)->second; }
-
-      iterator       begin() { return iterator(elements_); }
-      const_iterator begin() const { return const_iterator(elements_); }
-      iterator       end() { return iterator(last_); }
-      const_iterator end() const { return const_iterator(last_); }
-      const_iterator cbegin() const { return const_iterator(elements_); }
-      const_iterator cend() const { return const_iterator(last_); }
-
-      size_type size() const { return last_ - elements_; }
-      bool empty() const { return last_ == elements_; }
-      size_type max_size() const { return (size_type)-1 / sizeof(value_type); }
-
-      void clear()
-      {
-         while (last_ > elements_)
-            delete *--last_;
-      }
-
-      ttl::pair<iterator,bool> insert(const value_type &value)
-      {
-         iterator i = find_insert_pos(value.first);
-         if (i != end() && i->first == value.first)
-            return ttl::pair<iterator, bool>(i, false);
-         return ttl::pair<iterator, bool>(insert_before(i, value), true);
+         node_type *n = rbtree_.insert_unique(value);
+         return pair<iterator,bool>(iterator(n), n);
       }
       iterator insert(iterator, const value_type &);
-
       template<class InputIt>
       void insert(InputIt first, InputIt last);
 
+      T &operator[](const KT &key)
+      {
+         node_type *n = rbtree_.find(key);
+         if (!n)
+            n = rbtree_.insert_unique(value_type(key, typename value_type::second_type()));
+         return n->data.second;
+      }
+
+      T &at(const KT &key) { return rbtree_.find(key)->data.second; }
+      const T &at(const KT &key) const { return rbtree_.find(key)->data.second; }
+
+      void clear()
+      {
+         rbtree_.clear();
+      }
+
+      size_type size() const { return 0 /* TODO */; }
+      bool empty() const { return !rbtree_.get_root(); }
+      size_type max_size() const { return (size_type)-1 / sizeof(node_type); }
+
       iterator erase(const_iterator pos);
       iterator erase(const_iterator first, const_iterator last);
-      size_type erase(const key_type &key);
+
+      size_type erase(const KT &key)
+      {
+         node_type *n = rbtree_.remove(key);
+         delete n;
+         return !!n;
+      }
 
       void swap(map &other);
 
-      iterator find(const KT &key);
-      const_iterator find(const KT &key) const;
+      iterator find(const KT &key) { return iterator(rbtree_.find(key)); }
+      const_iterator find(const KT &key) const { return const_iterator(rbtree_.find(key)); }
 
-      size_type count(const KT &key) const { return find(key) == cend(); }
+      size_type count(const KT &key) const { return !!rbtree_.find(key); }
 
-      ttl::pair<iterator,iterator> equal_range(const KT &key)
-      {
-         iterator i1 = find(key);
-         iterator i2 = i1;
-         if (i2 != end())
-            ++i2;
-         return ttl::make_pair(i1, i2);
-      }
-      ttl::pair<const_iterator,const_iterator> equal_range(const KT &key) const
-      {
-         const_iterator i1 = find(key);
-         const_iterator i2 = i1;
-         if (i2 != cend())
-            ++i2;
-         return ttl::make_pair(i1, i2);
-      }
+      //
+      // The map template has unique keys (so all ranges are either empty or
+      // 1 element long), so the amount of included template code can be
+      // reduced by using only lower_bound. 
+      //
 
-      iterator lower_bound(const KT &key) { return find_insert_pos(key); }
-      const_iterator lower_bound(const KT &key) const { return find_insert_pos(key); }
+      iterator lower_bound(const KT &key) { return iterator(rbtree_.lower_bound(key)); }
+      const_iterator lower_bound(const KT &key) const { return const_iterator(rbtree_.lower_bound(key)); }
 
       iterator upper_bound(const KT &key)
       {
-         iterator i = find_insert_pos(key);
-         while (i != end() && i->first == key)
-            ++i;
-         return i;
+         node_type *lo = rbtree_.lower_bound(key);
+         return iterator(lo ? static_cast<node_type *>(rbtree_base::next_node(lo)): 0);
       }
       const_iterator upper_bound(const KT &key) const
       {
-         const_iterator i = find_insert_pos(key);
-         while (i != cend() && i->first == key)
-            ++i;
-         return i;
+         const node_type *lo = rbtree_.lower_bound(key);
+         return const_iterator(lo ? static_cast<const node_type *>(rbtree_base::next_node(lo)): 0);
       }
 
-      key_compare key_comp() const { return comp_; }
+      pair<iterator, iterator> equal_range(const KT &key)
+      {
+         node_type *lo = rbtree_.lower_bound(key);
+         node_type *up = lo ? static_cast<node_type *>(rbtree_base::next_node(lo)): 0;
+         return pair<iterator, iterator>(iterator(lo), iterator(up));
+      }
+      pair<const_iterator, const_iterator> equal_range(const KT &key) const
+      {
+         const node_type *lo = rbtree_.lower_bound(key);
+         const node_type *up = lo ? static_cast<node_type *>(rbtree_base::next_node(lo)): 0;
+         return pair<const_iterator, const_iterator>(const_iterator(lo), const_iterator(up));
+      }
 
       struct value_compare
       {
@@ -211,108 +249,8 @@ namespace ttl
             return comp(a.first, b.first);
          }
       };
-      value_compare value_comp() const { return value_compare(comp_); }
-
-   private:
-      value_type **elements_, **last_, **end_of_elements_;
-      Compare comp_;
-      iterator insert_before(iterator, const value_type &);
-      iterator find_insert_pos(const KT &key) const;
-#endif // NOT_IMPLEMENTED
+      value_compare value_comp() const { return value_compare(Compare()); }
    };
 
-#if NOT_IMPLEMENTED
-   template<typename KT, typename T, typename Compare>
-   map<KT,T,Compare>::map(const map& other): comp_(other.comp_)
-   {
-      size_type prealloc = other.end_of_elements_ - other.elements_;
-      elements_ = last_ = new value_type*[prealloc];
-      end_of_elements_ = elements_ + prealloc;
-      for (const value_type * const *i = other.elements_; i != other.last_; ++i)
-         *last_++ = new value_type(**i);
-   }
-
-   template<typename KT, typename T, typename Compare>
-   typename map<KT,T,Compare>::iterator map<KT,T,Compare>::find(const KT &key)
-   {
-      unsigned L = 0, H = size();
-      while (L < H) {
-         unsigned m = L + (H - L) / 2;
-         if (elements_[m]->first == key)
-            return iterator(elements_ + m);
-         if (comp_(elements_[m]->first, key))
-            L = m + 1;
-         else
-            H = m;
-      }
-      return end();
-   }
-   template<typename KT, typename T, typename Compare>
-   typename map<KT,T,Compare>::const_iterator map<KT,T,Compare>::find(const KT &key) const
-   {
-      unsigned L = 0, H = size();
-      while (L < H)
-      {
-         unsigned m = L + (H - L) / 2;
-         if (elements_[m]->first == key)
-            return const_iterator(elements_ + m);
-         if (comp_(elements_[m]->first, key))
-            L = m + 1;
-         else
-            H = m;
-      }
-      return cend();
-   }
-   template<typename KT, typename T, typename Compare>
-   typename map<KT,T,Compare>::iterator map<KT,T,Compare>::find_insert_pos(const KT &key) const
-   {
-      unsigned L = 0, H = size();
-      while (L < H)
-      {
-         unsigned m = L + (H - L) / 2;
-         if (elements_[m]->first == key)
-            return iterator(elements_ + m);
-         if (comp_(elements_[m]->first, key))
-            L = m + 1;
-         else
-            H = m;
-      }
-      return iterator(elements_ + L);
-   }
-   template<typename KT, typename T, typename Compare>
-   typename map<KT,T,Compare>::iterator map<KT,T,Compare>::insert_before(iterator pos,
-                                                                         const value_type& value)
-   {
-      if (end_of_elements_ - last_ < 1)
-      {
-         value_type **o;
-         value_type **i;
-         size_type newcapacity = end_of_elements_ - elements_;
-         newcapacity += newcapacity/2; // temporarily funny...
-         if (!newcapacity)
-            newcapacity = 2;
-         value_type **newelements = o = new value_type *[newcapacity];
-         for (i = elements_; i != pos.ptr_;)
-            *o++ = *i++;
-         *o = new value_type(value);
-         pos = iterator(o++);
-         for (; i != last_;)
-            *o++ = *i++;
-         delete [] elements_;
-         elements_ = newelements;
-         end_of_elements_ = elements_ + newcapacity;
-         last_ = o;
-         while (o < end_of_elements_)
-            *o++ = (value_type *)0;
-         return pos;
-      }
-      value_type **i = last_++;
-      value_type **o = last_;
-      while (i != pos.ptr_)
-         *--o = *--i;
-      *i = new value_type(value);
-      return iterator(i);
-   }
-#endif
 }
 #endif // _TINY_TEMPLATE_LIBRARY_MAP_HPP_
