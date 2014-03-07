@@ -41,38 +41,6 @@ namespace ttl
       rbtree_base(): root_(0) {}
       ~rbtree_base() {}
 
-      struct link
-      {
-         rbnode **pos;
-         rbnode *parent;
-         link(rbnode **p, rbnode *pp): pos(p), parent(pp) {}
-
-         rbnode *operator*() { return *pos; }
-         const rbnode *operator*() const { return *pos; }
-         rbnode *node() const { return pos ? *pos: 0; }
-
-         link left() { return link(&(*pos)->left, *pos); }
-         link right() { return link(&(*pos)->right, *pos); }
-      };
-      struct const_link
-      {
-         rbnode * const *pos;
-         rbnode *parent;
-         const_link(const link &h): pos(h.pos), parent(h.parent) {}
-         const_link(rbnode * const *p, rbnode *pp): pos(p), parent(pp) {}
-
-         rbnode *operator*() { return *pos; }
-         const rbnode *operator*() const { return *pos; }
-         rbnode *node() const { return pos ? *pos: 0; }
-
-         const_link left() const { return const_link(&(*pos)->left, *pos); }
-         const_link right() const { return const_link(&(*pos)->right, *pos); }
-      };
-
-      link get_root() { return link(&root_, 0); }
-      const_link get_root() const { return const_link(&root_, 0); }
-      const_link get_croot() const { return const_link(&root_, 0); }
-
       static rbnode *min_node(rbnode *n)
       {
          while (n && n->left)
@@ -240,6 +208,10 @@ namespace ttl
       node *insert_unique(const KV &data);
 
       node *remove(const K &key);
+
+      node *get_root() { return static_cast<node *>(root_); }
+      const node *get_root() const { return static_cast<const node *>(root_); }
+      const node *get_croot() const { return static_cast<const node *>(root_); }
 
       const node *find(const K &) const;
       node *find(const K &key)
@@ -474,36 +446,4 @@ namespace ttl
    }
 }
 
-inline bool operator==(const ttl::rbtree_base::link &a, const ttl::rbtree_base::link &b)
-{
-   return a.pos == b.pos;
-}
-inline bool operator==(const ttl::rbtree_base::const_link &a, const ttl::rbtree_base::const_link &b)
-{
-   return a.pos == b.pos;
-}
-inline bool operator==(const ttl::rbtree_base::link &a, const ttl::rbtree_base::const_link &b)
-{
-   return a.pos == b.pos;
-}
-inline bool operator==(const ttl::rbtree_base::const_link &a, const ttl::rbtree_base::link &b)
-{
-   return a.pos == b.pos;
-}
-inline bool operator!=(const ttl::rbtree_base::link &a, const ttl::rbtree_base::link &b)
-{
-   return a.pos != b.pos;
-}
-inline bool operator!=(const ttl::rbtree_base::const_link &a, const ttl::rbtree_base::const_link &b)
-{
-   return a.pos != b.pos;
-}
-inline bool operator!=(const ttl::rbtree_base::link &a, const ttl::rbtree_base::const_link &b)
-{
-   return a.pos != b.pos;
-}
-inline bool operator!=(const ttl::rbtree_base::const_link &a, const ttl::rbtree_base::link &b)
-{
-   return a.pos != b.pos;
-}
 #endif // _TINY_TEMPLATE_LIBRARY_RBTREE_HPP_

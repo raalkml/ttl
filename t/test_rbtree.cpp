@@ -17,18 +17,16 @@ struct select_same
 typedef ttl::rbtree<int, int, select_same<int>, ttl::less<int> > rbtree_set;
 
 template<typename Container>
-static void inorder(const ttl::rbtree_base::const_link &h, int depth = 0)
+static void inorder(const ttl::rbnode *n, int depth = 0)
 {
-   ttl::rbtree_base::const_link c = h.left();
-   if (*c)
-      inorder<Container>(c, depth + 1);
+   if (n && n->left)
+      inorder<Container>(n->left, depth + 1);
    for (int i = depth; i--;)
       fputc(' ', stdout);
    typename Container::keyof_type keyof;
-   printf("%p:%d\n", h.node(), keyof(static_cast<const typename Container::node *>(*h)->data));
-   c = h.right();
-   if (*c)
-      inorder<Container>(c, depth + 1);
+   printf("%p:%d\n", n, n ? keyof(static_cast<const typename Container::node *>(n)->data): -1);
+   if (n && n->right)
+      inorder<Container>(n->right, depth + 1);
 }
 
 void test()
@@ -49,7 +47,7 @@ void test()
       printf("%p %d (%d)\n", pos, d.first, d.second);
    }
 
-   printf("red-black tree with 10 elements, root %p\n", t.get_croot().pos);
+   printf("red-black tree with 10 elements, root %p\n", t.get_croot());
    inorder<rbtree_map>(t.get_croot());
 
    ttl::pair<int,char> dupe(5, -5);
@@ -59,9 +57,9 @@ void test()
    printf("inserted dupe (5)\n");
    inorder<rbtree_map>(t.get_croot());
 
-   delete static_cast<rbtree_map::node *>(t.delete_min(t.get_root().pos));
-   delete static_cast<rbtree_map::node *>(t.delete_min(t.get_root().pos));
-   delete static_cast<rbtree_map::node *>(t.delete_min(t.get_root().pos));
+   delete static_cast<rbtree_map::node *>(t.delete_min(t.edge(t.get_root())));
+   delete static_cast<rbtree_map::node *>(t.delete_min(t.edge(t.get_root())));
+   delete static_cast<rbtree_map::node *>(t.delete_min(t.edge(t.get_root())));
 
    printf("3 calls to delete_min from root\n");
    inorder<rbtree_map>(t.get_croot());
