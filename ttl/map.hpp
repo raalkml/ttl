@@ -19,7 +19,7 @@ namespace ttl
    public:
       typedef KT key_type;
       typedef T mapped_type;
-      typedef pair<KT, T> value_type;
+      typedef pair<const KT, T> value_type;
       typedef ttl::size_t size_type;
       typedef ttl::ptrdiff_t difference_type;
       typedef Compare key_compare;
@@ -41,7 +41,7 @@ namespace ttl
       };
 
    private:
-      typedef rbtree<KT, pair<KT, T>, select_first< pair<KT,T> >, Compare> tree_type;
+      typedef rbtree<KT, pair<const KT, T>, select_first< pair<const KT,T> >, Compare> tree_type;
       typedef typename tree_type::node node_type;
 
       tree_type rbtree_;
