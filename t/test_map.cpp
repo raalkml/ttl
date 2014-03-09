@@ -29,6 +29,96 @@ namespace ttl
    }
 }
 
+static void test_iterators(i2cmap &m)
+{
+   printf("iterator && const_iterator\n");
+   // all iterators are different
+   i2cmap empty;
+   assert(empty.begin()  != i2cmap().begin());
+   assert(empty.cbegin() != i2cmap().cbegin());
+   assert(empty.end()  != i2cmap().end());
+   assert(empty.cend() != i2cmap().cend());
+
+   // iteration through empty containers must not execute the loop body
+   for (i2cmap::iterator it = empty.begin(); it != empty.end(); ++it)
+      assert(0);
+   for (i2cmap::iterator it = empty.end(); it-- != empty.begin();)
+      assert(0);
+   for (i2cmap::const_iterator it = constify(empty).begin(); it != constify(empty).end(); ++it)
+      assert(0);
+   for (i2cmap::const_iterator it = constify(empty).end(); it-- != constify(empty).begin();)
+      assert(0);
+   for (i2cmap::const_iterator it = empty.cbegin(); it != empty.cend(); ++it)
+      assert(0);
+   for (i2cmap::const_iterator it = empty.cend(); it-- != empty.cbegin();)
+      assert(0);
+
+   {
+      i2cmap::iterator it1 = m.begin();
+      i2cmap::iterator it2 = ++it1;
+      assert(it1++ == it2);
+      assert(--it1 == it2);
+      assert(--it1 == --it2);
+      ++it1;
+      ++it2;
+      assert(it1 == it2--);
+      assert(m.begin() == it2);
+   }
+   {
+      i2cmap::const_iterator it1 = m.cbegin();
+      i2cmap::const_iterator it2 = ++it1;
+      assert(it1++ == it2);
+      assert(--it1 == it2);
+      assert(--it1 == --it2);
+      ++it1;
+      ++it2;
+      assert(it1 == it2--);
+      assert(m.cbegin() == it2);
+   }
+   int i = 0;
+   for (i2cmap::iterator it = m.begin(); it != m.end(); ++it, ++i)
+   {
+      assert(it->first == i);
+      assert(it->second == (char)i + '0');
+   }
+   for (i2cmap::iterator it = m.end(); it-- != m.begin();)
+   {
+      --i;
+      assert(it->first == i);
+      assert(it->second == (char)i + '0');
+   }
+   i = 0;
+   for (i2cmap::const_iterator it = constify(m).begin(); it != constify(m).end(); ++it, ++i)
+   {
+      assert(it->first == i);
+      assert(it->second == (char)i + '0');
+   }
+   for (i2cmap::const_iterator it = constify(m).end(); it-- != constify(m).begin();)
+   {
+      --i;
+      assert(it->first == i);
+      assert(it->second == (char)i + '0');
+   }
+   i = 0;
+   for (i2cmap::const_iterator it = m.cbegin(); it != m.cend(); ++it, ++i)
+   {
+      assert(it->first == i);
+      assert(it->second == (char)i + '0');
+   }
+   for (i2cmap::const_iterator it = m.cend(); it-- != m.cbegin();)
+   {
+      --i;
+      assert(it->first == i);
+      assert(it->second == (char)i + '0');
+   }
+   for (i2cmap::const_iterator it = m.cbegin(); it != m.cend(); ++it)
+      printf(" {%d: 0x%02x}", it->first, (unsigned char)it->second);
+   printf("\n");
+   for (i2cmap::const_iterator it = m.cend(); it-- != m.cbegin();)
+      printf(" {%d: 0x%02x}", it->first, (unsigned char)it->second);
+   printf("\n");
+}
+
 void test()
 {
    i2cmap m;
@@ -50,94 +140,7 @@ void test()
    // assert(m.max_size() > m.size());
    assert(m.max_size() > 0);
 
-   printf("iterator && const_iterator\n");
-   {
-      // all iterators are different
-      i2cmap empty;
-      assert(empty.begin()  != i2cmap().begin());
-      assert(empty.cbegin() != i2cmap().cbegin());
-      assert(empty.end()  != i2cmap().end());
-      assert(empty.cend() != i2cmap().cend());
-
-      // iteration through empty containers must not execute the loop body
-      for (i2cmap::iterator it = empty.begin(); it != empty.end(); ++it)
-         assert(0);
-      for (i2cmap::iterator it = empty.end(); it-- != empty.begin();)
-         assert(0);
-      for (i2cmap::const_iterator it = constify(empty).begin(); it != constify(empty).end(); ++it)
-         assert(0);
-      for (i2cmap::const_iterator it = constify(empty).end(); it-- != constify(empty).begin();)
-         assert(0);
-      for (i2cmap::const_iterator it = empty.cbegin(); it != empty.cend(); ++it)
-         assert(0);
-      for (i2cmap::const_iterator it = empty.cend(); it-- != empty.cbegin();)
-         assert(0);
-
-      {
-         i2cmap::iterator it1 = m.begin();
-         i2cmap::iterator it2 = ++it1;
-         assert(it1++ == it2);
-         assert(--it1 == it2);
-         assert(--it1 == --it2);
-         ++it1;
-         ++it2;
-         assert(it1 == it2--);
-         assert(m.begin() == it2);
-      }
-      {
-         i2cmap::const_iterator it1 = m.cbegin();
-         i2cmap::const_iterator it2 = ++it1;
-         assert(it1++ == it2);
-         assert(--it1 == it2);
-         assert(--it1 == --it2);
-         ++it1;
-         ++it2;
-         assert(it1 == it2--);
-         assert(m.cbegin() == it2);
-      }
-      int i = 0;
-      for (i2cmap::iterator it = m.begin(); it != m.end(); ++it, ++i)
-      {
-         assert(it->first == i);
-         assert(it->second == (char)i + '0');
-      }
-      for (i2cmap::iterator it = m.end(); it-- != m.begin();)
-      {
-         --i;
-         assert(it->first == i);
-         assert(it->second == (char)i + '0');
-      }
-      i = 0;
-      for (i2cmap::const_iterator it = constify(m).begin(); it != constify(m).end(); ++it, ++i)
-      {
-         assert(it->first == i);
-         assert(it->second == (char)i + '0');
-      }
-      for (i2cmap::const_iterator it = constify(m).end(); it-- != constify(m).begin();)
-      {
-         --i;
-         assert(it->first == i);
-         assert(it->second == (char)i + '0');
-      }
-      i = 0;
-      for (i2cmap::const_iterator it = m.cbegin(); it != m.cend(); ++it, ++i)
-      {
-         assert(it->first == i);
-         assert(it->second == (char)i + '0');
-      }
-      for (i2cmap::const_iterator it = m.cend(); it-- != m.cbegin();)
-      {
-         --i;
-         assert(it->first == i);
-         assert(it->second == (char)i + '0');
-      }
-      for (i2cmap::const_iterator it = m.cbegin(); it != m.cend(); ++it)
-         printf(" {%d: 0x%02x}", it->first, (unsigned char)it->second);
-      printf("\n");
-      for (i2cmap::const_iterator it = m.cend(); it-- != m.cbegin();)
-         printf(" {%d: 0x%02x}", it->first, (unsigned char)it->second);
-      printf("\n");
-   }
+   test_iterators(m);
 
    printf("comparing the values with std STL\n");
    {
