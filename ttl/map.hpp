@@ -141,15 +141,18 @@ namespace ttl
 
       iterator begin()
       {
-         return iterator(static_cast<node_type *>(rbtree_base::min_node(rbtree_.get_root())));
+         rbnode *root = rbtree_.get_root();
+         return root ? iterator(static_cast<node_type *>(rbtree_base::min_node(root))): end();
       }
       const_iterator begin() const
       {
-         return const_iterator(static_cast<const node_type *>(rbtree_base::min_node(rbtree_.get_croot())));
+         const rbnode *root = rbtree_.get_root();
+         return root ? const_iterator(static_cast<const node_type *>(rbtree_base::min_node(root))): end();
       }
       const_iterator cbegin() const
       {
-         return const_iterator(static_cast<const node_type *>(rbtree_base::min_node(rbtree_.get_croot())));
+         const rbnode *root = rbtree_.get_root();
+         return root ? const_iterator(static_cast<const node_type *>(rbtree_base::min_node(root))): cend();
       }
 
       iterator end() { return iterator(0); }
