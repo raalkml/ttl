@@ -13,7 +13,7 @@ template class ttl::pair_vector<char, int>;
 template class ttl::vector<testtype>;
 template class ttl::fixed_vector<testtype, 16>;
 template class ttl::array<ttl::pair<int, char>, 3>;
-// template class ttl::map<int, char>; // incomplete rbtree
+template class ttl::map<int, char>;
 
 void test()
 {
