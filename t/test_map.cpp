@@ -12,8 +12,6 @@
 
 typedef ttl::map<int, char> i2cmap;
 
-template <class C> inline const C &constify(C &c) { return c; }
-
 
 namespace ttl
 {

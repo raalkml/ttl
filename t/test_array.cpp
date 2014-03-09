@@ -16,6 +16,11 @@ void test()
       for (ttl::array<int, 3>::const_iterator i = i3.cbegin(); i != i3.cend(); ++i)
          assert(*i == *j++);
       assert(j == i3.end());
+
+      j = i3.begin();
+      for (ttl::array<int, 3>::const_iterator i = constify(i3).begin(); i != constify(i3).end(); ++i)
+         assert(*i == *j++);
+      assert(j == constify(i3).end());
    }
 
    puts("assignment operator");

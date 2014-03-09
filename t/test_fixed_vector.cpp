@@ -50,7 +50,12 @@ void test()
    printf("\nassign:\n");
    v1.assign(5, testtype(100));
    for (testvector::const_iterator i = v1.cbegin(); i != v1.cend(); ++i)
+   {
       printf(" %d", i->value);
+      assert(i->value == 100);
+   }
+   for (testvector::const_iterator i = constify(v1).begin(); i != constify(v1).end(); ++i)
+      assert(i->value == 100);
    printf("\n");
    static const int in[] = {1,2,3,4,5};
    v1.assign(in, in + countof(in));
