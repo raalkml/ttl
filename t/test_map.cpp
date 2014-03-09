@@ -119,6 +119,18 @@ void test()
          assert(it->first == i);
          assert(it->second == (char)i + '0');
       }
+      i = 0;
+      for (i2cmap::const_iterator it = m.cbegin(); it != m.cend(); ++it, ++i)
+      {
+         assert(it->first == i);
+         assert(it->second == (char)i + '0');
+      }
+      for (i2cmap::const_iterator it = m.cend(); it-- != m.cbegin();)
+      {
+         --i;
+         assert(it->first == i);
+         assert(it->second == (char)i + '0');
+      }
       for (i2cmap::const_iterator it = m.cbegin(); it != m.cend(); ++it)
          printf(" {%d: 0x%02x}", it->first, (unsigned char)it->second);
       printf("\n");
