@@ -74,7 +74,9 @@ namespace ttl
          iterator &operator--()
          {
             // check if it is the sentinel/header
-            if (ptr_->color == rbnode::RED && ptr_->parent->parent == (rbnode *)ptr_)
+            if (!ptr_->parent)
+               ;
+            else if (ptr_->color == rbnode::RED && ptr_->parent->parent == (rbnode *)ptr_)
                ptr_ = static_cast<node_type *>(rbtree_base::max_node(ptr_->parent));
             else
                ptr_ = static_cast<node_type *>(rbtree_base::prev_node(ptr_));
@@ -84,7 +86,9 @@ namespace ttl
          {
             iterator tmp(*this);
             // check if it is the sentinel/header
-            if (ptr_->color == rbnode::RED && ptr_->parent->parent == (rbnode *)ptr_)
+            if (!ptr_->parent)
+               ;
+            else if (ptr_->color == rbnode::RED && ptr_->parent->parent == (rbnode *)ptr_)
                ptr_ = static_cast<node_type *>(rbtree_base::max_node(ptr_->parent));
             else
                ptr_ = static_cast<node_type *>(rbtree_base::prev_node(ptr_));
@@ -126,7 +130,9 @@ namespace ttl
          const_iterator &operator--()
          {
             // check if it is the sentinel/header
-            if (ptr_->color == rbnode::RED && ptr_->parent->parent == (const rbnode *)ptr_)
+            if (!ptr_->parent)
+               ;
+            else if (ptr_->color == rbnode::RED && ptr_->parent->parent == (const rbnode *)ptr_)
                ptr_ = static_cast<const node_type *>(rbtree_base::max_node(ptr_->parent));
             else
                ptr_ = static_cast<const node_type *>(rbtree_base::prev_node(ptr_));
@@ -136,7 +142,9 @@ namespace ttl
          {
             const_iterator tmp(*this);
             // check if it is the sentinel/header
-            if (ptr_->color == rbnode::RED && ptr_->parent->parent == (const rbnode *)ptr_)
+            if (!ptr_->parent)
+               ;
+            else if (ptr_->color == rbnode::RED && ptr_->parent->parent == (const rbnode *)ptr_)
                ptr_ = static_cast<const node_type *>(rbtree_base::max_node(ptr_->parent));
             else
                ptr_ = static_cast<const node_type *>(rbtree_base::prev_node(ptr_));

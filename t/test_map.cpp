@@ -53,10 +53,25 @@ void test()
    printf("iterator && const_iterator\n");
    {
       // all iterators are different
-      assert(i2cmap().begin()  != i2cmap().begin());
-      assert(i2cmap().cbegin() != i2cmap().cbegin());
-      assert(i2cmap().end()  != i2cmap().end());
-      assert(i2cmap().cend() != i2cmap().cend());
+      i2cmap empty;
+      assert(empty.begin()  != i2cmap().begin());
+      assert(empty.cbegin() != i2cmap().cbegin());
+      assert(empty.end()  != i2cmap().end());
+      assert(empty.cend() != i2cmap().cend());
+
+      // iteration through empty containers must not execute the loop body
+      for (i2cmap::iterator it = empty.begin(); it != empty.end(); ++it)
+         assert(0);
+      for (i2cmap::iterator it = empty.end(); it-- != empty.begin();)
+         assert(0);
+      for (i2cmap::const_iterator it = constify(empty).begin(); it != constify(empty).end(); ++it)
+         assert(0);
+      for (i2cmap::const_iterator it = constify(empty).end(); it-- != constify(empty).begin();)
+         assert(0);
+      for (i2cmap::const_iterator it = empty.cbegin(); it != empty.cend(); ++it)
+         assert(0);
+      for (i2cmap::const_iterator it = empty.cend(); it-- != empty.cbegin();)
+         assert(0);
 
       {
          i2cmap::iterator it1 = m.begin();
