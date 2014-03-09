@@ -71,27 +71,11 @@ namespace ttl
             ptr_ = static_cast<node_type *>(rbtree_base::next_node(ptr_));
             return tmp;
          }
-         iterator &operator--()
-         {
-            // check if it is the sentinel/header
-            if (!ptr_->parent)
-               ;
-            else if (ptr_->color == rbnode::RED && ptr_->parent->parent == (rbnode *)ptr_)
-               ptr_ = static_cast<node_type *>(rbtree_base::max_node(ptr_->parent));
-            else
-               ptr_ = static_cast<node_type *>(rbtree_base::prev_node(ptr_));
-            return *this;
-         }
+         iterator &operator--() { prev(); return *this; }
          iterator operator--(int)
          {
             iterator tmp(*this);
-            // check if it is the sentinel/header
-            if (!ptr_->parent)
-               ;
-            else if (ptr_->color == rbnode::RED && ptr_->parent->parent == (rbnode *)ptr_)
-               ptr_ = static_cast<node_type *>(rbtree_base::max_node(ptr_->parent));
-            else
-               ptr_ = static_cast<node_type *>(rbtree_base::prev_node(ptr_));
+            prev();
             return tmp;
          }
 
@@ -104,6 +88,7 @@ namespace ttl
          friend class map<KT,T,Compare>;
          friend class map<KT,T,Compare>::const_iterator;
          iterator(node_type *ptr): ptr_(ptr) {}
+         void prev();
       };
       struct const_iterator
       {
@@ -129,25 +114,13 @@ namespace ttl
          }
          const_iterator &operator--()
          {
-            // check if it is the sentinel/header
-            if (!ptr_->parent)
-               ;
-            else if (ptr_->color == rbnode::RED && ptr_->parent->parent == (const rbnode *)ptr_)
-               ptr_ = static_cast<const node_type *>(rbtree_base::max_node(ptr_->parent));
-            else
-               ptr_ = static_cast<const node_type *>(rbtree_base::prev_node(ptr_));
+            prev();
             return *this;
          }
          const_iterator operator--(int)
          {
             const_iterator tmp(*this);
-            // check if it is the sentinel/header
-            if (!ptr_->parent)
-               ;
-            else if (ptr_->color == rbnode::RED && ptr_->parent->parent == (const rbnode *)ptr_)
-               ptr_ = static_cast<const node_type *>(rbtree_base::max_node(ptr_->parent));
-            else
-               ptr_ = static_cast<const node_type *>(rbtree_base::prev_node(ptr_));
+            prev();
             return tmp;
          }
 
@@ -161,6 +134,7 @@ namespace ttl
          const node_type *ptr_;
          friend class map<KT,T,Compare>;
          const_iterator(const node_type *ptr): ptr_(ptr) {}
+         void prev();
       };
 
       iterator end()
@@ -272,38 +246,73 @@ namespace ttl
       iterator lower_bound(const KT &key) { return iterator(rbtree_.lower_bound(key)); }
       const_iterator lower_bound(const KT &key) const { return const_iterator(rbtree_.lower_bound(key)); }
 
-      iterator upper_bound(const KT &key)
-      {
-         node_type *lo = rbtree_.lower_bound(key);
-         if (lo == rbtree_.end())
-            return end();
-         return iterator(static_cast<node_type *>(rbtree_base::next_node(lo)));
-      }
-      const_iterator upper_bound(const KT &key) const
-      {
-         const node_type *lo = rbtree_.lower_bound(key);
-         if (lo == rbtree_.end())
-            return end();
-         return const_iterator(static_cast<const node_type *>(rbtree_base::next_node(lo)));
-      }
+      iterator upper_bound(const KT &key);
+      const_iterator upper_bound(const KT &key) const;
 
-      pair<iterator, iterator> equal_range(const KT &key)
-      {
-         node_type *lo = rbtree_.lower_bound(key);
-         node_type *up = lo;
-         if (lo != rbtree_.end())
-            up = static_cast<node_type *>(rbtree_base::next_node(lo));
-         return pair<iterator, iterator>(iterator(lo), iterator(up));
-      }
-      pair<const_iterator, const_iterator> equal_range(const KT &key) const
-      {
-         const node_type *lo = rbtree_.lower_bound(key);
-         const node_type *up = lo;
-         if (lo != rbtree_.end())
-            up = static_cast<const node_type *>(rbtree_base::next_node(lo));
-         return pair<const_iterator, const_iterator>(const_iterator(lo), const_iterator(up));
-      }
+      pair<iterator, iterator> equal_range(const KT &key);
+      pair<const_iterator, const_iterator> equal_range(const KT &key) const;
    };
 
+   template<typename KT, typename T, typename Compare>
+   void map<KT,T,Compare>::iterator::prev()
+   {
+      // check if it is the sentinel/header
+      if (!ptr_->parent)
+         ;
+      else if (ptr_->color == rbnode::RED && static_cast<const node_type *>(ptr_->parent->parent) == ptr_)
+         ptr_ = static_cast<node_type *>(rbtree_base::max_node(ptr_->parent));
+      else
+         ptr_ = static_cast<node_type *>(rbtree_base::prev_node(ptr_));
+   }
+
+   template<typename KT, typename T, typename Compare>
+   void map<KT,T,Compare>::const_iterator::prev()
+   {
+      // check if it is the sentinel/header
+      if (!ptr_->parent)
+         ;
+      else if (ptr_->color == rbnode::RED && static_cast<const node_type *>(ptr_->parent->parent) == ptr_)
+         ptr_ = static_cast<const node_type *>(rbtree_base::max_node(ptr_->parent));
+      else
+         ptr_ = static_cast<const node_type *>(rbtree_base::prev_node(ptr_));
+   }
+
+   template<typename KT, typename T, typename Compare>
+   typename map<KT,T,Compare>::iterator map<KT,T,Compare>::upper_bound(const KT &key)
+   {
+      node_type *lo = rbtree_.lower_bound(key);
+      if (lo == rbtree_.end())
+         return end();
+      return iterator(static_cast<node_type *>(rbtree_base::next_node(lo)));
+   }
+   template<typename KT, typename T, typename Compare>
+   typename map<KT,T,Compare>::const_iterator map<KT,T,Compare>::upper_bound(const KT &key) const
+   {
+      const node_type *lo = rbtree_.lower_bound(key);
+      if (lo == rbtree_.end())
+         return end();
+      return const_iterator(static_cast<const node_type *>(rbtree_base::next_node(lo)));
+   }
+
+   template<typename KT, typename T, typename Compare>
+   pair<typename map<KT,T,Compare>::iterator, typename map<KT,T,Compare>::iterator>
+   map<KT,T,Compare>::equal_range(const KT &key)
+   {
+      node_type *lo = rbtree_.lower_bound(key);
+      node_type *up = lo;
+      if (lo != rbtree_.end())
+         up = static_cast<node_type *>(rbtree_base::next_node(lo));
+      return pair<iterator, iterator>(iterator(lo), iterator(up));
+   }
+   template<typename KT, typename T, typename Compare>
+   pair<typename map<KT,T,Compare>::const_iterator, typename map<KT,T,Compare>::const_iterator>
+   map<KT,T,Compare>::equal_range(const KT &key) const
+   {
+      const node_type *lo = rbtree_.lower_bound(key);
+      const node_type *up = lo;
+      if (lo != rbtree_.end())
+         up = static_cast<const node_type *>(rbtree_base::next_node(lo));
+      return pair<const_iterator, const_iterator>(const_iterator(lo), const_iterator(up));
+   }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_MAP_HPP_

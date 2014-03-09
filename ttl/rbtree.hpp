@@ -266,37 +266,42 @@ namespace ttl
       KeyOfValue keyof_;
       Compare is_less_;
 
-      void postorder_destroy(node *n)
-      {
-         if (!n)
-            return;
-
-         if (n->left)
-            postorder_destroy(static_cast<node *>(n->left));
-         if (n->right)
-            postorder_destroy(static_cast<node *>(n->right));
-         delete n;
-      }
-
-      rbnode *preorder_copy(const node *n)
-      {
-         if (!n)
-            return 0;
-         node *nc = new node(n->data);
-         nc->color = n->color;
-         if (n->left)
-            nc->left = preorder_copy(static_cast<const node *>(n->left)),
-            nc->left->parent = nc;
-         else
-            nc->left = 0;
-         if (n->right)
-            nc->right = preorder_copy(static_cast<const node *>(n->right)),
-            nc->right->parent = nc;
-         else
-            nc->right = 0;
-         return nc;
-      }
+      void postorder_destroy(node *n);
+      rbnode *preorder_copy(const node *n);
    };
+
+   template <class K, class KV, class KeyOfValue, class Compare>
+   void rbtree<K,KV,KeyOfValue,Compare>::postorder_destroy(node *n)
+   {
+      if (!n)
+         return;
+
+      if (n->left)
+         postorder_destroy(static_cast<node *>(n->left));
+      if (n->right)
+         postorder_destroy(static_cast<node *>(n->right));
+      delete n;
+   }
+
+   template <class K, class KV, class KeyOfValue, class Compare>
+   rbnode *rbtree<K,KV,KeyOfValue,Compare>::preorder_copy(const node *n)
+   {
+      if (!n)
+         return 0;
+      node *nc = new node(n->data);
+      nc->color = n->color;
+      if (n->left)
+         nc->left = preorder_copy(static_cast<const node *>(n->left)),
+         nc->left->parent = nc;
+      else
+         nc->left = 0;
+      if (n->right)
+         nc->right = preorder_copy(static_cast<const node *>(n->right)),
+         nc->right->parent = nc;
+      else
+         nc->right = 0;
+      return nc;
+   }
 
    template <class K, class KV, class KeyOfValue, class Compare>
    void rbtree<K,KV,KeyOfValue,Compare>::assign(const rbtree &other)
