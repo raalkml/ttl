@@ -51,6 +51,28 @@ void test()
 
    printf("iterator && const_iterator\n");
    {
+      {
+         i2cmap::iterator it1 = m.begin();
+         i2cmap::iterator it2 = ++it1;
+         assert(it1++ == it2);
+         assert(--it1 == it2);
+         assert(--it1 == --it2);
+         ++it1;
+         ++it2;
+         assert(it1 == it2--);
+         assert(m.begin() == it2);
+      }
+      {
+         i2cmap::const_iterator it1 = m.cbegin();
+         i2cmap::const_iterator it2 = ++it1;
+         assert(it1++ == it2);
+         assert(--it1 == it2);
+         assert(--it1 == --it2);
+         ++it1;
+         ++it2;
+         assert(it1 == it2--);
+         assert(m.cbegin() == it2);
+      }
       int i = 0;
       for (i2cmap::iterator it = m.begin(); it != m.end(); ++it, ++i)
       {

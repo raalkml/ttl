@@ -75,6 +75,16 @@ void test()
       }
       printf("\n");
    }
+   printf("rbtree_base::max_node() and ...::prev_node():\n");
+   {
+      ttl::rbnode *i = ttl::rbtree_base::max_node(t.get_root());
+      while (i)
+      {
+         printf(" %d", keyof(static_cast<rbtree_map::node *>(i)->data));
+         i = ttl::rbtree_base::prev_node(i);
+      }
+      printf("\n");
+   }
 
    delete static_cast<rbtree_map::node *>(t.delete_min(t.edge(t.get_root())));
    delete static_cast<rbtree_map::node *>(t.delete_min(t.edge(t.get_root())));

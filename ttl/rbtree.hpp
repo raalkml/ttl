@@ -69,8 +69,20 @@ namespace ttl
          }
          return (rbnode *)0;
       }
-      // TODO: prev_node
-      static rbnode *prev_node(const rbnode *);
+      static rbnode *prev_node(const rbnode *n)
+      {
+         if (n->left)
+            return max_node(n->left);
+         if (n->parent)
+         {
+            if (n == n->parent->right)
+               return n->parent;
+            while (n->parent && n == n->parent->left)
+               n = n->parent;
+            return n->parent;
+         }
+         return (rbnode *)0;
+      }
 
       static rbnode *rotate_left(rbnode *a)
       {
