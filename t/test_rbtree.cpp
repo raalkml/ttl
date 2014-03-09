@@ -59,8 +59,8 @@ void test()
    printf("generated red-black tree with 10 unique elements, root %p\n", t.get_croot());
 
    ttl::pair<int,char> dupe(5, -5);
-   assert(NULL == t.insert_unique(dupe));
-   assert(NULL != t.insert_equal(dupe));
+   assert(t.end() == t.insert_unique(dupe));
+   assert(t.end() != t.insert_equal(dupe));
 
    printf("inserted dupe (5)\n");
    inorder<rbtree_map>(t.get_croot(), true);
@@ -68,7 +68,7 @@ void test()
    printf("rbtree_base::min_node() and ...::next_node():\n");
    {
       ttl::rbnode *i = ttl::rbtree_base::min_node(t.get_root());
-      while (i)
+      while (i != t.end())
       {
          printf(" %d", keyof(static_cast<rbtree_map::node *>(i)->data));
          i = ttl::rbtree_base::next_node(i);
@@ -78,7 +78,7 @@ void test()
    printf("rbtree_base::max_node() and ...::prev_node():\n");
    {
       ttl::rbnode *i = ttl::rbtree_base::max_node(t.get_root());
-      while (i)
+      while (i != t.end())
       {
          printf(" %d", keyof(static_cast<rbtree_map::node *>(i)->data));
          i = ttl::rbtree_base::prev_node(i);
@@ -102,7 +102,7 @@ void test()
 
    rbtree_map::node *six = t.remove(6);
    printf("remove 6 (root) and put its values back\n");
-   assert(NULL != t.insert_unique(six->data));
+   assert(t.end() != t.insert_unique(six->data));
    delete six;
    inorder<rbtree_map>(t.get_croot());
 
@@ -128,7 +128,7 @@ void test()
       n = t.lower_bound(100);
       k = n ? keyof(n->data): -1;
       printf("lower_bound(%d): %p %d (out of range)\n", 100, n, k);
-      assert(n == NULL);
+      assert(n == t.end());
 
       n = t.lower_bound(5);
       k = n ? keyof(n->data): -1;
@@ -153,7 +153,7 @@ void test()
       n = t.upper_bound(100);
       k = n ? keyof(n->data): -1;
       printf("upper_bound(%d): %p %d (out of range)\n", 100, n, k);
-      assert(n == NULL);
+      assert(n == t.end());
 
       ttl::pair<rbtree_map::node *,rbtree_map::node *> r = t.equal_range(5);
       k = r.first ? keyof(r.first->data): -1;

@@ -139,6 +139,19 @@ namespace ttl
          const_iterator(const node_type *ptr): ptr_(ptr) {}
       };
 
+      iterator end()
+      {
+         return iterator(static_cast<node_type *>(rbtree_.end()));
+      }
+      const_iterator end() const
+      {
+         return const_iterator(static_cast<const node_type *>(rbtree_.end()));
+      }
+      const_iterator cend() const
+      {
+         return const_iterator(static_cast<const node_type *>(rbtree_.end()));
+      }
+
       iterator begin()
       {
          rbnode *root = rbtree_.get_root();
@@ -154,10 +167,6 @@ namespace ttl
          const rbnode *root = rbtree_.get_root();
          return root ? const_iterator(static_cast<const node_type *>(rbtree_base::min_node(root))): cend();
       }
-
-      iterator end() { return iterator(0); }
-      const_iterator end() const { return const_iterator(0); }
-      const_iterator cend() const { return const_iterator(0); }
 
       explicit map() {}
       ~map() {}
@@ -183,7 +192,7 @@ namespace ttl
       pair<iterator,bool> insert(const value_type &value)
       {
          node_type *n = rbtree_.insert_unique(value);
-         return pair<iterator,bool>(iterator(n), n);
+         return pair<iterator,bool>(iterator(n), n != rbtree_.end());
       }
       iterator insert(iterator, const value_type &);
 
@@ -196,7 +205,7 @@ namespace ttl
       T &operator[](const KT &key)
       {
          node_type *n = rbtree_.find(key);
-         if (!n)
+         if (n == rbtree_.end())
             n = rbtree_.insert_unique(value_type(key, typename value_type::second_type()));
          return n->data.second;
       }
@@ -234,7 +243,7 @@ namespace ttl
       iterator find(const KT &key) { return iterator(rbtree_.find(key)); }
       const_iterator find(const KT &key) const { return const_iterator(rbtree_.find(key)); }
 
-      size_type count(const KT &key) const { return !!rbtree_.find(key); }
+      size_type count(const KT &key) const { return rbtree_.find(key) != rbtree_.end(); }
 
       iterator lower_bound(const KT &key) { return iterator(rbtree_.lower_bound(key)); }
       const_iterator lower_bound(const KT &key) const { return const_iterator(rbtree_.lower_bound(key)); }
@@ -242,24 +251,32 @@ namespace ttl
       iterator upper_bound(const KT &key)
       {
          node_type *lo = rbtree_.lower_bound(key);
-         return iterator(lo ? static_cast<node_type *>(rbtree_base::next_node(lo)): 0);
+         if (lo == rbtree_.end())
+            return end();
+         return iterator(static_cast<node_type *>(rbtree_base::next_node(lo)));
       }
       const_iterator upper_bound(const KT &key) const
       {
          const node_type *lo = rbtree_.lower_bound(key);
-         return const_iterator(lo ? static_cast<const node_type *>(rbtree_base::next_node(lo)): 0);
+         if (lo == rbtree_.end())
+            return end();
+         return const_iterator(static_cast<const node_type *>(rbtree_base::next_node(lo)));
       }
 
       pair<iterator, iterator> equal_range(const KT &key)
       {
          node_type *lo = rbtree_.lower_bound(key);
-         node_type *up = lo ? static_cast<node_type *>(rbtree_base::next_node(lo)): 0;
+         node_type *up = lo;
+         if (lo != rbtree_.end())
+            up = static_cast<node_type *>(rbtree_base::next_node(lo));
          return pair<iterator, iterator>(iterator(lo), iterator(up));
       }
       pair<const_iterator, const_iterator> equal_range(const KT &key) const
       {
          const node_type *lo = rbtree_.lower_bound(key);
-         const node_type *up = lo ? static_cast<node_type *>(rbtree_base::next_node(lo)): 0;
+         const node_type *up = lo;
+         if (lo != rbtree_.end())
+            up = static_cast<const node_type *>(rbtree_base::next_node(lo));
          return pair<const_iterator, const_iterator>(const_iterator(lo), const_iterator(up));
       }
    };

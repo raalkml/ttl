@@ -36,9 +36,16 @@ namespace ttl
       rbtree_base(const rbtree_base &);
       rbtree_base &operator=(const rbtree_base &);
    protected:
-      rbnode *root_;
+      rbnode header_;
+      rbnode **root_edge() const { return const_cast<rbnode **>(&header_.parent); }
+      rbnode *root_() { return header_.parent; }
+      const rbnode *root_() const { return header_.parent; }
    public:
-      rbtree_base(): root_(0) {}
+      rbtree_base()
+      {
+         header_.parent = header_.left = header_.right = 0;
+         header_.color = rbnode::RED;
+      }
       ~rbtree_base() {}
 
       static rbnode *min_node(const rbnode *n)
@@ -59,29 +66,21 @@ namespace ttl
       {
          if  (n->right)
             return min_node(n->right);
-         if (n->parent)
-         {
-            if (n == n->parent->left)
-               return n->parent;
-            while (n->parent && n == n->parent->right)
-               n = n->parent;
+         if (n == n->parent->left)
             return n->parent;
-         }
-         return (rbnode *)0;
+         while (n == n->parent->right)
+            n = n->parent;
+         return n->parent;
       }
       static rbnode *prev_node(const rbnode *n)
       {
          if (n->left)
             return max_node(n->left);
-         if (n->parent)
-         {
-            if (n == n->parent->right)
-               return n->parent;
-            while (n->parent && n == n->parent->left)
-               n = n->parent;
+         if (n == n->parent->right)
             return n->parent;
-         }
-         return (rbnode *)0;
+         while (n == n->parent->left)
+            n = n->parent;
+         return n->parent;
       }
 
       static rbnode *rotate_left(rbnode *a)
@@ -137,8 +136,8 @@ namespace ttl
 
       rbnode **edge(rbnode *h) const
       {
-         if (h == root_)
-            return const_cast<rbnode **>(&root_);
+         if (h == root_())
+            return root_edge();
          if (h == h->parent->left)
             return &h->parent->left;
          return &h->parent->right;
@@ -148,13 +147,13 @@ namespace ttl
       {
          (*root)->color = rbnode::RED;
          (*root)->left = (*root)->right = 0;
-         while (parent && (is_red(parent->left) || is_red(parent->right)))
+         while (parent != &header_ && (is_red(parent->left) || is_red(parent->right)))
          {
             root = edge(parent);
             parent = parent->parent;
             *root = fixup(*root);
          }
-         root_->color = rbnode::BLACK;
+         root_()->color = rbnode::BLACK;
       }
 
       static rbnode *move_left(rbnode *pivot)
@@ -225,9 +224,12 @@ namespace ttl
 
       node *remove(const K &key);
 
-      node *get_root() { return static_cast<node *>(root_); }
-      const node *get_root() const { return static_cast<const node *>(root_); }
-      const node *get_croot() const { return static_cast<const node *>(root_); }
+      node *get_root() { return static_cast<node *>(root_()); }
+      const node *get_root() const { return static_cast<const node *>(root_()); }
+      const node *get_croot() const { return static_cast<const node *>(root_()); }
+
+      node *end() { return static_cast<node *>(&header_); }
+      const node *end() const { return static_cast<const node *>(&header_); }
 
       const node *find(const K &) const;
       node *find(const K &key)
@@ -299,25 +301,25 @@ namespace ttl
    template <class K, class KV, class KeyOfValue, class Compare>
    void rbtree<K,KV,KeyOfValue,Compare>::assign(const rbtree &other)
    {
-      if (root_)
+      if (root_())
          clear();
-      root_ = preorder_copy(other.get_croot());
-      if (root_)
-         root_->parent = 0;
+      const node *otherroot = other.get_root();
+      if (otherroot)
+         (*root_edge() = preorder_copy(otherroot))->parent = &header_;
    }
 
    template <class K, class KV, class KeyOfValue, class Compare>
    void rbtree<K,KV,KeyOfValue,Compare>::clear()
    {
-      node *root = static_cast<node *>(root_);
-      root_ = 0;
+      node *root = static_cast<node *>(root_());
+      *root_edge() = 0;
       postorder_destroy(root);
    }
 
    template <class K, class KV, class KeyOfValue, class Compare>
    size_t rbtree<K,KV,KeyOfValue,Compare>::count(const K &key) const
    {
-      const rbnode *n = root_;
+      const rbnode *n = root_();
       size_t c = 0;
       while (n)
       {
@@ -338,7 +340,7 @@ namespace ttl
    const typename rbtree<K,KV,KeyOfValue,Compare>::node *
    rbtree<K,KV,KeyOfValue,Compare>::find(const K &key) const
    {
-      const rbnode *n = root_;
+      const rbnode *n = root_();
       while (n)
       {
          const K &nkey = keyof_(static_cast<const node *>(n)->data);
@@ -349,14 +351,14 @@ namespace ttl
          else
             n = n->right;
       }
-      return static_cast<const node *>(n);
+      return static_cast<const node *>(n ? n: &header_);
    }
 
    template <class K, class KV, class KeyOfValue, class Compare>
    const typename rbtree<K,KV,KeyOfValue,Compare>::node *
    rbtree<K,KV,KeyOfValue,Compare>::lower_bound(const K &key) const
    {
-      const rbnode *n = root_, *prev = 0;
+      const rbnode *n = root_(), *prev = &header_;
       while (n)
       {
          if (is_less_(keyof_(static_cast<const node *>(n)->data), key))
@@ -372,7 +374,7 @@ namespace ttl
    const typename rbtree<K,KV,KeyOfValue,Compare>::node *
    rbtree<K,KV,KeyOfValue,Compare>::upper_bound(const K &key) const
    {
-      const rbnode *n = root_, *prev = 0;
+      const rbnode *n = root_(), *prev = &header_;
       while (n)
       {
          if (is_less_(key, keyof_(static_cast<const node *>(n)->data)))
@@ -387,8 +389,8 @@ namespace ttl
    typename rbtree<K,KV,KeyOfValue,Compare>::node *
    rbtree<K,KV,KeyOfValue,Compare>::insert_equal(const KV &data)
    {
-      rbnode *parent = 0;
-      rbnode **edge = &root_;
+      rbnode *parent = &header_;
+      rbnode **edge = root_edge();
       for (const K &key = keyof_(data); *edge;)
       {
          parent = *edge;
@@ -408,15 +410,15 @@ namespace ttl
    typename rbtree<K,KV,KeyOfValue,Compare>::node *
    rbtree<K,KV,KeyOfValue,Compare>::insert_unique(const KV &data)
    {
-      rbnode *parent = 0;
-      rbnode **edge = &root_;
+      rbnode *parent = &header_;
+      rbnode **edge = root_edge();
       for (const K &key = keyof_(data); *edge;)
       {
          const K &ekey = keyof_(static_cast<const node *>(*edge)->data);
          if (is_less_(key, ekey))
             parent = *edge, edge = &(*edge)->left;
          else if (key == ekey)
-            return (node *)0;
+            return static_cast<node *>(&header_);
          else
             parent = *edge, edge = &(*edge)->right;
       }
@@ -431,7 +433,7 @@ namespace ttl
    typename rbtree<K,KV,KeyOfValue,Compare>::node *
    rbtree<K,KV,KeyOfValue,Compare>::remove(const K &key)
    {
-      rbnode **root  = &root_, *parent = 0, *deleted = 0;
+      rbnode **root = root_edge(), *parent = &header_, *deleted = 0;
       while (*root)
       {
          parent = (*root)->parent;
@@ -482,14 +484,14 @@ namespace ttl
                root = &(*root)->right;
          }
       }
-      while (parent)
+      while (parent != &header_)
       {
          root = edge(parent);
          parent = parent->parent;
          *root = fixup(*root);
       }
-      if (root_)
-         root_->color = rbnode::BLACK;
+      if (root_())
+         root_()->color = rbnode::BLACK;
       return static_cast<node *>(deleted);
    }
 }
