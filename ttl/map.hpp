@@ -206,7 +206,7 @@ namespace ttl
          rbtree_.clear();
       }
 
-      size_type size() const { return 0 /* TODO */; }
+      // size_type size() const { return 0 /* TODO */; }
       bool empty() const { return !rbtree_.get_root(); }
       size_type max_size() const { return (size_type)-1 / sizeof(node_type); }
 
