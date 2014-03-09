@@ -52,6 +52,12 @@ void test()
 
    printf("iterator && const_iterator\n");
    {
+      // all iterators are different
+      assert(i2cmap().begin()  != i2cmap().begin());
+      assert(i2cmap().cbegin() != i2cmap().cbegin());
+      assert(i2cmap().end()  != i2cmap().end());
+      assert(i2cmap().cend() != i2cmap().cend());
+
       {
          i2cmap::iterator it1 = m.begin();
          i2cmap::iterator it2 = ++it1;
