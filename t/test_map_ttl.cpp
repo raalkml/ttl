@@ -7,7 +7,7 @@
 #include "ttl/map.hpp"
 
 // Explicit template instantiation will instantiate complete template
-typedef std::map<int, char> i2cmap;
+typedef ttl::map<int, char> i2cmap;
 
 namespace ttl
 {
