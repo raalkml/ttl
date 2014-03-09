@@ -145,7 +145,7 @@ void test()
    i2cmap().clear();
    m.clear();
 
-   printf("copy constructors and assignement operator\n");
+   printf("copy constructors and assignment operator\n");
    {
       ttl::array<ttl::pair<int, char>, 3> arr;
       arr[0] = ttl::pair<int, char>(100,'\x64');
@@ -156,11 +156,11 @@ void test()
       assert(ttl::equal(ma.cbegin(), ma.cend(), arr.cbegin()));
 
       i2cmap mb = ma;
-      assert(ttl::equal(mb.cbegin(), ma.cend(), arr.cbegin()));
+      assert(ttl::equal(mb.cbegin(), mb.cend(), arr.cbegin()));
 
       i2cmap mc;
       mc = mb;
-      assert(ttl::equal(mc.cbegin(), ma.cend(), arr.cbegin()));
+      assert(ttl::equal(mc.cbegin(), mc.cend(), arr.cbegin()));
 
       for (i2cmap::const_iterator it = mc.cbegin(); it != mc.cend(); ++it)
          printf(" {%d: 0x%02x}", it->first, (unsigned char)it->second);
