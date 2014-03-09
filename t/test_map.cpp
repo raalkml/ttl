@@ -86,16 +86,31 @@ void test()
          assert(it->first == i);
          assert(it->second == (char)i + '0');
       }
+      for (i2cmap::iterator it = m.end(); it-- != m.begin();)
+      {
+         --i;
+         assert(it->first == i);
+         assert(it->second == (char)i + '0');
+      }
       i = 0;
       for (i2cmap::const_iterator it = constify(m).begin(); it != constify(m).end(); ++it, ++i)
       {
          assert(it->first == i);
          assert(it->second == (char)i + '0');
       }
+      for (i2cmap::const_iterator it = constify(m).end(); it-- != constify(m).begin();)
+      {
+         --i;
+         assert(it->first == i);
+         assert(it->second == (char)i + '0');
+      }
+      for (i2cmap::const_iterator it = m.cbegin(); it != m.cend(); ++it)
+         printf(" {%d: 0x%02x}", it->first, (unsigned char)it->second);
+      printf("\n");
+      for (i2cmap::const_iterator it = m.cend(); it-- != m.cbegin();)
+         printf(" {%d: 0x%02x}", it->first, (unsigned char)it->second);
+      printf("\n");
    }
-   for (i2cmap::const_iterator it = m.cbegin(); it != m.cend(); ++it)
-      printf(" {%d: 0x%02x}", it->first, (unsigned char)it->second);
-   printf("\n");
 
    printf("comparing the values with std STL\n");
    {
