@@ -16,7 +16,7 @@ runtests: tests
 	$(V)set -e; for t in $(basename $(notdir $(TESTS))); do "./t/$$t"; done
 
 
-clean valgrind gdb report reports:
+clean depclean distclean clean-reports valgrind gdb report reports:
 	$(MAKE) -C t $@
 
-.PHONY: valgrind gdb all test tests runtests clean report reports
+.PHONY: valgrind gdb all test tests runtests report reports clean depclean distclean clean-reports

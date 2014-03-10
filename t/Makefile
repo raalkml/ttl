@@ -11,12 +11,15 @@ testsrcs = $(filter test%.cpp,$(sources))
 tests = $(patsubst %.cpp,%,$(testsrcs))
 
 tests all: $(tests) all-in-one
+distclean: clean depclean clean-reports
 clean:
-	$(RM) $(patsubst %.cpp,%.report,$(testsrcs)) all-in-one.report
 	$(RM) $(patsubst %.cpp,%.to,$(sources)) all-in-one
-	$(RM) $(patsubst %.cpp,%.d,$(sources))
 	$(RM) $(patsubst %.cpp,%.o,$(sources))
 	$(RM) $(tests)
+depclean:
+	$(RM) $(patsubst %.cpp,%.d,$(sources))
+clean-reports:
+	$(RM) $(patsubst %.cpp,%.report,$(testsrcs)) all-in-one.report
 
 %.o: %.cpp ; $(CXX) -o $@ -c $(local_CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
 %.s: %.cpp ; $(CXX) -o $@ -S $(local_CPPFLAGS) $(ASMFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
