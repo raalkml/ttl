@@ -77,23 +77,15 @@ struct apair
    operator i2cmap::value_type() const { return i2cmap::value_type(first, second); }
 };
 
+#ifdef RBTREE_INLINEABLE
 namespace ttl
 {
-   inline bool operator==(const std::map<int,char>::value_type &a,
-                          const map<int,char>::value_type &b)
-   {
-      return a.first == b.first && a.second == b.second;
-   }
-
-   inline bool operator==(const pair<const int,char> &a, const pair<int,char> &b)
-   {
-      return a.first == b.first && a.second == b.second;
-   }
    inline bool operator==(const pair<const int,char> &a, const ::apair &b)
    {
       return a.first == b.first && a.second == b.second;
    }
 }
+#else
 namespace std
 {
    inline bool operator==(const pair<const int,char> &a, const ::apair &b)
@@ -101,6 +93,7 @@ namespace std
       return a.first == b.first && a.second == b.second;
    }
 }
+#endif
 
 void test()
 {
@@ -124,25 +117,6 @@ void test()
    assert(m.max_size() > 0);
 
    test_iterators(m);
-
-   printf("comparing the values with std STL\n");
-   {
-      std::map<int,char> mstd;
-      for (int i = 0; i < 5; ++i)
-         assert(mstd.insert(std::map<int,char>::value_type(i, (char)i + '0')).second == true);
-      for (int i = 5; i < 10; ++i)
-         mstd[i] = (char)i + '0';
-
-      std::map<int,char>::const_iterator istd = constify(mstd).begin();
-      i2cmap::const_iterator ittl = constify(m).begin();
-      while (istd != mstd.end())
-      {
-         assert(istd->first == ittl->first);
-         assert(istd->second == ittl->second);
-         ++istd;
-         ++ittl;
-      }
-   }
 
    printf("at(key)\n");
    assert(m.at(0) == '0');
