@@ -175,8 +175,7 @@ namespace ttl
 
       template<class InputIt> map(InputIt first, InputIt last)
       {
-         for (; first != last; ++first)
-            rbtree_.insert_unique(value_type(first->first, first->second));
+         insert(first, last);
       }
 
       map &operator=(const map &other)
@@ -193,11 +192,7 @@ namespace ttl
       }
       iterator insert(iterator, const value_type &);
 
-      template<class InputIt> void insert(InputIt first, InputIt last)
-      {
-         for (; first != last; ++first)
-            rbtree_.insert_unique(value_type(first->first, first->second));
-      }
+      template<class InputIt> void insert(InputIt first, InputIt last);
 
       T &operator[](const KT &key)
       {
@@ -251,6 +246,14 @@ namespace ttl
       pair<iterator, iterator> equal_range(const KT &key);
       pair<const_iterator, const_iterator> equal_range(const KT &key) const;
    };
+
+   template<typename KT, typename T, typename Compare>
+   template<class InputIt>
+   void map<KT,T,Compare>::insert(InputIt first, InputIt last)
+   {
+      for (; first != last; ++first)
+         rbtree_.insert_unique(value_type(first->first, first->second));
+   }
 
    template<typename KT, typename T, typename Compare>
    typename map<KT,T,Compare>::iterator::node_type *
