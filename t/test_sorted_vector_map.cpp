@@ -1,13 +1,14 @@
 // vim: sw=3 ts=8 et
-#include "ttl/pair_vector.hpp"
+#include "ttl/sorted_vector_map.hpp"
 #include "t.hpp"
 
-template class ttl::pair_vector<char, int>;
+template class ttl::sorted_vector_map<char, int>;
 
-static void print_map(const char *s, const ttl::pair_vector<char, int> &m)
+static void print_map(const char *s,
+                      const ttl::sorted_vector_map<char, int> &m)
 {
    fputs(s, stdout);
-   for (ttl::pair_vector<char, int>::const_iterator i = m.cbegin(); i != m.cend(); ++i)
+   for (ttl::sorted_vector_map<char, int>::const_iterator i = m.cbegin(); i != m.cend(); ++i)
       if (i->first < 0)
          printf("--- = %3d ", i->second);
       else if (i->first < 32)
@@ -19,11 +20,11 @@ static void print_map(const char *s, const ttl::pair_vector<char, int> &m)
 
 void test()
 {
-   ttl::pair_vector<char, int> m;
-   ttl::pair_vector<char, int> m1 = m;
-   ttl::pair_vector<char, int> m2;
-   ttl::pair_vector<char, int>();
-   ttl::pair_vector<char, int>();
+   ttl::sorted_vector_map<char, int> m;
+   ttl::sorted_vector_map<char, int> m1 = m;
+   ttl::sorted_vector_map<char, int> m2;
+   ttl::sorted_vector_map<char, int>();
+   ttl::sorted_vector_map<char, int>();
    m1[(char)'1'] = 1;
    m1[(char)'2'] = 2;
    m1[(char)'3'] = 3;

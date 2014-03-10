@@ -9,7 +9,7 @@ template class ttl::backward_list<testtype>;
 template class ttl::bitset<256>;
 template class ttl::lazy_queue<testtype>;
 template class ttl::pair<int,char>;
-template class ttl::pair_vector<char, int>;
+template class ttl::sorted_vector_map<char, int>;
 template class ttl::vector<testtype>;
 template class ttl::fixed_vector<testtype, 16>;
 template class ttl::array<ttl::pair<int, char>, 3>;

@@ -1,15 +1,14 @@
 /////////////////////////////////////////////////// vim: sw=3 ts=8 et
 //
-// Tiny Template Library: a vector of sorted pointers to key-value pairs
+// Tiny Template Library: a sorted vector of key-value pairs
 //
-// Can be used as a small map: the underlying data structure is an array,
-// sorted with insertion sort. Has much less element overhead than a
-// red-black tree implementation.
+// Can be used as a small map: the underlying data structure is a sorted array.
+// It has much less element overhead than a red-black tree implementation.
 //
 // This code is Public Domain
 //
-#ifndef _TINY_TEMPLATE_LIBRARY_PAIR_VECTOR_HPP_
-#define _TINY_TEMPLATE_LIBRARY_PAIR_VECTOR_HPP_ 1
+#ifndef _TINY_TEMPLATE_LIBRARY_SORTED_VECTOR_MAP_HPP_
+#define _TINY_TEMPLATE_LIBRARY_SORTED_VECTOR_MAP_HPP_ 1
 
 #include "utility.hpp"
 #include "functional.hpp"
@@ -17,7 +16,7 @@
 namespace ttl
 {
    template<typename KT, typename T, typename Compare = ttl::less<KT> >
-   class pair_vector // unique keys to values
+   class sorted_vector_map // unique keys to values
    {
    public:
       typedef KT key_type;
@@ -38,7 +37,7 @@ namespace ttl
       struct iterator
       {
       public:
-         typedef pair_vector<KT,T,Compare>::value_type value_type;
+         typedef sorted_vector_map<KT,T,Compare>::value_type value_type;
          typedef ttl::ptrdiff_t difference_type;
          typedef value_type *pointer;
          typedef value_type *reference;
@@ -56,14 +55,14 @@ namespace ttl
          bool operator!=(const const_iterator &other) const { return other != *this; }
       private:
          value_type **ptr_;
-         friend class pair_vector<KT,T,Compare>;
-         friend class pair_vector<KT,T,Compare>::const_iterator;
+         friend class sorted_vector_map<KT,T,Compare>;
+         friend class sorted_vector_map<KT,T,Compare>::const_iterator;
          iterator(value_type **ptr): ptr_(ptr) {}
       };
       struct const_iterator
       {
       public:
-         typedef pair_vector<KT,T,Compare>::value_type value_type;
+         typedef sorted_vector_map<KT,T,Compare>::value_type value_type;
          typedef ttl::ptrdiff_t difference_type;
          typedef value_type *pointer;
          typedef value_type *reference;
@@ -83,25 +82,25 @@ namespace ttl
          const_iterator(const iterator &other): ptr_(other.ptr_) {}
       private:
          const value_type * const *ptr_;
-         friend class pair_vector<KT,T,Compare>;
+         friend class sorted_vector_map<KT,T,Compare>;
          const_iterator(const value_type * const *ptr): ptr_(ptr) {}
       };
 
    public:
-      explicit pair_vector(): elements_(0), last_(0), end_of_elements_(0) {}
-      pair_vector(const pair_vector& other);
-      explicit pair_vector(size_type prealloc)
+      explicit sorted_vector_map(): elements_(0), last_(0), end_of_elements_(0) {}
+      sorted_vector_map(const sorted_vector_map& other);
+      explicit sorted_vector_map(size_type prealloc)
       {
          elements_ = last_ = new value_type*[prealloc];
          end_of_elements_ = elements_ + prealloc;
       }
-      explicit pair_vector(const Compare &c): elements_(0), last_(0), end_of_elements_(0), comp_(c) {}
+      explicit sorted_vector_map(const Compare &c): elements_(0), last_(0), end_of_elements_(0), comp_(c) {}
 
       template<class InputIt>
-      pair_vector(InputIt first, InputIt last, const Compare & = Compare());
-      pair_vector &operator=(const pair_vector &other);
+      sorted_vector_map(InputIt first, InputIt last, const Compare & = Compare());
+      sorted_vector_map &operator=(const sorted_vector_map &other);
 
-      ~pair_vector()
+      ~sorted_vector_map()
       {
          for (value_type **i = elements_; i != last_; ++i)
             delete *i;
@@ -152,7 +151,7 @@ namespace ttl
       iterator erase(const_iterator first, const_iterator last);
       size_type erase(const key_type &key);
 
-      void swap(pair_vector &other);
+      void swap(sorted_vector_map &other);
 
       iterator find(const KT &key);
       const_iterator find(const KT &key) const;
@@ -199,7 +198,7 @@ namespace ttl
       struct value_compare
       {
       protected:
-         friend class pair_vector<KT, T, Compare>;
+         friend class sorted_vector_map<KT, T, Compare>;
          Compare comp;
          value_compare(Compare c): comp(c) {}
       public:
@@ -222,7 +221,8 @@ namespace ttl
    };
 
    template<typename KT, typename T, typename Compare>
-   pair_vector<KT,T,Compare>::pair_vector(const pair_vector& other): comp_(other.comp_)
+   sorted_vector_map<KT,T,Compare>::sorted_vector_map(const sorted_vector_map& other):
+      comp_(other.comp_)
    {
       size_type prealloc = other.end_of_elements_ - other.elements_;
       elements_ = last_ = new value_type*[prealloc];
@@ -232,7 +232,8 @@ namespace ttl
    }
 
    template<typename KT, typename T, typename Compare>
-   typename pair_vector<KT,T,Compare>::iterator pair_vector<KT,T,Compare>::find(const KT &key)
+   typename sorted_vector_map<KT,T,Compare>::iterator
+   sorted_vector_map<KT,T,Compare>::find(const KT &key)
    {
       unsigned L = 0, H = size();
       while (L < H) {
@@ -247,7 +248,8 @@ namespace ttl
       return end();
    }
    template<typename KT, typename T, typename Compare>
-   typename pair_vector<KT,T,Compare>::const_iterator pair_vector<KT,T,Compare>::find(const KT &key) const
+   typename sorted_vector_map<KT,T,Compare>::const_iterator
+   sorted_vector_map<KT,T,Compare>::find(const KT &key) const
    {
       unsigned L = 0, H = size();
       while (L < H)
@@ -263,7 +265,8 @@ namespace ttl
       return cend();
    }
    template<typename KT, typename T, typename Compare>
-   typename pair_vector<KT,T,Compare>::iterator pair_vector<KT,T,Compare>::find_insert_pos(const KT &key) const
+   typename sorted_vector_map<KT,T,Compare>::iterator
+   sorted_vector_map<KT,T,Compare>::find_insert_pos(const KT &key) const
    {
       unsigned L = 0, H = size();
       while (L < H)
@@ -279,8 +282,8 @@ namespace ttl
       return iterator(elements_ + L);
    }
    template<typename KT, typename T, typename Compare>
-   typename pair_vector<KT,T,Compare>::iterator
-   pair_vector<KT,T,Compare>::insert_before(iterator pos, const value_type& value)
+   typename sorted_vector_map<KT,T,Compare>::iterator
+   sorted_vector_map<KT,T,Compare>::insert_before(iterator pos, const value_type& value)
    {
       if (end_of_elements_ - last_ < 1)
       {
@@ -313,4 +316,4 @@ namespace ttl
       return iterator(i);
    }
 }
-#endif // _TINY_TEMPLATE_LIBRARY_PAIR_VECTOR_HPP_
+#endif // _TINY_TEMPLATE_LIBRARY_SORTED_VECTOR_MAP_HPP_
