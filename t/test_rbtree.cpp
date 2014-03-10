@@ -59,7 +59,8 @@ void test()
    printf("generated red-black tree with 10 unique elements, root %p\n", t.get_croot());
 
    ttl::pair<int,char> dupe(5, -5);
-   assert(t.end() == t.insert_unique(dupe));
+   assert(t.insert_unique(dupe).second == false);
+   assert(keyof(t.insert_unique(dupe).first->data) == 5);
    assert(t.end() != t.insert_equal(dupe));
 
    printf("inserted dupe (5)\n");
@@ -102,7 +103,7 @@ void test()
 
    rbtree_map::node *six = t.remove(6);
    printf("remove 6 (root) and put its values back\n");
-   assert(t.end() != t.insert_unique(six->data));
+   assert(t.insert_unique(six->data).second != false);
    delete six;
    inorder<rbtree_map>(t.get_croot());
 

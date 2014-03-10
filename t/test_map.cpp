@@ -132,6 +132,7 @@ void test()
       m[i] = (char)i + '0';
 
    assert(m.insert(i2cmap::value_type(5, (char)5 + '0')).second == false); // unique keys
+   assert(m.insert(i2cmap::value_type(5, (char)5 + '0')).first->first == 5); // the blocking element
 
    assert(m.empty() == false);
    // assert(m.size() == 10);
@@ -144,7 +145,15 @@ void test()
    {
       std::map<int,char> mstd;
       for (int i = 0; i < 5; ++i)
-         assert(mstd.insert(std::map<int,char>::value_type(i, (char)i + '0')).second == true);
+      {
+         std::map<int,char>::value_type tmp(i, (char)i + '0');
+         std::pair<std::map<int,char>::iterator, bool> re = mstd.insert(tmp);
+         assert(re.second == true);
+         // test the behaviour expected from ttl::map
+         re = mstd.insert(tmp);
+         assert(re.first->first == i);
+         assert(re.second == false);
+      }
       for (int i = 5; i < 10; ++i)
          mstd[i] = (char)i + '0';
 

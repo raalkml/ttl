@@ -187,8 +187,8 @@ namespace ttl
 
       pair<iterator,bool> insert(const value_type &value)
       {
-         node_type *n = rbtree_.insert_unique(value);
-         return pair<iterator,bool>(iterator(n), n != rbtree_.end());
+         pair<node_type *, bool> re = rbtree_.insert_unique(value);
+         return pair<iterator,bool>(iterator(re.first), re.second);
       }
       iterator insert(iterator, const value_type &);
 
@@ -198,7 +198,7 @@ namespace ttl
       {
          node_type *n = rbtree_.find(key);
          if (n == rbtree_.end())
-            n = rbtree_.insert_unique(value_type(key, typename value_type::second_type()));
+            n = rbtree_.insert_unique(value_type(key, typename value_type::second_type())).first;
          return n->data.second;
       }
 

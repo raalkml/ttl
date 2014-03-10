@@ -246,7 +246,7 @@ namespace ttl
       void assign(const rbtree &);
 
       node *insert_equal(const KV &data);
-      node *insert_unique(const KV &data);
+      pair<node *, bool> insert_unique(const KV &data);
 
       node *remove(const K &key);
 
@@ -438,7 +438,7 @@ namespace ttl
    }
 
    template <class K, class KV, class KeyOfValue, class Compare>
-   typename rbtree<K,KV,KeyOfValue,Compare>::node *
+   ttl::pair<typename rbtree<K,KV,KeyOfValue,Compare>::node *, bool>
    rbtree<K,KV,KeyOfValue,Compare>::insert_unique(const KV &data)
    {
       rbnode *parent = &header_;
@@ -449,7 +449,7 @@ namespace ttl
          if (is_less_(key, ekey))
             parent = *edge, edge = &(*edge)->left;
          else if (key == ekey)
-            return static_cast<node *>(&header_);
+            return pair<node *, bool>(static_cast<node *>(*edge), false);
          else
             parent = *edge, edge = &(*edge)->right;
       }
@@ -457,7 +457,7 @@ namespace ttl
       newnode->parent = parent;
       *edge = newnode;
       insert_rebalance(edge, parent);
-      return newnode;
+      return pair<node *, bool>(static_cast<node *>(newnode), true);
    }
 
    template <class K, class KV, class KeyOfValue, class Compare>
