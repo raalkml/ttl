@@ -81,10 +81,10 @@ all-in-one: $(patsubst %.cpp,%.to,$(testsrcs)) t.o
 	    cat $@;\
 	    test -t 1 && echo -ne '\033[0m'
 
-reports .NOTPARALLEL: $(patsubst %.cpp,%.report,$(testsrcs)) all-in-one.report
+reports: $(patsubst %.cpp,%.report,$(testsrcs)) all-in-one.report
 	$(V)for r in $(patsubst %.cpp,%.report,$(testsrcs)) all-in-one.report; do echo -n "$$r:	"; cat "$$r"; done
 report: tests
-	$(MAKE) reports
+	$(MAKE) -j1 reports
 
 #valgrind: ttltest
 #	valgrind --tool=memcheck --leak-check=full $(abspath $<) $(ARGS)
