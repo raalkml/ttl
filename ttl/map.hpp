@@ -71,11 +71,11 @@ namespace ttl
             ptr_ = static_cast<node_type *>(rbtree_base::next_node(ptr_));
             return tmp;
          }
-         iterator &operator--() { prev(); return *this; }
+         iterator &operator--() { ptr_ = prev(ptr_); return *this; }
          iterator operator--(int)
          {
             iterator tmp(*this);
-            prev();
+            ptr_ = prev(ptr_);
             return tmp;
          }
 
@@ -88,11 +88,11 @@ namespace ttl
          friend class map<KT,T,Compare>;
          friend class map<KT,T,Compare>::const_iterator;
          iterator(node_type *ptr): ptr_(ptr) {}
-         void prev();
+         static node_type *prev(const node_type *);
       };
       struct const_iterator
       {
-         typedef typename map<KT,T,Compare>::node_type node_type;
+         typedef typename map<KT,T,Compare>::iterator::node_type node_type;
       public:
          typedef map<KT,T,Compare>::value_type value_type;
          typedef ttl::ptrdiff_t difference_type;
@@ -114,13 +114,13 @@ namespace ttl
          }
          const_iterator &operator--()
          {
-            prev();
+            ptr_ = iterator::prev(ptr_);
             return *this;
          }
          const_iterator operator--(int)
          {
             const_iterator tmp(*this);
-            prev();
+            ptr_ = iterator::prev(ptr_);
             return tmp;
          }
 
@@ -134,7 +134,6 @@ namespace ttl
          const node_type *ptr_;
          friend class map<KT,T,Compare>;
          const_iterator(const node_type *ptr): ptr_(ptr) {}
-         void prev();
       };
 
       iterator end()
@@ -254,27 +253,17 @@ namespace ttl
    };
 
    template<typename KT, typename T, typename Compare>
-   void map<KT,T,Compare>::iterator::prev()
+   typename map<KT,T,Compare>::iterator::node_type *
+   map<KT,T,Compare>::iterator::prev(const node_type *n)
    {
       // check if it is the sentinel/header
-      if (!ptr_->parent)
+      if (!n->parent)
          ;
-      else if (ptr_->color == rbnode::RED && static_cast<const node_type *>(ptr_->parent->parent) == ptr_)
-         ptr_ = static_cast<node_type *>(rbtree_base::max_node(ptr_->parent));
+      else if (n->color == rbnode::RED && static_cast<const node_type *>(n->parent->parent) == n)
+         n = static_cast<node_type *>(rbtree_base::max_node(n->parent));
       else
-         ptr_ = static_cast<node_type *>(rbtree_base::prev_node(ptr_));
-   }
-
-   template<typename KT, typename T, typename Compare>
-   void map<KT,T,Compare>::const_iterator::prev()
-   {
-      // check if it is the sentinel/header
-      if (!ptr_->parent)
-         ;
-      else if (ptr_->color == rbnode::RED && static_cast<const node_type *>(ptr_->parent->parent) == ptr_)
-         ptr_ = static_cast<const node_type *>(rbtree_base::max_node(ptr_->parent));
-      else
-         ptr_ = static_cast<const node_type *>(rbtree_base::prev_node(ptr_));
+         n = static_cast<node_type *>(rbtree_base::prev_node(n));
+      return const_cast<node_type *>(n);
    }
 
    template<typename KT, typename T, typename Compare>
