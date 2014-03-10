@@ -87,18 +87,17 @@ namespace ttl
       };
 
    public:
-      explicit sorted_vector_map(): elements_(0), last_(0), end_of_elements_(0) {}
+      explicit sorted_vector_map():
+         elements_(0), last_(0), end_of_elements_(0)
+      {}
       sorted_vector_map(const sorted_vector_map& other);
       explicit sorted_vector_map(size_type prealloc)
       {
          elements_ = last_ = new value_type*[prealloc];
          end_of_elements_ = elements_ + prealloc;
       }
-      explicit sorted_vector_map(const Compare &c): elements_(0), last_(0), end_of_elements_(0), comp_(c) {}
-
       template<class InputIt>
-      sorted_vector_map(InputIt first, InputIt last, const Compare & = Compare());
-      sorted_vector_map &operator=(const sorted_vector_map &other);
+      sorted_vector_map(InputIt first, InputIt last);
 
       ~sorted_vector_map()
       {
@@ -106,6 +105,8 @@ namespace ttl
             delete *i;
          delete [] elements_;
       }
+
+      sorted_vector_map &operator=(const sorted_vector_map &other);
 
       T &operator[](const KT &key)
       {
@@ -193,14 +194,13 @@ namespace ttl
          return i;
       }
 
-      key_compare key_comp() const { return comp_; }
+      key_compare key_comp() const { return Compare(); }
 
       struct value_compare
       {
       protected:
          friend class sorted_vector_map<KT, T, Compare>;
-         Compare comp;
-         value_compare(Compare c): comp(c) {}
+         value_compare() {}
       public:
          typedef value_type first_argument_type;
          typedef value_type second_argument_type;
@@ -208,21 +208,20 @@ namespace ttl
 
          bool operator()(const value_type &a, const value_type &b) const
          {
-            return comp(a.first, b.first);
+            return Compare()(a.first, b.first);
          }
       };
-      value_compare value_comp() const { return value_compare(comp_); }
+      value_compare value_comp() const { return value_compare(); }
 
    private:
       value_type **elements_, **last_, **end_of_elements_;
-      Compare comp_;
       iterator insert_before(iterator, const value_type &);
       iterator find_insert_pos(const KT &key) const;
+      pair<unsigned, bool> bsearch(const KT &key) const;
    };
 
    template<typename KT, typename T, typename Compare>
-   sorted_vector_map<KT,T,Compare>::sorted_vector_map(const sorted_vector_map& other):
-      comp_(other.comp_)
+   sorted_vector_map<KT,T,Compare>::sorted_vector_map(const sorted_vector_map& other)
    {
       size_type prealloc = other.end_of_elements_ - other.elements_;
       elements_ = last_ = new value_type*[prealloc];
@@ -232,54 +231,43 @@ namespace ttl
    }
 
    template<typename KT, typename T, typename Compare>
-   typename sorted_vector_map<KT,T,Compare>::iterator
-   sorted_vector_map<KT,T,Compare>::find(const KT &key)
+   pair<unsigned, bool>
+   sorted_vector_map<KT,T,Compare>::bsearch(const KT &key) const
    {
+      Compare comp;
       unsigned L = 0, H = size();
       while (L < H) {
          unsigned m = L + (H - L) / 2;
          if (elements_[m]->first == key)
-            return iterator(elements_ + m);
-         if (comp_(elements_[m]->first, key))
+            return pair<unsigned, bool>(m, true);
+         if (comp(elements_[m]->first, key))
             L = m + 1;
          else
             H = m;
       }
-      return end();
+      return pair<unsigned, bool>(L, false);
+   }
+
+   template<typename KT, typename T, typename Compare>
+   typename sorted_vector_map<KT,T,Compare>::iterator
+   sorted_vector_map<KT,T,Compare>::find(const KT &key)
+   {
+      pair<unsigned, bool> re = bsearch(key);
+      return re.second ? iterator(elements_ + re.first): end();
    }
    template<typename KT, typename T, typename Compare>
    typename sorted_vector_map<KT,T,Compare>::const_iterator
    sorted_vector_map<KT,T,Compare>::find(const KT &key) const
    {
-      unsigned L = 0, H = size();
-      while (L < H)
-      {
-         unsigned m = L + (H - L) / 2;
-         if (elements_[m]->first == key)
-            return const_iterator(elements_ + m);
-         if (comp_(elements_[m]->first, key))
-            L = m + 1;
-         else
-            H = m;
-      }
-      return cend();
+      pair<unsigned, bool> re = bsearch(key);
+      return re.second ? const_iterator(elements_ + re.first): end();
    }
    template<typename KT, typename T, typename Compare>
    typename sorted_vector_map<KT,T,Compare>::iterator
    sorted_vector_map<KT,T,Compare>::find_insert_pos(const KT &key) const
    {
-      unsigned L = 0, H = size();
-      while (L < H)
-      {
-         unsigned m = L + (H - L) / 2;
-         if (elements_[m]->first == key)
-            return iterator(elements_ + m);
-         if (comp_(elements_[m]->first, key))
-            L = m + 1;
-         else
-            H = m;
-      }
-      return iterator(elements_ + L);
+      pair<unsigned, bool> re = bsearch(key);
+      return elements_ + re.first;
    }
    template<typename KT, typename T, typename Compare>
    typename sorted_vector_map<KT,T,Compare>::iterator
