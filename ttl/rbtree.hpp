@@ -48,159 +48,185 @@ namespace ttl
       }
       ~rbtree_base() {}
 
-      static rbnode *min_node(const rbnode *n)
-      {
-         while (n && n->left)
-            n = n->left;
-         return const_cast<rbnode *>(n);
-      }
+      static rbnode *min_node(const rbnode *n);
+      static rbnode *max_node(const rbnode *n);
+      static rbnode *next_node(const rbnode *n);
+      static rbnode *prev_node(const rbnode *n);
+      static rbnode *rotate_left(rbnode *a);
+      static rbnode *rotate_right(rbnode *b);
+      static void flip_colors(rbnode *n);
+      static bool is_red(rbnode *n);
+      static rbnode *fixup(rbnode *root);
 
-      static rbnode *max_node(const rbnode *n)
-      {
-         while (n && n->right)
-            n = n->right;
-         return const_cast<rbnode *>(n);
-      }
+      rbnode **edge(rbnode *h) const;
+      void insert_rebalance(rbnode **root, rbnode *parent);
 
-      static rbnode *next_node(const rbnode *n)
-      {
-         if  (n->right)
-            return min_node(n->right);
-         if (n == n->parent->left)
-            return n->parent;
-         while (n == n->parent->right)
-            n = n->parent;
-         return n->parent;
-      }
-      static rbnode *prev_node(const rbnode *n)
-      {
-         if (n->left)
-            return max_node(n->left);
-         if (n == n->parent->right)
-            return n->parent;
-         while (n == n->parent->left)
-            n = n->parent;
-         return n->parent;
-      }
+      static rbnode *move_left(rbnode *pivot);
+      static rbnode *move_right(rbnode *pivot);
 
-      static rbnode *rotate_left(rbnode *a)
-      {
-         rbnode *b = a->right;
-         a->right = b->left;
-         if (a->right)
-            a->right->parent = a;
-         b->left = a;
-         b->color = a->color;
-         a->color = rbnode::RED;
-         b->parent = a->parent;
-         a->parent = b;
-         return b;
-      }
-
-      static rbnode *rotate_right(rbnode *b)
-      {
-         rbnode *a = b->left;
-         b->left = a->right;
-         if (b->left)
-            b->left->parent = b;
-         a->right = b;
-         a->color = b->color;
-         b->color = rbnode::RED;
-         a->parent = b->parent;
-         b->parent = a;
-         return a;
-      }
-
-      static void flip_colors(rbnode *n)
-      {
-         n->color = !n->color;
-         n->left->color = !n->left->color;
-         n->right->color = !n->right->color;
-      }
-
-      static bool is_red(rbnode *n)
-      {
-         return n && n->color == rbnode::RED;
-      }
-
-      static rbnode *fixup(rbnode *root)
-      {
-         if (is_red(root->right) && !is_red(root->left))
-            root = rotate_left(root);
-         if (is_red(root->left) && is_red(root->left->left))
-            root = rotate_right(root);
-         if (is_red(root->left) && is_red(root->right))
-            flip_colors(root);
-         return root;
-      }
-
-      rbnode **edge(rbnode *h) const
-      {
-         if (h == root_())
-            return root_edge();
-         if (h == h->parent->left)
-            return &h->parent->left;
-         return &h->parent->right;
-      }
-
-      void insert_rebalance(rbnode **root, rbnode *parent)
-      {
-         (*root)->color = rbnode::RED;
-         (*root)->left = (*root)->right = 0;
-         while (parent != &header_ && (is_red(parent->left) || is_red(parent->right)))
-         {
-            root = edge(parent);
-            parent = parent->parent;
-            *root = fixup(*root);
-         }
-         root_()->color = rbnode::BLACK;
-      }
-
-      static rbnode *move_left(rbnode *pivot)
-      {
-         flip_colors(pivot);
-         if (is_red(pivot->right->left))
-         {
-            pivot->right = rotate_right(pivot->right);
-            pivot = rotate_left(pivot);
-            flip_colors(pivot);
-         }
-         return pivot;
-      }
-      static rbnode *move_right(rbnode *pivot)
-      {
-         flip_colors(pivot);
-         if (is_red(pivot->left->left))
-         {
-            pivot = rotate_right(pivot);
-            flip_colors(pivot);
-         }
-         return pivot;
-      }
-
-      rbnode *delete_min(rbnode **root)
-      {
-         rbnode **pivot = root;
-         while ((*pivot)->left)
-         {
-            if (!is_red((*pivot)->left) && !is_red((*pivot)->left->left))
-               *pivot = move_left(*pivot);
-            pivot = &(*pivot)->left;
-         }
-         rbnode *deleted = *pivot;
-         rbnode *parent = deleted->parent;
-         *pivot = 0;
-         while (root != pivot)
-         {
-            pivot = edge(parent);
-            parent = parent->parent;
-            *pivot = fixup(*pivot);
-         }
-         return deleted;
-      }
-
+      rbnode *delete_min(rbnode **root);
    };
 
+   inline void rbtree_base::flip_colors(rbnode *n)
+   {
+      n->color = !n->color;
+      n->left->color = !n->left->color;
+      n->right->color = !n->right->color;
+   }
+
+   inline bool rbtree_base::is_red(rbnode *n)
+   {
+      return n && n->color == rbnode::RED;
+   }
+
+   inline rbnode **rbtree_base::edge(rbnode *h) const
+   {
+      if (h == root_())
+         return root_edge();
+      if (h == h->parent->left)
+         return &h->parent->left;
+      return &h->parent->right;
+   }
+
+#ifndef RBTREE_INLINEABLE
+#define RBTREE_INLINEABLE inline
+#define RBTREE_INCLUDE_INLINEABLE 1
+#endif
+
+#if (RBTREE_INCLUDE_INLINEABLE == 1)
+
+   RBTREE_INLINEABLE rbnode *rbtree_base::min_node(const rbnode *n)
+   {
+      while (n && n->left)
+         n = n->left;
+      return const_cast<rbnode *>(n);
+   }
+
+   RBTREE_INLINEABLE rbnode *rbtree_base::max_node(const rbnode *n)
+   {
+      while (n && n->right)
+         n = n->right;
+      return const_cast<rbnode *>(n);
+   }
+
+   RBTREE_INLINEABLE rbnode *rbtree_base::next_node(const rbnode *n)
+   {
+      if  (n->right)
+         return min_node(n->right);
+      if (n == n->parent->left)
+         return n->parent;
+      while (n == n->parent->right)
+         n = n->parent;
+      return n->parent;
+   }
+
+   RBTREE_INLINEABLE rbnode *rbtree_base::prev_node(const rbnode *n)
+   {
+      if (n->left)
+         return max_node(n->left);
+      if (n == n->parent->right)
+         return n->parent;
+      while (n == n->parent->left)
+         n = n->parent;
+      return n->parent;
+   }
+
+   RBTREE_INLINEABLE rbnode *rbtree_base::rotate_left(rbnode *a)
+   {
+      rbnode *b = a->right;
+      a->right = b->left;
+      if (a->right)
+         a->right->parent = a;
+      b->left = a;
+      b->color = a->color;
+      a->color = rbnode::RED;
+      b->parent = a->parent;
+      a->parent = b;
+      return b;
+   }
+
+   RBTREE_INLINEABLE rbnode *rbtree_base::rotate_right(rbnode *b)
+   {
+      rbnode *a = b->left;
+      b->left = a->right;
+      if (b->left)
+         b->left->parent = b;
+      a->right = b;
+      a->color = b->color;
+      b->color = rbnode::RED;
+      a->parent = b->parent;
+      b->parent = a;
+      return a;
+   }
+
+   RBTREE_INLINEABLE rbnode *rbtree_base::fixup(rbnode *root)
+   {
+      if (is_red(root->right) && !is_red(root->left))
+         root = rotate_left(root);
+      if (is_red(root->left) && is_red(root->left->left))
+         root = rotate_right(root);
+      if (is_red(root->left) && is_red(root->right))
+         flip_colors(root);
+      return root;
+   }
+
+   RBTREE_INLINEABLE void rbtree_base::insert_rebalance(rbnode **root, rbnode *parent)
+   {
+      (*root)->color = rbnode::RED;
+      (*root)->left = (*root)->right = 0;
+      while (parent != &header_ && (is_red(parent->left) || is_red(parent->right)))
+      {
+         root = edge(parent);
+         parent = parent->parent;
+         *root = fixup(*root);
+      }
+      root_()->color = rbnode::BLACK;
+   }
+
+   RBTREE_INLINEABLE rbnode *rbtree_base::move_left(rbnode *pivot)
+   {
+      flip_colors(pivot);
+      if (is_red(pivot->right->left))
+      {
+         pivot->right = rotate_right(pivot->right);
+         pivot = rotate_left(pivot);
+         flip_colors(pivot);
+      }
+      return pivot;
+   }
+
+   RBTREE_INLINEABLE rbnode *rbtree_base::move_right(rbnode *pivot)
+   {
+      flip_colors(pivot);
+      if (is_red(pivot->left->left))
+      {
+         pivot = rotate_right(pivot);
+         flip_colors(pivot);
+      }
+      return pivot;
+   }
+
+   RBTREE_INLINEABLE rbnode *rbtree_base::delete_min(rbnode **root)
+   {
+      rbnode **pivot = root;
+      while ((*pivot)->left)
+      {
+         if (!is_red((*pivot)->left) && !is_red((*pivot)->left->left))
+            *pivot = move_left(*pivot);
+         pivot = &(*pivot)->left;
+      }
+      rbnode *deleted = *pivot;
+      rbnode *parent = deleted->parent;
+      *pivot = 0;
+      while (root != pivot)
+      {
+         pivot = edge(parent);
+         parent = parent->parent;
+         *pivot = fixup(*pivot);
+      }
+      return deleted;
+   }
+#endif //  RBTREE_MERGE(RBTREE_INLINEABLE) == 1
 
    template <class K, class KV, class KeyOfValue, class Compare>
    class rbtree: public rbtree_base

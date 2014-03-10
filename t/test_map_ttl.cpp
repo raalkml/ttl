@@ -1,4 +1,6 @@
 // vim: sw=3 ts=8 et
+// #define RBTREE_INCLUDE_INLINEABLE 1
+#include "ttl/rbtree.hpp"
 #include "t.hpp"
 #include <map>
 #include <utility>
