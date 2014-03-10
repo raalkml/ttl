@@ -6,7 +6,7 @@ export flags := -O1 -foptimize-sibling-calls
 export ARGS :=
 export V := @
 
-export TESTS := $(sort $(basename $(notdir $(wildcard t/test*)))) all-in-one
+export TESTS := $(sort $(basename $(notdir $(wildcard t/test*.cpp)))) all-in-one
 
 all:
 	$(MAKE) -C t report
