@@ -1,8 +1,3 @@
-export CPPFLAGS :=
-export CFLAGS := -Wall -ggdb
-export CXXFLAGS := -fno-exceptions -fno-rtti
-export ASMFLAGS := -fverbose-asm -dP
-export flags := -O1 -foptimize-sibling-calls
 export ARGS :=
 export V := @
 

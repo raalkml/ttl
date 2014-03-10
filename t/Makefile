@@ -1,8 +1,9 @@
-CPPFLAGS := -I..
+CPPFLAGS ?=
+local_CPPFLAGS := -I.. $(CPPFLAGS)
 CFLAGS ?= -Wall -ggdb
 CXXFLAGS ?= -fno-exceptions -fno-rtti
 ASMFLAGS ?= -fverbose-asm -dP
-flags ?= -O1
+flags ?= -O1 -foptimize-sibling-calls
 V ?= @
 
 sources := $(wildcard test*.cpp) t.cpp
@@ -17,24 +18,24 @@ clean:
 	$(RM) $(patsubst %.cpp,%.o,$(sources))
 	$(RM) $(tests)
 
-%.o: %.cpp ; $(CXX) -o $@ -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
-%.s: %.cpp ; $(CXX) -o $@ -S $(CPPFLAGS) $(ASMFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
-%.E: %.cpp ; $(CXX) -o $@ -E $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
+%.o: %.cpp ; $(CXX) -o $@ -c $(local_CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
+%.s: %.cpp ; $(CXX) -o $@ -S $(local_CPPFLAGS) $(ASMFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
+%.E: %.cpp ; $(CXX) -o $@ -E $(local_CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) $<
 
 -include $(patsubst %.cpp,%.d,$(sources))
 %.d: %.cpp
-	$(CXX) -o $@ -MM -MG -MQ '$(patsubst %.cpp,%.o,$<)' $< $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags)
+	$(CXX) -o $@ -MM -MG -MQ '$(patsubst %.cpp,%.o,$<)' $< $(local_CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags)
 
 test%: t.o test%.o
 	$(CXX) -o $@ $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) $(flags) $+
 
 mangled_test_name := $(shell echo 'void test(){}' | \
-   $(CXX) -x c++ -o t.to.tmp -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) - && \
+   $(CXX) -x c++ -o t.to.tmp -c $(local_CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) - && \
    nm -g -f posix t.to.tmp | if read f eol; then echo $$f; fi; $(RM) t.to.tmp)
 
 %.to: %.o
 	objcopy $< $@ --redefine-sym $(mangled_test_name)=$(shell echo 'void $(*F)(){}' | \
-	   $(CXX) -x c++ -o $@.tmp -c $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) - && \
+	   $(CXX) -x c++ -o $@.tmp -c $(local_CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) - && \
 	   nm -g -f posix $@.tmp | if read f eol; then echo $$f; fi; $(RM) $@.tmp)
 
 all-in-one: $(patsubst %.cpp,%.to,$(testsrcs)) t.o
@@ -47,7 +48,7 @@ all-in-one: $(patsubst %.cpp,%.to,$(testsrcs)) t.o
 	   for n in $(tests); \
 	   do echo 'puts(" *** '$$n' ***");'$$n'();'; done; \
 	   echo '}'; \
-	) | $(CXX) $(CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) -x c++ -c - -o t.to
+	) | $(CXX) $(local_CPPFLAGS) $(CFLAGS) $(CXXFLAGS) $(flags) -x c++ -c - -o t.to
 	$(CXX) -o $@ $(CFLAGS) $(CXXFLAGS) $(LDFLAGS) $(flags) $+ t.to
 
 %.report: %
