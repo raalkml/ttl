@@ -70,6 +70,38 @@ static void test_iterators(i2cmap &m)
    printf("\n");
 }
 
+struct apair
+{
+   int first;
+   char second;
+   operator i2cmap::value_type() const { return i2cmap::value_type(first, second); }
+};
+
+namespace ttl
+{
+   inline bool operator==(const std::map<int,char>::value_type &a,
+                          const map<int,char>::value_type &b)
+   {
+      return a.first == b.first && a.second == b.second;
+   }
+
+   inline bool operator==(const pair<const int,char> &a, const pair<int,char> &b)
+   {
+      return a.first == b.first && a.second == b.second;
+   }
+   inline bool operator==(const pair<const int,char> &a, const ::apair &b)
+   {
+      return a.first == b.first && a.second == b.second;
+   }
+}
+namespace std
+{
+   inline bool operator==(const pair<const int,char> &a, const ::apair &b)
+   {
+      return a.first == b.first && a.second == b.second;
+   }
+}
+
 void test()
 {
    i2cmap m;
@@ -141,7 +173,7 @@ void test()
 
    printf("copy constructors and assignment operator\n");
    {
-      static const i2cmap::value_type arr[] = {
+      static const apair arr[] = {
          {100,'\x64'},
          {101,'\x65'},
          {102,'\x66'},
@@ -163,7 +195,7 @@ void test()
    }
    printf("range insert\n");
    {
-      static const i2cmap::value_type arr[] = {
+      static const apair arr[] = {
          {10,-'\x0a'},
          {11,-'\x0b'},
          {12,-'\x0c'},
