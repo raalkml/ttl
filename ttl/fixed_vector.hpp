@@ -29,10 +29,10 @@ namespace ttl
       typedef ttl::ptrdiff_t difference_type;
 
    private:
-      char bytes_[sizeof(T) * N];
+      union { char b[sizeof(T)]; } bytes_[N];
       T *last_;
       T *elements() const { return (T *)bytes_; }
-      T *end_of_elements() const { return (T *)bytes_ + N; }
+      T *end_of_elements() const { return (T *)(bytes_ + N); }
 
    public:
       fixed_vector(): last_(elements()) {}
