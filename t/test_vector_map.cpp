@@ -63,5 +63,22 @@ void test()
       assert(m1.at(m1.end()[-1].first) == m1.end()[-1].second);
       m1.pop_back();
    }
+   printf("\n");
+   {
+      ttl::vector_map<char,int> tmp;
+      tmp.push_back(ttl::vector_map<char,int>::value_type('x','x'));
+      tmp.push_back(ttl::vector_map<char,int>::value_type('y','y'));
+      tmp.push_back(ttl::vector_map<char,int>::value_type('z','z'));
+      tmp.swap(m1);
+      assert(tmp.size() == 0);
+      assert(m1['x'] == 'x');
+      print_map("swap: ", m1);
+   }
+   {
+      ttl::vector_map<char,testtype> tmp;
+      tmp.push_back(ttl::vector_map<char,testtype>::value_type('x',testtype('x')));
+      tmp.push_back(ttl::vector_map<char,testtype>::value_type('y',testtype('y')));
+      tmp.push_back(ttl::vector_map<char,testtype>::value_type('z',testtype('z')));
+   }
    printf("\ndtors\n");
 }
