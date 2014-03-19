@@ -82,7 +82,7 @@ namespace ttl
          return pair<iterator, bool>(vector<value_type>::insert(i, value), true);
       }
 
-    protected:
+   protected:
       iterator find_key(const_iterator i, const KT &key) const
       {
          for (; i != end(); ++i)

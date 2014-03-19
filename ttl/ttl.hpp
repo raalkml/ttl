@@ -31,6 +31,7 @@
 #include "backward_list.hpp"
 #include "lazy_queue.hpp"
 #include "map.hpp"
+#include "vector_map.hpp"
 #include "sorted_vector_map.hpp"
 #include "bitset.hpp"
 
