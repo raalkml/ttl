@@ -127,15 +127,6 @@ namespace ttl
    // Modifying sequence operations
    //
 
-
-   template<typename T>
-   inline void swap(T &a, T &b)
-   {
-      T tmp = a;
-      a = b;
-      b = tmp;
-   }
-
    template<class iterator1, class iterator2>
    inline void iter_swap(iterator1 a, iterator2 b)
    {

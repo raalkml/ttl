@@ -8,7 +8,6 @@
 #define _TINY_TEMPLATE_LIBRARY_UTILITY_HPP_
 
 #include "types.hpp"
-#include "algorithm.hpp"
 
 namespace ttl
 {
@@ -35,6 +34,14 @@ namespace ttl
    inline void advance(RandomAccessIterator &i, Distance d)
    {
       i += d;
+   }
+
+   template<typename T>
+   inline void swap(T &a, T &b)
+   {
+      T tmp = a;
+      a = b;
+      b = tmp;
    }
 
    template<typename T1, typename T2>
