@@ -1,3 +1,5 @@
+#include "ttl/algorithm.hpp"
+
 static void test_iterators(i2cmap &m)
 {
    printf("iterator && const_iterator\n");

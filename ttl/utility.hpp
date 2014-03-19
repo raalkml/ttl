@@ -8,19 +8,26 @@
 #define _TINY_TEMPLATE_LIBRARY_UTILITY_HPP_
 
 #include "types.hpp"
+#include "algorithm.hpp"
 
 namespace ttl
 {
 #if __cplusplus >= 201103L
    template<typename T, unsigned int N> constexpr unsigned int countof(const T (&)[N]) { return N; }
+#ifndef countof
 #define countof(a) ttl::countof(a)
+#endif
+#define ttl_countof(a) ttl::countof(a)
 #else
    template<typename T, unsigned int N> char (&_char_array_ref(const T (&)[N]))[N];
+#ifndef countof
 #define countof(a) sizeof(ttl::_char_array_ref(a))
+#endif
+#define ttl_countof(a) sizeof(ttl::_char_array_ref(a))
 #endif
 
    template<typename RandomAccessIterator>
-   inline ttl::ptrdiff_t distance(RandomAccessIterator first, RandomAccessIterator last)
+   inline int distance(RandomAccessIterator first, RandomAccessIterator last)
    {
       return last - first;
    }
@@ -28,45 +35,6 @@ namespace ttl
    inline void advance(RandomAccessIterator &i, Distance d)
    {
       i += d;
-   }
-
-   template<class InputIt1, class InputIt2>
-   inline bool equal(InputIt1 first1, InputIt1 last1, InputIt2 first2)
-   {
-      for (; first1 != last1; ++first1, ++first2)
-         if (!(*first1 == *first2))
-            return false;
-      return true;
-   }
-
-   template<typename iterator, typename size_type, typename value_type>
-   inline iterator fill_n(iterator first, size_type count, const value_type& value)
-   {
-      while (count--)
-         *first++ = value;
-      return first;
-   }
-
-   template<typename value_type>
-   inline void swap(value_type &a, value_type &b)
-   {
-      value_type tmp = a;
-      a = b;
-      b = tmp;
-   }
-
-   template<class iterator1, class iterator2>
-   inline void iter_swap(iterator1 a, iterator2 b)
-   {
-      swap(*a, *b);
-   }
-
-   template<class iterator1, class iterator2>
-   inline iterator1 swap_ranges(iterator1 first1, iterator1 last1, iterator2 first2)
-   {
-      for (; first1 != last1; ++first1, ++first2)
-         iter_swap(first1, first2);
-      return first2;
    }
 
    template<typename T1, typename T2>
