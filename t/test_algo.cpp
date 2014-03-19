@@ -43,10 +43,10 @@ void test()
    int a2[] = {1,2,2,3,4};
    print_ints("a2:", a2, a2 + countof(a2));
    int *p = ttl::lower_bound(a2, a2 + countof(a2), 2);
-   printf("a2 dup lower_bound: %d\n", p - a2);
+   printf("a2 dup lower_bound: %ld\n", (long)(p - a2));
    p = ttl::upper_bound(a2, a2 + countof(a2), 2);
-   printf("a2 dup upper_bound: %d\n", p - a2);
+   printf("a2 dup upper_bound: %ld\n", (long)(p - a2));
 
    ttl::pair<int *, int *> r = ttl::equal_range(a2, a2 + countof(a2), 2);
-   printf("a2 dup equal_range: [%d,%d)\n", r.first - a2, r.second - a2);
+   printf("a2 dup equal_range: [%ld,%ld)\n", (long)(r.first - a2), (long)(r.second - a2));
 }
