@@ -11,6 +11,9 @@
 
 namespace ttl
 {
+   template<class T1, class T2> struct pair;
+   template<class T1, class T2> pair<T1,T2> make_pair(const T1 &, const T2 &);
+
    //
    // Non-modifying sequence operations
    //
@@ -359,8 +362,6 @@ namespace ttl
        first = lower_bound(first, last, value, comp);
        return !(first == last) && !comp(value, *first);
    }
-
-   template<class T1, class T2> struct pair;
 
    template<class ForwardIt, class T>
    pair<ForwardIt,ForwardIt> equal_range(ForwardIt first, ForwardIt last, const T &value)
