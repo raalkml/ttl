@@ -24,6 +24,7 @@
 #include "type_traits.hpp"
 #include "functional.hpp"
 #include "utility.hpp"
+#include "algorithm.hpp"
 #include "array.hpp"
 #include "vector.hpp"
 #include "fixed_vector.hpp"

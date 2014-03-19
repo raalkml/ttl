@@ -11,6 +11,7 @@
 #include <new>
 #include "types.hpp"
 #include "utility.hpp"
+#include "algorithm.hpp"
 
 namespace ttl
 {
