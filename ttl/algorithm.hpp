@@ -392,24 +392,6 @@ namespace ttl
       return largest;
    }
 
-   //
-   // Numeric operations
-   //
-   template<class ForwardIterator, class T>
-   void iota(ForwardIterator first, ForwardIterator last, T value)
-   {
-      for (; first != last; ++first, ++value)
-         *first = value;
-   }
-
-   template<class InputIt, class T>
-   T accumulate(InputIt first, InputIt last, T value)
-   {
-      for (; first != last; ++first)
-         value = value + *first;
-      return value;
-   }
-
 }
 #endif // _TINY_TEMPLATE_LIBRARY_ALGORITHM_HPP_
 
