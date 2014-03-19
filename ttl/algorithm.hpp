@@ -291,14 +291,14 @@ namespace ttl
    }
 
    template<class ForwardIt, class T>
-   bool binary_search(ForwardIt first, ForwardIt last, const T &value)
+   inline bool binary_search(ForwardIt first, ForwardIt last, const T &value)
    {
       first = lower_bound(first, last, value);
       return !(first == last) && !(value < *first);
    }
 
    template<class ForwardIt, class T, class Compare>
-   bool binary_search(ForwardIt first, ForwardIt last, const T &value, Compare comp)
+   inline bool binary_search(ForwardIt first, ForwardIt last, const T &value, Compare comp)
    {
        first = lower_bound(first, last, value, comp);
        return !(first == last) && !comp(value, *first);
@@ -324,37 +324,37 @@ namespace ttl
    // Minimum/maximum operations
    //
    template<class T>
-   const T &min(const T &a, const T &b)
+   inline const T &min(const T &a, const T &b)
    {
       return a < b ? a: b;
    }
 
    template<class T, class Compare>
-   const T &min(const T &a, const T &b, Compare comp)
+   inline const T &min(const T &a, const T &b, Compare comp)
    {
       return comp(a, b) ? a: b;
    }
 
    template<class T>
-   const T &max(const T &a, const T &b)
+   inline const T &max(const T &a, const T &b)
    {
       return a < b ? b: a;
    }
 
    template<class T, class Compare>
-   const T &max(const T &a, const T &b, Compare comp)
+   inline const T &max(const T &a, const T &b, Compare comp)
    {
       return comp(a, b) ? b: a;
    }
 
    template<class T>
-   pair<const T &, const T &> minmax(const T &a, const T &b)
+   inline pair<const T &, const T &> minmax(const T &a, const T &b)
    {
       return b < a ? make_pair(b, a): make_pair(a, b);
    }
 
    template<class T, class Compare>
-   pair<const T &, const T &> minmax(const T &a, const T &b, Compare comp)
+   inline pair<const T &, const T &> minmax(const T &a, const T &b, Compare comp)
    {
       return comp(b, a) ? make_pair(b, a): make_pair(a, b);
    }
