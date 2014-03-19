@@ -11,7 +11,7 @@
 // expected, of linear complexity.
 //
 // A vector_map provides a random iterator and can be sorted with sort<> or
-// stable_sort<> and searhed with binary_search, lower_bound, uppper_bound and
+// stable_sort<> and searched with binary_search, lower_bound, uppper_bound and
 // equal_range operations.
 //
 // This code is Public Domain
