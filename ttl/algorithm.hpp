@@ -210,6 +210,62 @@ namespace ttl
       return first;
    }
 
+   template<class ForwardIt, class T>
+   void replace(ForwardIt first, ForwardIt last, const T &oldval, const T &newval)
+   {
+      for (; first != last; ++first)
+         if (*first == oldval)
+            *first = newval;
+   }
+
+   template<class ForwardIt, class UnaryPredicate, class T>
+   void replace_if(ForwardIt first, ForwardIt last, UnaryPredicate p, const T &newval)
+   {
+      for (; first != last; ++first)
+         if (p(*first))
+            *first = newval;
+   }
+
+   template<class InputIt, class OutputIt, class T>
+   OutputIt replace_copy(InputIt first, InputIt last, OutputIt d_first, const T &oldval, const T &newval)
+   {
+      for (; first != last; ++first, ++d_first)
+         *d_first = *first == oldval ? newval: *first;
+      return d_first;
+   }
+
+   template<class InputIt, class OutputIt, class UnaryPredicate, class T>
+   OutputIt replace_copy_if(InputIt first, InputIt last, OutputIt d_first, UnaryPredicate p, const T& newval)
+   {
+      for (; first != last; ++first, ++d_first)
+         *d_first = p(*first) ? newval: *first;
+      return d_first;
+   }
+
+   template<class InputIt, class OutputIt, class T>
+   OutputIt remove_copy(InputIt first, InputIt last, OutputIt d_first, const T &value)
+   {
+      for (; first != last; ++first)
+         if (!(*first == value))
+         {
+            *d_first = *first;
+            ++d_first;
+         }
+      return d_first;
+   }
+
+   template<class InputIt, class OutputIt, class UnaryPredicate>
+   OutputIt remove_copy_if(InputIt first, InputIt last, OutputIt d_first, UnaryPredicate p)
+   {
+      for (; first != last; ++first)
+         if (!p(*first))
+         {
+            *d_first = *first;
+            ++d_first;
+         }
+      return d_first;
+   }
+
    //
    // Binary search operations on sorted ranges
    //
