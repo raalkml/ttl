@@ -278,6 +278,34 @@ namespace ttl
       return d_first;
    }
 
+   template<class ForwardIt, class T>
+   ForwardIt remove(ForwardIt first, ForwardIt last, const T &value)
+   {
+      first = find(first, last, value);
+      if (first != last)
+         for (ForwardIt i = first; ++i != last; )
+            if (!(*i == value))
+            {
+               *first = ttl::move(*i);
+               ++first;
+            }
+      return first;
+   }
+
+   template<class ForwardIt, class UnaryPredicate>
+   ForwardIt remove_if(ForwardIt first, ForwardIt last, UnaryPredicate p)
+   {
+      first = find_if(first, last, p);
+      if (first != last)
+         for (ForwardIt i = first; ++i != last; )
+            if (!p(*i))
+            {
+               *first = ttl::move(*i);
+               ++first;
+            }
+      return first;
+   }
+
    //
    // Binary search operations on sorted ranges
    //
