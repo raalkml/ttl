@@ -8,6 +8,7 @@
 #define _TINY_TEMPLATE_LIBRARY_ALGORITHM_HPP_
 
 #include "types.hpp"
+#include "type_traits.hpp"
 
 namespace ttl
 {
