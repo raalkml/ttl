@@ -12,6 +12,11 @@
 
 namespace ttl
 {
+#if __cplusplus >= 201103L // C++11
+#define ttl_constexpr constexpr
+#else
+#define ttl_constexpr
+#endif
    template<class T1, class T2> struct pair;
    template<class T1, class T2> pair<T1,T2> make_pair(const T1 &, const T2 &);
 #if __cplusplus >= 201103L // C++11
@@ -418,25 +423,25 @@ namespace ttl
    // Minimum/maximum operations
    //
    template<class T>
-   inline const T &min(const T &a, const T &b)
+   inline ttl_constexpr const T &min(const T &a, const T &b)
    {
       return a < b ? a: b;
    }
 
    template<class T, class Compare>
-   inline const T &min(const T &a, const T &b, Compare comp)
+   inline ttl_constexpr const T &min(const T &a, const T &b, Compare comp)
    {
       return comp(a, b) ? a: b;
    }
 
    template<class T>
-   inline const T &max(const T &a, const T &b)
+   inline ttl_constexpr const T &max(const T &a, const T &b)
    {
       return a < b ? b: a;
    }
 
    template<class T, class Compare>
-   inline const T &max(const T &a, const T &b, Compare comp)
+   inline ttl_constexpr const T &max(const T &a, const T &b, Compare comp)
    {
       return comp(a, b) ? b: a;
    }
