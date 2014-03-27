@@ -90,6 +90,7 @@ namespace ttl
        return find_if(first, last, p) == last;
    }
 
+   // find duplicates
    template<class ForwardIt>
    ForwardIt adjacent_find(ForwardIt first, ForwardIt last)
    {
