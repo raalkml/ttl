@@ -373,15 +373,15 @@ namespace ttl
    template<class ForwardIt, class T>
    pair<ForwardIt,ForwardIt> equal_range(ForwardIt first, ForwardIt last, const T &value)
    {
-      return make_pair(lower_bound(first, last, value),
-                       upper_bound(first, last, value));
+      ForwardIt low = lower_bound(first, last, value);
+      return make_pair(low, upper_bound(low, last, value));
    }
 
    template<class ForwardIt, class T, class Compare>
    pair<ForwardIt,ForwardIt> equal_range(ForwardIt first, ForwardIt last, const T &value, Compare comp)
    {
-      return make_pair(lower_bound(first, last, value, comp),
-                       upper_bound(first, last, value, comp));
+      ForwardIt low = lower_bound(first, last, value, comp);
+      return make_pair(low, upper_bound(low, last, value, comp));
    }
 
    //
