@@ -113,11 +113,11 @@ namespace ttl
 #if __cplusplus >= 201103L // C++11
    template<class T> struct remove_reference;
    template<class T>
-   constexpr typename remove_reference<T>::type &&move(T &&t) { static_cast<typename remove_reference<T>::type &&>(t); }
+   constexpr typename remove_reference<T>::type &&move(T &&t) { return static_cast<typename remove_reference<T>::type &&>(t); }
 #else
    template<class T> struct remove_reference;
    template<class T>
-   typename remove_reference<T>::type &move(T &t) { static_cast<typename remove_reference<T>::type &>(t); }
+   typename remove_reference<T>::type &move(T &t) { return static_cast<typename remove_reference<T>::type &>(t); }
 #endif
 
 }
