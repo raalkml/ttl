@@ -40,13 +40,35 @@ void test()
    assert(a0[2] == a1[2] && a1[0] == 0);
    print_ints("copy_backward:", a1, a1 + countof(a1));
 
-   int a2[] = {1,2,2,3,4};
+   int a2[] = {1,2,2,3,4,6};
    print_ints("a2:", a2, a2 + countof(a2));
    int *p = ttl::lower_bound(a2, a2 + countof(a2), 2);
-   printf("a2 dup lower_bound: %ld\n", (long)(p - a2));
+   printf("a2 dup lower_bound: [%ld\n", (long)(p - a2));
+   assert(p - a2 == 1 && *p == 2);
+   p = ttl::lower_bound(a2, a2 + countof(a2), 5); // missing, in-range
+   assert(p == a2 + 5);
+   p = ttl::lower_bound(a2, a2 + countof(a2), 7); // missing, out-of-range
+   assert(p == a2 + countof(a2));
+
    p = ttl::upper_bound(a2, a2 + countof(a2), 2);
-   printf("a2 dup upper_bound: %ld\n", (long)(p - a2));
+   printf("a2 dup upper_bound: %ld)\n", (long)(p - a2));
+   assert(p - a2 == 3);
+   p = ttl::upper_bound(a2, a2 + countof(a2), 5); // missing, in-range
+   assert(p == a2 + 5);
+   p = ttl::upper_bound(a2, a2 + countof(a2), 7); // missing, out-of-range;
+   assert(p == a2 + countof(a2));
 
    ttl::pair<int *, int *> r = ttl::equal_range(a2, a2 + countof(a2), 2);
    printf("a2 dup equal_range: [%ld,%ld)\n", (long)(r.first - a2), (long)(r.second - a2));
+   assert(r.second - r.first == 2);
+   assert(*r.first == 2);
+   assert(*(r.first + 1) == 2);
+
+   r = ttl::equal_range(a2, a2 + countof(a2), 5);
+   assert(r.first == r.second);
+   assert(r.first == a2 + 5);
+
+   r = ttl::equal_range(a2, a2 + countof(a2), 7);
+   assert(r.first == r.second);
+   assert(r.first == a2 + countof(a2));
 }
