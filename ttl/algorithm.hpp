@@ -15,7 +15,7 @@ namespace ttl
    template<class T1, class T2> pair<T1,T2> make_pair(const T1 &, const T2 &);
 #if __cplusplus >= 201103L // C++11
    template<class T> struct remove_reference;
-   template<class T> typename remove_reference<T>::type &&move(T &&);
+   template<class T> constexpr typename remove_reference<T>::type &&move(T &&);
 #else
    template<class T> struct remove_reference;
    template<class T> typename remove_reference<T>::type &move(T &);
