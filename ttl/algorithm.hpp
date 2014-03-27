@@ -420,6 +420,57 @@ namespace ttl
    }
 
    //
+   // Sorting operations
+   //
+
+   template<class ForwardIt>
+   ForwardIt is_sorted_until(ForwardIt first, ForwardIt last)
+   {
+      if (first != last)
+      {
+         ForwardIt next = first;
+         while (++next != last)
+         {
+            if (*next < *first)
+               return next;
+            first = next;
+         }
+      }
+      return last;
+   }
+
+   template<class ForwardIt>
+   bool is_sorted(ForwardIt first, ForwardIt last)
+   {
+      return is_sorted_until(first, last) == last;
+   }
+
+   //
+   // Set operations on sorted ranges
+   //
+
+   template<class InputIt1, class InputIt2, class OutputIt>
+   OutputIt merge(InputIt1 first1, InputIt1 last1,
+                  InputIt2 first2, InputIt2 last2,
+                  OutputIt output)
+   {
+      for (; first1 != last1; ++output)
+         if (first2 == last2)
+            return ttl::copy(first1, last1, output);
+         else if (*first2 < *first1)
+         {
+            *output = *first2;
+            ++first2;
+         }
+         else
+         {
+            *output = *first1;
+            ++first1;
+         }
+      return ttl::copy(first2, last2, output);
+   }
+
+   //
    // Minimum/maximum operations
    //
    template<class T>
