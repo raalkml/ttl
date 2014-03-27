@@ -444,13 +444,13 @@ namespace ttl
    template<class T>
    inline pair<const T &, const T &> minmax(const T &a, const T &b)
    {
-      return b < a ? make_pair(b, a): make_pair(a, b);
+      return b < a ? pair<const T &, const T &>(b, a): pair<const T &, const T &>(a, b);
    }
 
    template<class T, class Compare>
    inline pair<const T &, const T &> minmax(const T &a, const T &b, Compare comp)
    {
-      return comp(b, a) ? make_pair(b, a): make_pair(a, b);
+      return comp(b, a) ? pair<const T &, const T &>(b, a): pair<const T &, const T &>(a, b);
    }
 
    template<class ForwardIt>
