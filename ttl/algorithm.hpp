@@ -482,6 +482,12 @@ namespace ttl
       return largest;
    }
 
+   template<class ForwardIt>
+   ttl::pair<ForwardIt, ForwardIt> minmax_element(ForwardIt first, ForwardIt last)
+   {
+      // TODO: optimize
+      return ttl::pair<ForwardIt, ForwardIt>(min_element(first, last), max_element(first, last));
+   }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_ALGORITHM_HPP_
 
