@@ -21,6 +21,11 @@ namespace ttl
    {
       typedef typename ttl::remove_volatile<typename ttl::remove_const<T>::type>::type type;
    };
+   template<class T> struct remove_reference { typedef T type; };
+   template<class T> struct remove_reference<T&> { typedef T type; };
+#if __cplusplus >= 201103L // C++11
+   template<class T> struct remove_reference<T&&> { typedef T type; };
+#endif
 
    template<typename T, T v>
    struct integral_constant

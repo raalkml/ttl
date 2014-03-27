@@ -11,7 +11,7 @@
 
 namespace ttl
 {
-#if __cplusplus >= 201103L
+#if __cplusplus >= 201103L // C++11
    template<typename T, unsigned int N> constexpr unsigned int countof(const T (&)[N]) { return N; }
 #ifndef countof
 #define countof(a) ttl::countof(a)
@@ -108,6 +108,17 @@ namespace ttl
       typename Pair::second_type &operator()(Pair &r) const { return r.second; }
       const typename Pair::second_type &operator()(const Pair &r) const { return r.second; }
    };
+
+
+#if __cplusplus >= 201103L // C++11
+   template<class T> struct remove_reference;
+   template<class T>
+   constexpr typename remove_reference<T>::type &&move(T &&t) { static_cast<typename remove_reference<T>::type &&>(t); }
+#else
+   template<class T> struct remove_reference;
+   template<class T>
+   typename remove_reference<T>::type &move(T &t) { static_cast<typename remove_reference<T>::type &>(t); }
+#endif
 
 }
 
