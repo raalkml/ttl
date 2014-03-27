@@ -32,6 +32,12 @@ struct printer
 
 void test()
 {
+   assert(ttl::min(1,2) == 1);
+   assert(ttl::max(1,2) == 2);
+   assert(ttl::minmax(1,2) == ttl::minmax(2,1));
+   assert(ttl::minmax(2,1).first == 1);
+   assert(ttl::minmax(2,1).second == 2);
+
    int *p;
 
    int a0[] = {1,2,3,4};
@@ -68,6 +74,10 @@ void test()
    int a2[] = {1,2,2,3,4,6};
    int *a2end = a2 + countof(a2);
    print_ints("a2:", a2, a2end);
+   printf("a2 min: %d\n", *ttl::min_element(a2, a2end));
+   assert(ttl::min_element(a2, a2end) == a2);
+   printf("a2 max: %d\n", *ttl::max_element(a2, a2end));
+   assert(ttl::max_element(a2, a2end) == a2end - 1);
 
    assert(ttl::count(a2, a2end, 2) == 2);
    assert(ttl::count_if(a2, a2end, less_than(2)) == 1);
