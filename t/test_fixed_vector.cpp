@@ -1,4 +1,6 @@
 // vim: sw=3 ts=8 et
+#include "ttl/utility.hpp"
+#include "ttl/algorithm.hpp"
 #include "ttl/fixed_vector.hpp"
 #include "t.hpp"
 

@@ -10,11 +10,15 @@
 
 #include <new>
 #include "types.hpp"
-#include "utility.hpp"
-#include "algorithm.hpp"
 
 namespace ttl
 {
+   template<class T1, class T2> struct pair;
+   template<class ForwardIt, class T> pair<ForwardIt,ForwardIt> equal_range(ForwardIt, ForwardIt, const T &);
+   template<class InputIt1, class InputIt2> bool equal(InputIt1, InputIt1, InputIt2);
+   template<typename T> void swap(T &, T &);
+   template<class iterator1, class iterator2> iterator1 swap_ranges(iterator1, iterator1, iterator2);
+
    template<typename T, const unsigned int N>
    class fixed_vector
    {
