@@ -1,4 +1,5 @@
 // vim: sw=3 ts=8 et
+#include "ttl/utility.hpp"
 #include "ttl/forward_list.hpp"
 #include "t.hpp"
 

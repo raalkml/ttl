@@ -9,11 +9,12 @@
 
 #include <new>
 #include "types.hpp"
-#include "utility.hpp"
-#include "algorithm.hpp"
 
 namespace ttl
 {
+   template<typename T> void swap(T &, T &);
+   template<class InputIt1, class InputIt2> bool equal(InputIt1, InputIt1, InputIt2);
+
    template<typename T>
    class vector
    {
@@ -161,7 +162,7 @@ namespace ttl
    vector<T>::vector(RandomAccessIterator first, RandomAccessIterator last):
       elements_(0), last_(0), end_of_elements_(0)
    {
-      reserve(ttl::distance(first, last));
+      reserve(last - first);
       for (; first != last; ++first)
          push_back(*first);
    }

@@ -9,10 +9,10 @@
 #ifndef _TINY_TEMPLATE_LIBRARY_RBTREE_HPP_
 #define _TINY_TEMPLATE_LIBRARY_RBTREE_HPP_ 1
 
-#include "utility.hpp"
-
 namespace ttl
 {
+   template<typename T1, typename T2> struct pair;
+
    struct rbnode
    {
       rbnode *parent, *left, *right;

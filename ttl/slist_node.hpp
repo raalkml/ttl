@@ -8,7 +8,6 @@
 #define _TINY_TEMPLATE_LIBRARY_SLIST_NODE_HPP_ 1
 
 #include "types.hpp"
-#include "utility.hpp"
 
 namespace ttl
 {

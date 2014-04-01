@@ -7,8 +7,9 @@
 #ifndef _TINY_TEMPLATE_LIBRARY_MAP_HPP_
 #define _TINY_TEMPLATE_LIBRARY_MAP_HPP_ 1
 
-#include "utility.hpp"
+#include "types.hpp"
 #include "functional.hpp"
+#include "utility.hpp"
 #include "rbtree.hpp"
 
 namespace ttl

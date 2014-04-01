@@ -2,6 +2,7 @@
 #include "t.hpp"
 #include <map>
 #include <utility>
+#include "ttl/algorithm.hpp"
 #include "ttl/utility.hpp"
 #include "ttl/array.hpp"
 #include "ttl/map.hpp"

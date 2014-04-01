@@ -10,11 +10,12 @@
 #define _TINY_TEMPLATE_LIBRARY_BACKWARD_LIST_HPP_ 1
 
 #include "types.hpp"
-#include "utility.hpp"
 #include "slist_node.hpp"
 
 namespace ttl
 {
+   template<typename T> void swap(T &, T &);
+
    template<typename T>
    class backward_list
    {

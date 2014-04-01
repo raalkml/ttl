@@ -10,6 +10,7 @@
 #ifndef _TINY_TEMPLATE_LIBRARY_SORTED_VECTOR_MAP_HPP_
 #define _TINY_TEMPLATE_LIBRARY_SORTED_VECTOR_MAP_HPP_ 1
 
+#include "types.hpp"
 #include "utility.hpp"
 #include "functional.hpp"
 

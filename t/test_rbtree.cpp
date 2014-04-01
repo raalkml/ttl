@@ -1,6 +1,7 @@
 // vim: sw=3 ts=8 et
 #include "t.hpp"
 #include "ttl/functional.hpp"
+#include "ttl/utility.hpp"
 #include "ttl/rbtree.hpp"
 
 typedef ttl::rbtree<int,

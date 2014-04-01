@@ -8,11 +8,13 @@
 #define _TINY_TEMPLATE_LIBRARY_ARRAY_HPP_
 
 #include "types.hpp"
-#include "utility.hpp"
-#include "algorithm.hpp"
 
 namespace ttl
 {
+   template<class InputIt1, class InputIt2> bool equal(InputIt1, InputIt1, InputIt2);
+   template<class iterator1, class iterator2> iterator1 swap_ranges(iterator1, iterator1, iterator2);
+   template<typename iterator, typename size_type, typename value_type> iterator fill_n(iterator, size_type count, const value_type &);
+
    template<typename T, const ttl::size_t N>
    struct array
    {
