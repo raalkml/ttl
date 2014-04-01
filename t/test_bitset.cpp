@@ -17,6 +17,11 @@ template<typename T> void print_bitset(const char *s, const T &bs)
    fputs(".\n", stdout);
 }
 
+ttl::bitset<16> &negate(ttl::bitset<16> &bs)
+{
+   return bs = ~bs;
+}
+
 void test()
 {
    ttl::bitset<128> bs0(0xfefeffUL);
