@@ -79,6 +79,11 @@ void test()
    printf("all : %d %d %d\n", bs4.all(), bs2.all(), bs3.all());
    printf("any : %d %d %d\n", bs4.any(), bs2.any(), bs3.any());
    printf("none: %d %d %d\n", bs4.none(), bs2.none(), bs3.none());
+   assert(bs4.all());
+   assert(bs4.any());
+   assert(!bs4.none());
+   assert(bs2.any());
+   assert(bs3.none());
 
    // should cause no code to be produced if optimizing
    for (unsigned i = 0; i < 256; ++i)
