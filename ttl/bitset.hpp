@@ -235,6 +235,22 @@ namespace ttl
       return true;
    }
    template<ttl::size_t N>
+   ttl::size_t bitset<N>::count() const
+   {
+      unsigned c = 0;
+      for (unsigned i = 0; i < sizeof(bits_)/sizeof(*bits_); ++i)
+      {
+         slot_type b = bits_[i];
+         while (b)
+         {
+            ++c;
+            b &= b - 1;
+         }
+
+      }
+      return c;
+   }
+   template<ttl::size_t N>
    inline bitset<N> &bitset<N>::operator=(const bitset &other)
    {
       for (unsigned i = 0; i < sizeof(bits_)/sizeof(*bits_); ++i)
@@ -259,6 +275,7 @@ template<const ttl::size_t N> bitset<N> operator^( const bitset<N>& lhs, const b
 
    template<> inline bitset<0>::slot_type *bitset<0>::bits_slot(ttl::size_t) { return bits_; }
    template<> inline bool bitset<0>::all() const { return false; }
+   template<> inline ttl::size_t bitset<0>::count() const { return 0; }
    template<> inline unsigned long long bitset<0>::to_ullong() const { return 0; }
    template<> inline unsigned long bitset<0>::to_ulong() const { return 0; }
 }

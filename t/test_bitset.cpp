@@ -93,4 +93,23 @@ void test()
    bs3.flip();
    bs3.to_ulong();
    bs3.to_ullong();
+
+   assert(0 == ttl::bitset<128>("0").count());
+   assert(1 == ttl::bitset<128>("1").count());
+   bs0.reset();
+   assert(0 == bs0.count());
+   bs0[65] = 1;
+   printf("%lu\n", (unsigned long)bs0.count());
+   assert(1 == bs0.count());
+   bs0[10] = 1;
+   assert(2 == bs0.count());
+   bs0[16] = 1;
+   assert(3 == bs0.count());
+   bs0[32] = 1;
+   assert(4 == bs0.count());
+   bs0[64] = 1;
+   assert(5 == bs0.count());
+   bs0[64] = 0;
+   assert(4 == bs0.count());
+   assert(0 == ttl::bitset<0>(1ul).count());
 }
