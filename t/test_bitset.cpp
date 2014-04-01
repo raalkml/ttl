@@ -157,7 +157,12 @@ void test()
    print_bitset("<16> << 17: ", ttl::bitset<16>(1lu) << 17);
    assert((ttl::bitset<16>(1lu) << 17).to_ulong() == 0);
 
-   print_bitset("<66> <<  1: ", ttl::bitset<66>(1lu) << 1);
+   print_bitset("<66>      : ", ttl::bitset<66>(0x180000000llu));
+
+   print_bitset("<66> <<  1: ", ttl::bitset<66>(0x080000000llu) << 1);
+   print_bitset("<66> <<  1: ", ttl::bitset<66>(0x100000000llu) << 1);
+   assert((ttl::bitset<66>(0x080000000llu) << 1).to_ullong() == 0x100000000llu);
+   assert((ttl::bitset<66>(0x100000000llu) << 1).to_ullong() == 0x200000000llu);
    assert((ttl::bitset<66>(1lu) << 1).to_ulong() == 2);
    print_bitset("<66> << 15: ", ttl::bitset<66>(1lu) << 15);
    assert((ttl::bitset<66>(1lu) << 15).to_ulong() == 0x8000);
@@ -166,4 +171,19 @@ void test()
    print_bitset("<66> << 17: ", ttl::bitset<66>(1lu) << 17);
    assert((ttl::bitset<66>(1lu) << 17).to_ulong() == 0x20000);
    print_bitset("<66> << 64: ", ttl::bitset<66>(1lu) << 64);
+
+   print_bitset("<16> >>  1: ", ttl::bitset<16>(2lu) >> 1);
+   assert((ttl::bitset<16>(2lu) >> 1).to_ulong() == 1);
+   print_bitset("<16> >> 15: ", ttl::bitset<16>(0x8000lu) >> 15);
+   assert((ttl::bitset<16>(0x8000lu) >> 15).to_ulong() == 1);
+   print_bitset("<16> >> 16: ", ttl::bitset<16>(0xfffflu) >> 16);
+   assert((ttl::bitset<16>(0xfffflu) >> 16).to_ulong() == 0);
+   print_bitset("<16> >> 17: ", ttl::bitset<16>(0xfffflu) >> 17);
+   assert((ttl::bitset<16>(1lu) >> 17).to_ulong() == 0);
+
+   print_bitset("<66> >>  1: ", ttl::bitset<66>(0x100000000llu) >> 1);
+   assert((ttl::bitset<66>(0x100000000llu) >> 1).to_ulong() == 0x80000000lu);
+   assert((ttl::bitset<66>(1lu) >> 1).to_ulong() == 0);
+   assert((ttl::bitset<66>(1lu) >> 2).to_ulong() == 0);
+   assert((ttl::bitset<66>(0x300000000llu) >> 1).to_ullong() == 0x180000000llu);
 }
