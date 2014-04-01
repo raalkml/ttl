@@ -361,6 +361,12 @@ namespace ttl
    template<> inline ttl::size_t bitset<0>::count() const { return 0; }
    template<> inline unsigned long long bitset<0>::to_ullong() const { return 0; }
    template<> inline unsigned long bitset<0>::to_ulong() const { return 0; }
+   template<> inline bitset<0> &bitset<0>::operator&=(const bitset<0> &) { return *this; }
+   template<> inline bitset<0> &bitset<0>::operator^=(const bitset<0> &) { return *this; }
+   template<> inline bitset<0> &bitset<0>::operator|=(const bitset<0> &) { return *this; }
+   template<> inline bitset<0> bitset<0>::operator~() const { return bitset<0>(); }
+   template<> inline bitset<0> bitset<0>::operator<<(ttl::size_t) const { return bitset<0>(); }
+   template<> inline bitset<0> bitset<0>::operator>>(ttl::size_t) const { return bitset<0>(); }
 }
 
 #endif // _TINY_TEMPLATE_LIBRARY_HPP_

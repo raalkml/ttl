@@ -186,4 +186,12 @@ void test()
    assert((ttl::bitset<66>(1lu) >> 1).to_ulong() == 0);
    assert((ttl::bitset<66>(1lu) >> 2).to_ulong() == 0);
    assert((ttl::bitset<66>(0x300000000llu) >> 1).to_ullong() == 0x180000000llu);
+
+   assert((bs3 & bs3) == (bs3 &= bs3));
+   assert((bs3 |= bs3) == (bs3 | bs3));
+   assert((bs3 ^= bs3) == (bs3 ^ bs3));
+   // this is really special
+   assert(bs3 == ~bs3);
+   assert(bs3 == bs3 << 3);
+   assert(bs3 == bs3 >> 3);
 }
