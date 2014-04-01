@@ -21,6 +21,15 @@ namespace ttl
       static ttl::size_t bits_bit(ttl::size_t pos) { return pos % (sizeof(slot_type) * CHAR_BIT); }
       slot_type bits_[(N + sizeof(slot_type) * CHAR_BIT - 1) / (sizeof(slot_type) * CHAR_BIT)];
 
+      static slot_type last_bits()
+      {
+         return sizeof(bits_) * CHAR_BIT == N ? (slot_type)-1:
+            ((slot_type)1 << (sizeof(bits_) * CHAR_BIT - N)) - 1;
+      }
+
+      // uninitializing ctor to avoid unneeded initialization
+      bitset(const bitset &, bool) {}
+
    public:
       bitset() { reset(); }
       bitset(const bitset &other) { operator=(other); }
@@ -89,15 +98,66 @@ namespace ttl
       ttl::size_t size() const { return N; }
       ttl::size_t capacity() const { return sizeof(bits_) * CHAR_BIT; }
 
-      bitset<N>& operator&=(const bitset<N>& other);
-      bitset<N>& operator|=(const bitset<N>& other);
-      bitset<N>& operator^=(const bitset<N>& other);
-      bitset<N> operator~() const;
+      bitset<N>& operator&=(const bitset<N>& other)
+      {
+         ttl::size_t i;
+         for (i = 0; i < sizeof(bits_)/sizeof(*bits_) - 1; ++i)
+            bits_[i] &= other.bits_[i];
+         bits_[i] &= other.bits_[i] & last_bits();
+         return *this;
+      }
+      bitset<N>& operator|=(const bitset<N>& other)
+      {
+         ttl::size_t i;
+         for (i = 0; i < sizeof(bits_)/sizeof(*bits_) - 1; ++i)
+            bits_[i] |= other.bits_[i];
+         bits_[i] |= other.bits_[i] & last_bits();
+         return *this;
+      }
+      bitset<N>& operator^=(const bitset<N>& other)
+      {
+         ttl::size_t i;
+         for (i = 0; i < sizeof(bits_)/sizeof(*bits_) - 1; ++i)
+            bits_[i] ^= other.bits_[i];
+         bits_[i] ^= other.bits_[i] & last_bits();
+         return *this;
+      }
+      bitset<N> operator~() const
+      {
+         bitset<N> other(*this, true);
+         ttl::size_t i;
+         for (i = 0; i < sizeof(bits_)/sizeof(*bits_) - 1; ++i)
+            other.bits_[i] = ~bits_[i];
+         other.bits_[i] = ~bits_[i] & last_bits();
+         return other;
+      }
 
-      bitset<N> operator<<(ttl::size_t pos) const;
-      bitset<N>& operator<<=(ttl::size_t pos);
-      bitset<N> operator>>(ttl::size_t pos) const;
-      bitset<N>& operator>>=(ttl::size_t pos);
+      bitset<N> operator<<(ttl::size_t pos) const
+      {
+         bitset<N> other;
+         for (ttl::size_t i = 0; pos < N; ++i, ++pos)
+            if (test(i))
+               other.set(pos);
+         return other;
+      }
+      bitset<N>& operator<<=(ttl::size_t pos)
+      {
+         bitset<N> other = *this << pos;
+         return *this = other;
+      }
+      bitset<N> operator>>(ttl::size_t pos) const
+      {
+         bitset<N> other;
+         for (ttl::size_t i = 0; pos < N; ++i, ++pos)
+            if (test(pos))
+               other.set(i);
+         return other;
+      }
+      bitset<N>& operator>>=(ttl::size_t pos)
+      {
+         bitset<N> other = *this >> pos;
+         return *this = other;
+      }
 
       bitset<N>& set()
       {
@@ -269,11 +329,34 @@ namespace ttl
          bits_[i] = 0;
       return *this;
    }
-template<const ttl::size_t N> bitset<N> operator&( const bitset<N>& lhs, const bitset<N>& rhs );
-template<const ttl::size_t N> bitset<N> operator|( const bitset<N>& lhs, const bitset<N>& rhs );
-template<const ttl::size_t N> bitset<N> operator^( const bitset<N>& lhs, const bitset<N>& rhs );
+
+   template<const ttl::size_t N>
+   bitset<N> operator&(const bitset<N> &a, const bitset<N> &b)
+   {
+      return bitset<N>(a) &= b;
+   }
+
+   template<const ttl::size_t N>
+   bitset<N> operator|(const bitset<N> &a, const bitset<N> &b)
+   {
+      return bitset<N>(a) |= b;
+   }
+
+   template<const ttl::size_t N>
+   bitset<N> operator^(const bitset<N> &a, const bitset<N> &b)
+   {
+      return bitset<N>(a) ^= b;
+   }
 
    template<> inline bitset<0>::slot_type *bitset<0>::bits_slot(ttl::size_t) { return bits_; }
+   template<> inline bool bitset<0>::test(ttl::size_t) const { return false; }
+   template<> inline bitset<0> &bitset<0>::set() { return *this; }
+   template<> inline bitset<0> &bitset<0>::set(ttl::size_t) { return *this; }
+   template<> inline bitset<0> &bitset<0>::set(ttl::size_t, bool) { return *this; }
+   template<> inline bitset<0> &bitset<0>::reset() { return *this; }
+   template<> inline bitset<0> &bitset<0>::reset(ttl::size_t) { return *this; }
+   template<> inline bitset<0> &bitset<0>::flip() { return *this; }
+   template<> inline bitset<0> &bitset<0>::flip(ttl::size_t) { return *this; }
    template<> inline bool bitset<0>::all() const { return false; }
    template<> inline ttl::size_t bitset<0>::count() const { return 0; }
    template<> inline unsigned long long bitset<0>::to_ullong() const { return 0; }
