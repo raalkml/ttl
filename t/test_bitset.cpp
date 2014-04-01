@@ -93,12 +93,19 @@ void test()
       bs3[i] = false;
       bs3[i] = bs3.test(i);
    }
+   for (unsigned i = 0; i < 256; ++i)
+      bs3[i].flip();
+   for (unsigned i = 0; i < 256; ++i)
+      bs3[i] = bs3[i];
+   for (unsigned i = 0; i < 256; ++i)
+      bs3[i] = false;
+   for (unsigned i = 0; i < 256; ++i)
+      bs3[i] = bs3.test(i);
    bs3.set();
    bs3.reset();
    bs3.flip();
    bs3.to_ulong();
    bs3.to_ullong();
-
    assert(0 == ttl::bitset<128>("0").count());
    assert(1 == ttl::bitset<128>("1").count());
    bs0.reset();
