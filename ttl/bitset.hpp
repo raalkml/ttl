@@ -21,10 +21,10 @@ namespace ttl
       static ttl::size_t bits_bit(ttl::size_t pos) { return pos % (sizeof(slot_type) * CHAR_BIT); }
       slot_type bits_[(N + sizeof(slot_type) * CHAR_BIT - 1) / (sizeof(slot_type) * CHAR_BIT)];
 
+   public:
       static slot_type last_bits()
       {
-         return sizeof(bits_) * CHAR_BIT == N ? (slot_type)-1:
-            ((slot_type)1 << (sizeof(bits_) * CHAR_BIT - N)) - 1;
+         return sizeof(bits_)*CHAR_BIT == N ? (slot_type)-1: (1lu << (N % (sizeof(slot_type) * CHAR_BIT))) - 1lu;
       }
       ttl::size_t last_slot_index() const {return N ? sizeof(bits_)/sizeof(*bits_) - 1: 0; }
 

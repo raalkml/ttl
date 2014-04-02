@@ -51,8 +51,11 @@ void test()
    print_bitset("<16>=<64> ", bs4);
 
    bs4[1].flip();
-   assert(bs4.to_ulong() == 0xfffdul);
    print_bitset("flip      ", bs4);
+   printf("<16> size %lu, capacity %lu\n", (unsigned long)bs4.size(), (unsigned long)bs4.capacity());
+   printf("\t0x%lx\n", (unsigned long)bs4.last_bits());
+   printf("\t0x%lx\n", bs4.to_ulong());
+   assert(bs4.to_ulong() == 0xfffdul);
 
    bs4.set(1);
    assert(bs4.to_ulong() == 0xfffful);
