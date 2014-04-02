@@ -250,6 +250,8 @@ namespace ttl
       for (unsigned i = 0; i < sizeof(bits_)/sizeof(*bits_); ++i)
       {
          slot_type b = bits_[i];
+         if (i == sizeof(bits_)/sizeof(*bits_) - 1)
+            b &= (slot_type)-1 >> (capacity() - N);
          while (b)
          {
             ++c;

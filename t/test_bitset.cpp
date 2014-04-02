@@ -194,4 +194,12 @@ void test()
    assert(bs3 == ~bs3);
    assert(bs3 == bs3 << 3);
    assert(bs3 == bs3 >> 3);
+
+   {
+      // setting a bit in the unused space must not affect the result of
+      // count()
+      ttl::bitset<16> b16;
+      b16[16] = true;
+      assert(b16.count() == 0);
+   }
 }
