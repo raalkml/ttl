@@ -388,10 +388,10 @@ namespace ttl
    template<> inline bitset<0> bitset<0>::operator<<(ttl::size_t) const { return bitset<0>(); }
    template<> inline bitset<0> bitset<0>::operator>>(ttl::size_t) const { return bitset<0>(); }
 
-   template<const ttl::size_t N> inline bool operator==(const bitset<0> &, const bitset<N> &) { return false; }
-   template<const ttl::size_t N> inline bool operator==(const bitset<N> &, const bitset<0> &) { return false; }
-   template<const ttl::size_t N> inline bool operator!=(const bitset<0> &, const bitset<N> &) { return true; }
-   template<const ttl::size_t N> inline bool operator!=(const bitset<N> &, const bitset<0> &) { return true; }
+   template<const ttl::size_t N> inline bool operator==(const bitset<0> &, const bitset<N> &b) { return b.none(); }
+   template<const ttl::size_t N> inline bool operator==(const bitset<N> &a, const bitset<0> &) { return a.none(); }
+   template<const ttl::size_t N> inline bool operator!=(const bitset<0> &, const bitset<N> &b) { return !b.none(); }
+   template<const ttl::size_t N> inline bool operator!=(const bitset<N> &a, const bitset<0> &) { return !a.none(); }
    template<> inline bool bitset<0>::operator==(const bitset<0> &) const { return true; }
 }
 

@@ -213,6 +213,11 @@ void test()
    assert(bs3 == bs3 << 3);
    assert(bs3 == bs3 >> 3);
 
+   assert(bs3 != ttl::bitset<16>(0xful));
+   assert(!(bs3 == ttl::bitset<16>(0xful)));
+   assert(ttl::bitset<16>(0ul) == bs3);
+   assert(bs3 == ttl::bitset<16>(0ul));
+
    {
       // setting a bit in the unused space must not affect the result of
       // count()
