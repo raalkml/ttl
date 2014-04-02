@@ -38,29 +38,47 @@ void test()
    ttl::bitset<16> bs4 = bs2;
    print_bitset("(<16>)<256> ", bs4);
    printf("u32:    0x%08lx\n", bs4.to_ulong());
-   printf("u64:    0x%016llx\n", bs4.to_ullong());
+   assert(bs4.to_ulong() == 0x155ul);
+   printf("u64:    0x%016llx\n", bs064.to_ullong());
+   assert(bs064.to_ullong() == 0xfefe00000000ULL);
+
    bs4.reset();
+   assert(bs4.none());
    print_bitset("bs4:      ", bs4);
+
    bs4 = ttl::bitset<64>().set();
+   assert(bs4.all());
    print_bitset("<16>=<64> ", bs4);
+
    bs4[1].flip();
+   assert(bs4.to_ulong() == 0xfffdul);
    print_bitset("flip      ", bs4);
+
    bs4.set(1);
+   assert(bs4.to_ulong() == 0xfffful);
    print_bitset(" set      ", bs4);
+
    bs4.reset(1);
+   assert(bs4.to_ulong() == 0xfffdul);
    print_bitset("rset      ", bs4);
+
    bs4.flip();
+   assert(bs4.to_ulong() == 0x2ul);
    print_bitset("flip      ", bs4);
+
    bs4[4] = 1;
+   assert(bs4.to_ulong() == 0x12ul);
    print_bitset("refset    ", bs4);
 
    print_bitset("<0>       ", bs3);
 
    bs0 = bs1;
    print_bitset("<128>=<128> ", bs0);
+   assert(bs0 == bs1);
 
    bs1 = bs3;
    print_bitset("<128>=<0>   ", bs1);
+   assert(bs1.none());
 
    printf("sizeof bs2(256) %lu vs %lu\n",
           (unsigned long)sizeof(bs2),
@@ -199,7 +217,10 @@ void test()
       // setting a bit in the unused space must not affect the result of
       // count()
       ttl::bitset<16> b16;
-      b16[16] = true;
+      b16.set(16, true);
       assert(b16.count() == 0);
+      assert(b16.all() == false);
+      assert(b16.any() == false);
+      assert(b16.none() == true);
    }
 }
