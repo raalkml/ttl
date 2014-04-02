@@ -118,47 +118,47 @@ void test()
    printf("find & lower_boundary\n");
    {
       rbtree_map::node *n = t.find(3);
-      int k = n ? keyof(n->data): -1;
+      int k = n != t.end() ? keyof(n->data): -1;
       printf("find(%d): %p(%d)\n", 3, n, k);
       assert(3 == k);
 
       n = t.lower_bound(3);
-      k = n ? keyof(n->data): -1;
+      k = n != t.end() ? keyof(n->data): -1;
       printf("lower_bound(%d): %p(%d)\n", 3, n, k);
       assert(k >= 3);
 
       n = t.lower_bound(100);
-      k = n ? keyof(n->data): -1;
+      k = n != t.end() ? keyof(n->data): -1;
       printf("lower_bound(%d): %p %d (out of range)\n", 100, n, k);
       assert(n == t.end());
 
       n = t.lower_bound(5);
-      k = n ? keyof(n->data): -1;
+      k = n != t.end() ? keyof(n->data): -1;
       printf("lower_bound(%d): %p %d (duplicate)\n", 5, n, k);
       assert(k >= 5);
 
       n = t.lower_bound(7);
-      k = n ? keyof(n->data): -1;
+      k = n != t.end() ? keyof(n->data): -1;
       printf("lower_bound(%d): %p %d (removed)\n", 7, n, k);
       assert(k >= 7);
 
       n = t.upper_bound(7);
-      k = n ? keyof(n->data): -1;
+      k = n != t.end() ? keyof(n->data): -1;
       printf("upper_bound(%d): %p %d (removed)\n", 7, n, k);
       assert(k > 7);
 
       n = t.upper_bound(5);
-      k = n ? keyof(n->data): -1;
+      k = n != t.end() ? keyof(n->data): -1;
       printf("upper_bound(%d): %p %d\n", 5, n, k);
       assert(k > 5);
 
       n = t.upper_bound(100);
-      k = n ? keyof(n->data): -1;
+      k = n != t.end() ? keyof(n->data): -1;
       printf("upper_bound(%d): %p %d (out of range)\n", 100, n, k);
       assert(n == t.end());
 
       ttl::pair<rbtree_map::node *,rbtree_map::node *> r = t.equal_range(5);
-      k = r.first ? keyof(r.first->data): -1;
+      k = r.first != t.end() ? keyof(r.first->data): -1;
       printf("equal_range(%d): %p(%d) %p\n", 5, r.first, k, r.second);
       assert(keyof(r.first->data) == 5);
       assert(r.first != r.second);
