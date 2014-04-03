@@ -31,6 +31,7 @@
 #include "forward_list.hpp"
 #include "backward_list.hpp"
 #include "lazy_queue.hpp"
+#include "list.hpp"
 #include "map.hpp"
 #include "vector_map.hpp"
 #include "sorted_vector_map.hpp"
@@ -38,7 +39,6 @@
 
 namespace ttl
 {
-   template<typename T> class list {};
 
    // Lists with a fixed predefined storage
    template<typename T, const ttl::size_t N> class fixed_list {};
