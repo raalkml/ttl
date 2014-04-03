@@ -3,7 +3,8 @@ local_CPPFLAGS := -I.. $(CPPFLAGS)
 CFLAGS ?= -Wall -ggdb
 CXXFLAGS ?= -fno-exceptions -fno-rtti
 ASMFLAGS ?= -fverbose-asm -dP
-flags ?= -O1 -foptimize-sibling-calls
+LDFLAGS ?=
+flags ?= -O1 -foptimize-sibling-calls -finline-small-functions -findirect-inlining -fstrict-aliasing -fstrict-overflow
 V ?= @
 
 sources := $(wildcard test*.cpp) t.cpp
