@@ -1,34 +1,41 @@
 // vim: sw=3 ts=8 et
 #include "t.hpp"
 
+bool testtype::verbose = true;
+
 testtype::testtype():
    value(-1)
 {
-   printf("%p %s\n", this, __func__);
+   if (verbose)
+      printf("%p %s\n", this, __func__);
 }
 
 testtype::testtype(int v):
    value(v)
 {
-   printf("%p %s(int v) %d\n", this, __func__, value);
+   if (verbose)
+      printf("%p %s(int v) %d\n", this, __func__, value);
 }
 
 testtype::testtype(const testtype &o):
    value(o.value)
 {
-   printf("%p %s(const testtype &) %d\n", this, __func__, value);
+   if (verbose)
+      printf("%p %s(const testtype &) %d\n", this, __func__, value);
 }
 
 testtype &testtype::operator=(const testtype &o)
 {
    value = o.value;
-   printf("%p %s %d\n", this, __func__, value);
+   if (verbose)
+      printf("%p %s %d\n", this, __func__, value);
    return *this;
 }
 
 testtype::~testtype()
 {
-   printf("%p %s %d\n", this, __func__, value);
+   if (verbose)
+      printf("%p %s %d\n", this, __func__, value);
 }
 
 namespace t

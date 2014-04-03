@@ -29,6 +29,7 @@ template <class C> inline const C &constify(C &c) { return c; }
 
 struct testtype
 {
+   static bool verbose;
    int value;
    testtype();
    testtype(int);
