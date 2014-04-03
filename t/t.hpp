@@ -43,6 +43,17 @@ inline bool operator==(const testtype &a, const testtype &b)
    return a.value == b.value;
 }
 
+namespace t
+{
+
+struct equal_to
+{
+   bool operator()(const testtype &a, const testtype &b) { return a == b; }
+};
+
+}
+
+
 template<class Iterator, typename Distance>
 inline Iterator advanceIt(Iterator i, Distance d)
 {
