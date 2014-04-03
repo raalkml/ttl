@@ -250,17 +250,21 @@ namespace ttl
    template<ttl::size_t N>
    ttl::size_t bitset<N>::count() const
    {
-      unsigned c = 0;
+      ttl::size_t c = 0;
       for (unsigned i = 0; i < sizeof(bits_)/sizeof(*bits_); ++i)
       {
          slot_type b = bits_[i];
          if (i == last_slot_index())
             b &= last_bits();
+#ifdef __GNUC__
+         c += __builtin_popcountl(b);
+#else
          while (b)
          {
             ++c;
             b &= b - 1;
          }
+#endif
       }
       return c;
    }
