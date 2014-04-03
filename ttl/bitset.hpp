@@ -318,11 +318,7 @@ namespace ttl
    bitset<N> bitset<N>::operator<<(ttl::size_t pos) const
    {
       bitset<N> other;
-      unsigned i;
-      for (i = 0; i < N; i += sizeof(*bits_) * CHAR_BIT, pos += sizeof(*bits_) * CHAR_BIT)
-         if (*bits_slot(i))
-            break;
-      for (; pos < N; ++i, ++pos)
+      for (unsigned i = 0; pos < N; ++i, ++pos)
          if (test(i))
             other.set(pos);
       return other;

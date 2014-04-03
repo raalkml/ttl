@@ -202,11 +202,15 @@ void test()
    print_bitset("<16> >> 17: ", ttl::bitset<16>(0xfffflu) >> 17);
    assert((ttl::bitset<16>(1lu) >> 17).to_ulong() == 0);
 
-   print_bitset("<66> >>  1: ", ttl::bitset<66>(0x100000000llu) >> 1);
+   print_bitset("<66>:32 >>  1: ", ttl::bitset<66>(0x100000000llu) >> 1);
    assert((ttl::bitset<66>(0x100000000llu) >> 1).to_ulong() == 0x80000000lu);
    assert((ttl::bitset<66>(1lu) >> 1).to_ulong() == 0);
    assert((ttl::bitset<66>(1lu) >> 2).to_ulong() == 0);
    assert((ttl::bitset<66>(0x300000000llu) >> 1).to_ullong() == 0x180000000llu);
+   print_bitset("<66>:64 >>  1: ", ttl::bitset<66>().set(64) >> 1);
+   assert(ttl::bitset<66>().set(64) >> 1 == ttl::bitset<66>().set(63));
+   print_bitset("<66>:65 >>  1: ", ttl::bitset<66>().set(65) >> 1);
+   assert(ttl::bitset<66>().set(65) >> 1 == ttl::bitset<66>().set(64));
 
    assert((bs3 & bs3) == (bs3 &= bs3));
    assert((bs3 |= bs3) == (bs3 | bs3));
