@@ -18,7 +18,7 @@ namespace ttl
       typedef unsigned long slot_type;
       slot_type *bits_slot(ttl::size_t pos) { return bits_ + pos / (sizeof(slot_type) * CHAR_BIT); }
       const slot_type *bits_slot(ttl::size_t pos) const { return bits_ + pos / (sizeof(slot_type) * CHAR_BIT); }
-      static ttl::size_t bits_bit(ttl::size_t pos) { return pos % (sizeof(slot_type) * CHAR_BIT); }
+      static slot_type bits_bit(ttl::size_t pos) { return pos % (sizeof(slot_type) * CHAR_BIT); }
       slot_type bits_[(N + sizeof(slot_type) * CHAR_BIT - 1) / (sizeof(slot_type) * CHAR_BIT)];
 
    public:
@@ -89,7 +89,7 @@ namespace ttl
 
       bool test(ttl::size_t pos) const
       {
-         return pos < N && (*bits_slot(pos) & (1ul << bits_bit(pos))) != 0ul;
+         return pos < N && (*bits_slot(pos) & (1ul << bits_bit(pos)));
       }
 
       bool all() const;
@@ -117,12 +117,12 @@ namespace ttl
       }
       bitset<N> &set(ttl::size_t pos)
       {
-         *bits_slot(pos) |= 1 << bits_bit(pos);
+         *bits_slot(pos) |= 1lu << bits_bit(pos);
          return *this;
       }
       bitset<N> &set(ttl::size_t pos, bool value)
       {
-         const unsigned long mask = (unsigned long)value << bits_bit(pos);
+         const slot_type mask = (slot_type)value << bits_bit(pos);
          *bits_slot(pos) = (*bits_slot(pos) & ~mask) | mask;
          return *this;
       }
@@ -135,7 +135,7 @@ namespace ttl
       }
       bitset<N> &reset(ttl::size_t pos)
       {
-         *bits_slot(pos) &= ~((slot_type)1 << bits_bit(pos));
+         *bits_slot(pos) &= ~(1lu << bits_bit(pos));
          return *this;
       }
 
@@ -147,7 +147,7 @@ namespace ttl
       }
       bitset<N> &flip(ttl::size_t pos)
       {
-         *bits_slot(pos) ^= (slot_type)1 << bits_bit(pos);
+         *bits_slot(pos) ^= 1lu << bits_bit(pos);
          return *this;
       }
 
@@ -318,7 +318,11 @@ namespace ttl
    bitset<N> bitset<N>::operator<<(ttl::size_t pos) const
    {
       bitset<N> other;
-      for (unsigned i = 0; pos < N; ++i, ++pos)
+      unsigned i;
+      for (i = 0; i < N; i += sizeof(*bits_) * CHAR_BIT, pos += sizeof(*bits_) * CHAR_BIT)
+         if (*bits_slot(i))
+            break;
+      for (; pos < N; ++i, ++pos)
          if (test(i))
             other.set(pos);
       return other;
