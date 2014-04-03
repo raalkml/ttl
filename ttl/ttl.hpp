@@ -39,78 +39,19 @@
 
 namespace ttl
 {
+   //
+   // TODO: items below
+   //
 
    // Lists with a fixed predefined storage
    template<typename T, const ttl::size_t N> class fixed_list {};
    template<typename T, const ttl::size_t N> class fixed_forward_list {};
    template<typename T, const ttl::size_t N> class fixed_backward_list {};
 
-   template<typename T> class set {}; // collection of unique keys
-
-#if 0
-   template<typename Key, typename Compare> class multiset
-   {
-   public:
-      typedef Key     key_type;
-      typedef Key     value_type;
-      typedef Compare key_compare;
-      typedef Compare value_compare;
-      typedef typename _Key_alloc_type::pointer             pointer;
-      typedef typename _Key_alloc_type::const_pointer       const_pointer;
-      typedef typename _Key_alloc_type::reference           reference;
-      typedef typename _Key_alloc_type::const_reference     const_reference;
-      typedef typename _Rep_type::const_iterator            iterator;
-      typedef typename _Rep_type::const_iterator            const_iterator;
-      typedef typename _Rep_type::size_type                 size_type;
-      typedef typename _Rep_type::difference_type           difference_type;
-
-      multiset();
-      explicit multiset(const _Compare &__comp);
-      template<typename _InputIterator>
-      multiset(_InputIterator __first, _InputIterator __last);
-      template<typename _InputIterator>
-      multiset(_InputIterator __first, _InputIterator __last, const _Compare& __comp);
-      multiset(const multiset &);
-
-      multiset &operator=(const multiset &);
-
-      key_compare key_comp() const;
-
-      iterator begin() const;
-      iterator end() const;
-      const_iterator cbegin() const;
-      const_iterator cend() const;
-
-      bool empty() const;
-      size_type size() const;
-      size_type max_size() const;
-
-      swap(multiset &);
-
-      iterator insert(const value_type& __x);
-      iterator insert(iterator __position, const value_type& __x);
-      template<typename _InputIterator>
-      void insert(_InputIterator __first, _InputIterator __last);
-
-      void erase(iterator __position);
-      size_type erase(const key_type& __x);
-      void erase(iterator __first, iterator __last);
-      void clear();
-
-      size_type count(const key_type& __x) const;
-      iterator find(const key_type& __x);
-      const_iterator find(const key_type& __x) const;
-      iterator lower_bound(const key_type& __x);
-      const_iterator lower_bound(const key_type& __x) const;
-      iterator upper_bound(const key_type& __x);
-      const_iterator upper_bound(const key_type& __x) const;
-      ttl::pair<iterator, iterator> equal_range(const key_type& __x);
-      ttl::pair<const_iterator, const_iterator> equal_range(const key_type& __x) const;
-
-   };
-
-   template<typename T> class multimap { };
-#endif // NO
+   // Red-black tree derivations
+   template<typename T> class set {};
+   template<typename Key, typename Compare> class multiset {};
+   template<typename T> class multimap {};
 }
 
 #endif // _TINY_TEMPLATE_LIBRARY_HPP_
