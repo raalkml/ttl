@@ -46,11 +46,15 @@ namespace ttl
 
       void reverse()
       {
-         for (list_node *p = next, *n = p->next; p != this; p = n, n = n->next)
+         list_node *p = this;
+         do
          {
-            p->unlink();
-            next->insert_before(p);
+            list_node *t = p->next;
+            p->next = p->prev;
+            p->prev = t;
+            p = t;
          }
+         while (p != this);
       }
 
 #if 1
