@@ -1,6 +1,7 @@
 /////////////////////////////////////////////////// vim: sw=3 ts=8 et
 //
 // Tiny Template Library: an implementation of "lazy queue"
+//
 // A single-linked list, maintaining its head and tail pointers and pooling its
 // removed nodes in a list of dead nodes, to avoid allocation next time they're
 // needed. The dead nodes can be deallocated on explicit request (with the
@@ -214,7 +215,7 @@ namespace ttl
       template<typename Predicate>
       void remove_if(Predicate); // TODO
 
-      void roll_head()
+      void roll_head() // pop_front(); push_back();
       {
          if (head_.next && head_.next != tail_)
          {
