@@ -307,5 +307,19 @@ namespace ttl
          up = static_cast<const node_type *>(rbtree_base::next_node(lo));
       return pair<const_iterator, const_iterator>(const_iterator(lo), const_iterator(up));
    }
+
+   template<class InputIt1, class InputIt2>
+   bool equal(InputIt1, InputIt1, InputIt2);
+
+   template <typename KT, typename T, typename Compare>
+   bool operator==(const map<KT,T,Compare> &a, const map<KT,T,Compare> &b)
+   {
+      return ttl::equal(a.begin(), a.end(), b.begin());
+   }
+   template <typename KT, typename T, typename Compare>
+   bool operator!=(const map<KT,T,Compare> &a, const map<KT,T,Compare> &b)
+   {
+      return !ttl::equal(a.begin(), a.end(), b.begin());
+   }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_MAP_HPP_

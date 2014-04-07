@@ -210,10 +210,12 @@ void test()
 
       i2cmap mb = ma;
       assert(ttl::equal(mb.cbegin(), mb.cend(), arr.cbegin()));
+      assert(ma == mb);
 
       i2cmap mc;
       mc = mb;
       assert(ttl::equal(mc.cbegin(), mc.cend(), arr.cbegin()));
+      assert(!(mb != mc));
 
       for (i2cmap::const_iterator it = mc.cbegin(); it != mc.cend(); ++it)
          printf(" {%d: 0x%02x}", it->first, (unsigned char)it->second);
