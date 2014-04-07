@@ -222,6 +222,13 @@ namespace ttl
 
       bool empty() const { return head_.next == &head_; }
       size_type max_size() const { return (size_type)-1/sizeof(node); }
+      size_type size() const
+      {
+         size_type siz = 0;
+         for (const list_node *n = head_.next; n != &head_; n = n->next)
+            ++siz;
+         return siz;
+      }
 
       reference front() { return static_cast<node *>(head_.next)->value; }
       const_reference front() const { return static_cast<const node *>(head_.next)->value; }

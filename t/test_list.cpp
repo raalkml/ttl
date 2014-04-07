@@ -30,8 +30,6 @@ void print_iter_ptr(const char *title, ttl::list<testtype>::const_iterator first
    fputs(".\n", stdout);
 }
 
-static bool ANY(const testtype &) { return true; }
-
 namespace ttl
 {
    bool operator<(const testtype &a, const testtype &b)
@@ -54,11 +52,13 @@ void test()
    const testtype nine(9);
    ttl::list<testtype> dl(10, nine);
 
+   assert(dl.size() < dl.max_size());
    assert(dl.front() == constify(dl).front() && dl.front() == nine);
    assert(dl.back() == constify(dl).back() && dl.back() == nine);
    assert(ttl::count(dl.begin(), dl.end(), dl.front()) == 10 &&
           ttl::count(dl.begin(), dl.end(), dl.back()) == 10 &&
-          ttl::count(dl.begin(), dl.end(), nine) == 10);
+          ttl::count(dl.begin(), dl.end(), nine) == 10 &&
+          ttl::count(dl.begin(), dl.end(), nine) == (int)dl.size());
    assert(ttl::count(dl.cbegin(), dl.cend(), nine) == 10);
    assert(ttl::count(constify(dl).begin(), constify(dl).end(), nine) == 10);
 
@@ -103,43 +103,43 @@ void test()
    assert(dl.front() == testtype(0));
    assert(*++dl.cbegin() == testtype(8));
    assert(dl.back() == testtype(9));
-   assert(ttl::count_if(dl.begin(), dl.end(), ANY) == 3);
+   assert(dl.size() == 3);
 
    dl.push_front(testtype(999));  // dl = [999, 0, 8, 9]
    assert(dl.front() == testtype(999));
    assert(*++dl.cbegin() == testtype(0));
    assert(dl.back() == testtype(9));
-   assert(ttl::count_if(dl.begin(), dl.end(), ANY) == 4);
+   assert(dl.size() == 4);
 
    dl.push_front(testtype(1000)); // dl = [1000, 999, 0, 8, 9]
    assert(dl.front() == testtype(1000));
-   assert(ttl::count_if(dl.begin(), dl.end(), ANY) == 5);
+   assert(dl.size() == 5);
    dl.pop_front();                // dl = [999, 0, 9]
    assert(dl.front() == testtype(999));
-   assert(ttl::count_if(dl.begin(), dl.end(), ANY) == 4);
+   assert(dl.size() == 4);
 
    dl.push_back(testtype(1000)); // dl = [999, 0, 8, 9, 1000]
    assert(dl.back() == testtype(1000));
-   assert(ttl::count_if(dl.begin(), dl.end(), ANY) == 5);
+   assert(dl.size() == 5);
    dl.pop_front();               // dl = [0, 8, 9, 1000]
    assert(dl.front() == testtype(0));
-   assert(ttl::count_if(dl.begin(), dl.end(), ANY) == 4);
+   assert(dl.size() == 4);
    dl.pop_back();                // dl = [0, 8, 9]
    assert(dl.back() == testtype(9));
    dl.pop_back();                // dl = [0, 8]
    assert(dl.back() == testtype(8));
-   assert(ttl::count_if(dl.begin(), dl.end(), ANY) == 2);
+   assert(dl.size() == 2);
 
    dl.insert(dl.begin(), testtype(1001));   // dl = [1001, 0, 8]
    assert(dl.front() == testtype(1001));
-   assert(ttl::count_if(dl.begin(), dl.end(), ANY) == 3);
+   assert(dl.size() == 3);
 
    dl.insert(++dl.begin(), testtype(1002));    // dl = [1001, 1002, 0, 8]
    dl.insert(++ ++dl.begin(), testtype(1003)); // dl = [1001, 1002, 1003, 0, 8]
-   assert(ttl::count_if(dl.begin(), dl.end(), ANY) == 5);
+   assert(dl.size() == 5);
    dl.erase(dl.cbegin());                      // dl = [1002, 1003, 0, 8]
    assert(dl.front() == testtype(1002));
-   assert(ttl::count_if(dl.begin(), dl.end(), ANY) == 4);
+   assert(dl.size() == 4);
    print_iter("after erase(at):", dl.cbegin(), dl.cend());
 
    static const int data[] = {'0','1','2','3'};
@@ -147,7 +147,7 @@ void test()
 
    dl.insert(dl.begin(), data, data + countof(data));
    print_iter("after insert<>(at, from, to):", dl.cbegin(), dl.cend());
-   assert(ttl::count_if(dl.begin(), dl.end(), ANY) == 8);
+   assert(dl.size() == 8);
 
    {
       ttl::list<testtype> dl1, dl2;
@@ -157,7 +157,7 @@ void test()
       print_iter("after assign dl2:", dl2.cbegin(), dl2.cend());
       assert(ttl::equal(dl1.cbegin(), dl1.cend(), data));
       assert(ttl::equal(dl1.cbegin(), dl1.cend(), dl2.begin()));
-      assert(ttl::count_if(dl1.begin(), dl1.end(), ANY) == ttl::count_if(dl2.begin(), dl2.end(), ANY));
+      assert(dl1.size() == dl2.size());
    }
 
    {
