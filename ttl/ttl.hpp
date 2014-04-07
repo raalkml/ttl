@@ -44,6 +44,7 @@
 #include "lazy_queue.hpp"
 #include "list.hpp"
 #include "map.hpp"
+#include "set.hpp"
 #include "vector_map.hpp"
 #include "sorted_vector_map.hpp"
 #include "bitset.hpp"
@@ -60,7 +61,6 @@ namespace ttl
    template<typename T, const ttl::size_t N> class fixed_backward_list {};
 
    // Red-black tree derivations
-   template<typename T> class set {};
    template<typename Key, typename Compare> class multiset {};
    template<typename T> class multimap {};
 }
