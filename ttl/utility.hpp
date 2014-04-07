@@ -109,6 +109,12 @@ namespace ttl
       const typename Pair::second_type &operator()(const Pair &r) const { return r.second; }
    };
 
+   // Used to select the value of a non-aggregating type
+   template<typename T>
+   struct select_same
+   {
+      const T &operator()(const T &r) const { return r; }
+   };
 
 #if __cplusplus >= 201103L // C++11
    template<class T> struct remove_reference;

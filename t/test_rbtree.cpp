@@ -9,13 +9,7 @@ typedef ttl::rbtree<int,
         ttl::select_first< ttl::pair<int,char> >,
         ttl::less<int> > rbtree_map;
 
-template<typename T>
-struct select_same
-{
-   const T &operator()(const T &r) const { return r; }
-};
-
-typedef ttl::rbtree<int, int, select_same<int>, ttl::less<int> > rbtree_set;
+typedef ttl::rbtree<int, int, ttl::select_same<int>, ttl::less<int> > rbtree_set;
 
 template<typename Container>
 static void inorder(const ttl::rbnode *n, bool print_pointer = false, int depth = 0)
