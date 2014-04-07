@@ -46,10 +46,15 @@ inline bool operator==(const testtype &a, const testtype &b)
 namespace t
 {
 
-struct equal_to
-{
-   bool operator()(const testtype &a, const testtype &b) { return a == b; }
-};
+   template <class T>
+   struct equal_to
+   {
+      typedef T value_type;
+      T value;
+      equal_to() {}
+      equal_to(const T &v): value(v) {}
+      bool operator()(const T &a) const { return a.value == value; }
+   };
 
 }
 
