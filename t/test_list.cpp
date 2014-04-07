@@ -32,6 +32,14 @@ void print_iter_ptr(const char *title, ttl::list<testtype>::const_iterator first
 
 static bool ANY(const testtype &) { return true; }
 
+namespace ttl
+{
+   bool operator<(const testtype &a, const testtype &b)
+   {
+      return a.value < b.value;
+   }
+}
+
 void test()
 {
    testtype::verbose = false;
@@ -135,6 +143,8 @@ void test()
    print_iter("after erase(at):", dl.cbegin(), dl.cend());
 
    static const int data[] = {'0','1','2','3'};
+   static const int ascii[] = {'A','B','C','D'};
+
    dl.insert(dl.begin(), data, data + countof(data));
    print_iter("after insert<>(at, from, to):", dl.cbegin(), dl.cend());
    assert(ttl::count_if(dl.begin(), dl.end(), ANY) == 8);
@@ -157,7 +167,6 @@ void test()
       dl1.splice(dl1.begin(), dl2);
       print_iter("after splice dl1:", dl1.cbegin(), dl1.cend());
 
-      static const int ascii[] = {'A','B','C','D'};
       dl2.assign(ascii, ascii + countof(ascii));
       dl1.splice(dl1.begin(), dl2, dl2.begin());
       print_iter("after splice(from) dl1:", dl1.cbegin(), dl1.cend());
@@ -191,6 +200,36 @@ void test()
    dl.unique(ttl::equal_to<testtype>()); // binary predicate
    print_iter_ptr("after unique(pred), dl :", dl.cbegin(), dl.cend());
    assert(ttl::count_if(dl.begin(), dl.end(), t::equal_to<testtype>(nine)) == 1);
+
+   {
+      ttl::list<testtype> dl1, dl2;
+      dl1.assign(data, data + countof(data));
+      dl1.push_back(testtype('a'));
+      dl2.assign(ascii, ascii + countof(ascii));
+      dl2.push_back(testtype('b'));
+
+      print_iter("dl1:", dl1.cbegin(), dl1.cend());
+      print_iter("dl2:", dl2.cbegin(), dl2.cend());
+
+      ttl::list<testtype> dl1copy = dl1;
+      ttl::list<testtype> dl2copy = dl2;
+
+      dl1.merge(dl2copy);
+      print_iter("after merge, dl1:", dl1.cbegin(), dl1.cend());
+
+      dl2.merge(dl1copy, ttl::less<testtype>());
+      print_iter("after merge, dl2:", dl1.cbegin(), dl1.cend());
+
+      assert(dl1copy.empty());
+      assert(dl2copy.empty());
+      assert(ttl::equal(dl1.cbegin(), dl1.cend(), dl2.cbegin()));
+
+      dl2copy.merge(dl2); // merge into empty list
+      assert(ttl::equal(dl1.cbegin(), dl1.cend(), dl2copy.cbegin()));
+
+      dl2copy.merge(dl1copy); // merge an empty list
+      assert(ttl::equal(dl1.cbegin(), dl1.cend(), dl2copy.cbegin()));
+   }
 
    printf("dtors\n");
 }

@@ -358,9 +358,46 @@ namespace ttl
                prev = p;
       }
 
-      void merge(list &); // merge sorted lists
+      void merge(list &other) // merge sorted lists
+      {
+         list_node *o = other.head_.next;
+         for (list_node *i = head_.next; o != &other.head_ && i != &head_;)
+         {
+            if (static_cast<const node *>(o)->value < static_cast<const node *>(i)->value)
+            {
+               list_node *on = o->next;
+               o->unlink();
+               i->insert_before(o);
+               i = o;
+               o = on;
+            }
+            else
+               i = i->next;
+         }
+         if (o != &other.head_)
+            head_.splice(other.head_.next, &other.head_);
+      }
+
       template<typename Compare>
-      void merge(list &, Compare);
+      void merge(list &other, Compare cmp)
+      {
+         list_node *o = other.head_.next;
+         for (list_node *i = head_.next; o != &other.head_ && i != &head_;)
+         {
+            if (cmp(static_cast<const node *>(o)->value, static_cast<const node *>(i)->value))
+            {
+               list_node *on = o->next;
+               o->unlink();
+               i->insert_before(o);
+               i = o;
+               o = on;
+            }
+            else
+               i = i->next;
+         }
+         if (o != &other.head_)
+            head_.splice(other.head_.next, &other.head_);
+      }
 
       // O(N*log(N)) sort
       void sort();
