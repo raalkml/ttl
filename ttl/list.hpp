@@ -124,6 +124,7 @@ namespace ttl
       struct node: list_node
       {
          T value;
+         node() {}
          node(const T &v): value(v) {}
       };
       list_node head_;
@@ -355,6 +356,44 @@ namespace ttl
       list_node *p = const_cast<list_node *>(pos.head_);
       for ( ; first != last; ++first)
          p->insert_before(new node(*first));
+   }
+   template<typename T>
+   void list<T>::resize(size_type newsize)
+   {
+      size_type siz = 0;
+      list_node *p;
+      for (p = head_.next; p != &head_; p = p->next)
+         if (++siz == newsize)
+         {
+            while (p->next != &head_)
+            {
+               list_node *e = head_.prev;
+               e->unlink();
+               delete static_cast<node *>(e);
+            }
+            return;
+         }
+      while (siz++ < newsize)
+         head_.insert_before(new node);
+   }
+   template<typename T>
+   void list<T>::resize(size_type newsize, const T &value)
+   {
+      size_type siz = 0;
+      list_node *p;
+      for (p = head_.next; p != &head_; p = p->next)
+         if (++siz == newsize)
+         {
+            while (p->next != &head_)
+            {
+               list_node *e = head_.prev;
+               e->unlink();
+               delete static_cast<node *>(e);
+            }
+            return;
+         }
+      while (siz++ < newsize)
+         head_.insert_before(new node(value));
    }
    template<typename T>
    void list<T>::clear()

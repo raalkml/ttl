@@ -231,5 +231,14 @@ void test()
       assert(ttl::equal(dl1.cbegin(), dl1.cend(), dl2copy.cbegin()));
    }
 
+   dl.resize(40);
+   assert(dl.size() == 40);
+   dl.resize(4);
+   assert(dl.size() == 4);
+
+   dl.resize(30, nine);
+   assert(dl.size() == 30);
+   assert(ttl::count(dl.begin(), dl.end(), nine) == 26);
+
    printf("dtors\n");
 }
