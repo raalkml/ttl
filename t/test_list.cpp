@@ -158,6 +158,13 @@ void test()
    dl.reverse();
    print_iter("after reverse, dl :", dl.cbegin(), dl.cend());
 
+   dl.remove(testtype(1003));
+   print_iter("after remove, dl :", dl.cbegin(), dl.cend());
+   assert(ttl::count_if(dl.begin(), dl.end(), t::equal_to<testtype>(1003)) == 0);
+
+   dl.remove_if(t::equal_to<testtype>(testtype(1002)));
+   print_iter("after remove, dl :", dl.cbegin(), dl.cend());
+   assert(ttl::count_if(dl.begin(), dl.end(), t::equal_to<testtype>(1002)) == 0);
 #if 0
    fl1.splice_after(advanceIt(fl1.cbefore_begin(), 3), fl3);
    print_iter("after splice_after fl1<-fl3: fl1:", fl1.cbegin(), fl1.cend());

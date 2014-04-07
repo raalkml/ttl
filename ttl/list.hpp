@@ -312,9 +312,25 @@ namespace ttl
 
       void clear();
 
-      void remove(const T &);
+      void remove(const T &value)
+      {
+         for (list_node *p = head_.next, *n = p->next; p != &head_; p = n, n = n->next)
+            if (static_cast<const node *>(p)->value == value)
+            {
+               p->unlink();
+               delete static_cast<node *>(p);
+            }
+      }
       template<typename Predicate>
-      void remove_if(Predicate);
+      void remove_if(Predicate pred)
+      {
+         for (list_node *p = head_.next, *n = p->next; p != &head_; p = n, n = n->next)
+            if (pred(static_cast<const node *>(p)->value))
+            {
+               p->unlink();
+               delete static_cast<node *>(p);
+            }
+      }
 
       void unique();
       template<typename BinaryPredicate>
