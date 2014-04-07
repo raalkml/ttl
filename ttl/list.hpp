@@ -332,9 +332,31 @@ namespace ttl
             }
       }
 
-      void unique();
+      void unique()
+      {
+         list_node *prev = head_.next;
+         for (list_node *p = prev->next, *n = p->next; p != &head_; p = n, n = n->next)
+            if (static_cast<const node *>(p)->value == static_cast<const node *>(prev)->value)
+            {
+               p->unlink();
+               delete static_cast<node *>(p);
+            }
+            else
+               prev = p;
+      }
       template<typename BinaryPredicate>
-      void unique(BinaryPredicate);
+      void unique(BinaryPredicate pred)
+      {
+         list_node *prev = head_.next;
+         for (list_node *p = prev->next, *n = p->next; p != &head_; p = n, n = n->next)
+            if (pred(static_cast<const node *>(p)->value, static_cast<const node *>(prev)->value))
+            {
+               p->unlink();
+               delete static_cast<node *>(p);
+            }
+            else
+               prev = p;
+      }
 
       void merge(list &); // merge sorted lists
       template<typename Compare>

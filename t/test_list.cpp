@@ -1,5 +1,6 @@
 // vim: sw=3 ts=8 et
 #include "ttl/algorithm.hpp"
+#include "ttl/functional.hpp"
 #include "ttl/utility.hpp"
 #include "ttl/list.hpp"
 #include "t.hpp"
@@ -12,6 +13,19 @@ void print_iter(const char *title, ttl::list<int>::const_iterator first, ttl::li
    {
       ttl::list<int>::const_iterator::reference r = *first;
       printf('\x21' <= r && r < 127 ? " '%c'": " %d", *first);
+   }
+   fputs(".\n", stdout);
+}
+
+static
+void print_iter_ptr(const char *title, ttl::list<testtype>::const_iterator first, ttl::list<testtype>::const_iterator last)
+{
+   fputs(title, stdout);
+   intptr_t base = first != last ? (intptr_t)&first->value: 0;
+   for (; first != last; ++first)
+   {
+      ttl::list<testtype>::const_iterator::reference r = *first;
+      printf('\x21' <= r.value && r.value < 127 ? " %ld:'%c'": " %ld:%d", (long)((intptr_t)&r.value - base), r.value);
    }
    fputs(".\n", stdout);
 }
@@ -165,41 +179,18 @@ void test()
    dl.remove_if(t::equal_to<testtype>(testtype(1002)));
    print_iter("after remove, dl :", dl.cbegin(), dl.cend());
    assert(ttl::count_if(dl.begin(), dl.end(), t::equal_to<testtype>(1002)) == 0);
-#if 0
-   fl1.splice_after(advanceIt(fl1.cbefore_begin(), 3), fl3);
-   print_iter("after splice_after fl1<-fl3: fl1:", fl1.cbegin(), fl1.cend());
-   print_iter("after splice_after fl1<-fl3: fl3:", fl3.cbegin(), fl3.cend());
 
-   fl1.assign(data, data + countof(data));
-   fl2.assign(data, data + countof(data));
-   print_iter("after assign fl1:", fl1.cbegin(), fl1.cend());
-   print_iter("after assign fl2:", fl2.cbegin(), fl2.cend());
+   dl.insert(dl.end(), 10, nine);
+   print_iter_ptr("before unique, dl :", dl.cbegin(), dl.cend());
+   dl.unique();
+   print_iter_ptr("after unique, dl :", dl.cbegin(), dl.cend());
+   assert(ttl::count_if(dl.begin(), dl.end(), t::equal_to<testtype>(nine)) == 1);
 
-   fl1.splice_after(fl1.cbefore_begin(), fl2, fl2.cbefore_begin());
-   print_iter("after splice_after (one) fl1:", fl1.cbegin(), fl1.cend());
-   print_iter("after splice_after (one) fl2:", fl2.cbegin(), fl2.cend());
+   dl.insert(dl.end(), 10, nine);
+   print_iter_ptr("before unique(pred), dl :", dl.cbegin(), dl.cend());
+   dl.unique(ttl::equal_to<testtype>()); // binary predicate
+   print_iter_ptr("after unique(pred), dl :", dl.cbegin(), dl.cend());
+   assert(ttl::count_if(dl.begin(), dl.end(), t::equal_to<testtype>(nine)) == 1);
 
-   fl2.splice_after(fl2.cbefore_begin(), fl1, fl1.cbefore_begin(), advanceIt(fl1.cbegin(),2));
-   print_iter("after splice_after (range) fl1:", fl1.cbegin(), fl1.cend());
-   print_iter("after splice_after (range) fl2:", fl2.cbegin(), fl2.cend());
-
-   fl1.splice_after(fl1.cbefore_begin(), fl2, fl2.cend(), fl2.cend());
-   print_iter("after splice_after (end,end) fl1:", fl1.cbegin(), fl1.cend());
-
-   fl1.splice_after(fl1.cbefore_begin(), fl2, fl2.cbefore_begin(), fl2.cend());
-   print_iter("after splice_after (before_begin,end) fl1:", fl1.cbegin(), fl1.cend());
-
-   // Undefined behaviour:
-   // splice past end should crash:
-   // fl1.splice_after(fl1.cend(), fl2, fl2.cbefore_begin(), fl2.cend());
-   // splice inside the spliced range loops:
-   // fl1.splice_after(fl1.cbegin(), fl1, fl1.cbefore_begin(), fl1.cend());
-
-   ttl::list<int> flI(data, data + countof(data));
-   print_iter("<int> init from data: ", flI.cbegin(), flI.cend());
-   ttl::list<int> flI2(data, data + countof(data));
-   flI.splice_after(flI.cbefore_begin(), flI2, flI2.cbefore_begin(), flI2.cend());
-   print_iter("<int> splice_after: ", flI.cbegin(), flI.cend());
-#endif
    printf("dtors\n");
 }
