@@ -312,99 +312,27 @@ namespace ttl
 
       void clear();
 
-      void remove(const T &value)
-      {
-         for (list_node *p = head_.next, *n = p->next; p != &head_; p = n, n = n->next)
-            if (static_cast<const node *>(p)->value == value)
-            {
-               p->unlink();
-               delete static_cast<node *>(p);
-            }
-      }
+      void remove(const T &value);
       template<typename Predicate>
-      void remove_if(Predicate pred)
-      {
-         for (list_node *p = head_.next, *n = p->next; p != &head_; p = n, n = n->next)
-            if (pred(static_cast<const node *>(p)->value))
-            {
-               p->unlink();
-               delete static_cast<node *>(p);
-            }
-      }
+      void remove_if(Predicate);
 
-      void unique()
-      {
-         list_node *prev = head_.next;
-         for (list_node *p = prev->next, *n = p->next; p != &head_; p = n, n = n->next)
-            if (static_cast<const node *>(p)->value == static_cast<const node *>(prev)->value)
-            {
-               p->unlink();
-               delete static_cast<node *>(p);
-            }
-            else
-               prev = p;
-      }
+      void unique();
       template<typename BinaryPredicate>
-      void unique(BinaryPredicate pred)
-      {
-         list_node *prev = head_.next;
-         for (list_node *p = prev->next, *n = p->next; p != &head_; p = n, n = n->next)
-            if (pred(static_cast<const node *>(p)->value, static_cast<const node *>(prev)->value))
-            {
-               p->unlink();
-               delete static_cast<node *>(p);
-            }
-            else
-               prev = p;
-      }
+      void unique(BinaryPredicate);
 
-      void merge(list &other) // merge sorted lists
-      {
-         list_node *o = other.head_.next;
-         for (list_node *i = head_.next; o != &other.head_ && i != &head_;)
-         {
-            if (static_cast<const node *>(o)->value < static_cast<const node *>(i)->value)
-            {
-               list_node *on = o->next;
-               o->unlink();
-               i->insert_before(o);
-               i = o;
-               o = on;
-            }
-            else
-               i = i->next;
-         }
-         if (o != &other.head_)
-            head_.splice(other.head_.next, &other.head_);
-      }
-
+      void merge(list &);
       template<typename Compare>
-      void merge(list &other, Compare cmp)
-      {
-         list_node *o = other.head_.next;
-         for (list_node *i = head_.next; o != &other.head_ && i != &head_;)
-         {
-            if (cmp(static_cast<const node *>(o)->value, static_cast<const node *>(i)->value))
-            {
-               list_node *on = o->next;
-               o->unlink();
-               i->insert_before(o);
-               i = o;
-               o = on;
-            }
-            else
-               i = i->next;
-         }
-         if (o != &other.head_)
-            head_.splice(other.head_.next, &other.head_);
-      }
+      void merge(list &, Compare);
 
       // O(N*log(N)) sort
       void sort();
       template<typename Compare>
       void sort(Compare);
 
-      void reverse();
+      void reverse()
+      {
+         head_.reverse();
+      }
    };
    template<typename T>
    void list<T>::insert(const_iterator pos, size_type n, const T &value)
@@ -445,9 +373,93 @@ namespace ttl
       return iterator(p->next);
    }
    template<typename T>
-   void list<T>::reverse()
+   void list<T>::remove(const T &value)
    {
-      head_.reverse();
+      for (list_node *p = head_.next, *n = p->next; p != &head_; p = n, n = n->next)
+         if (static_cast<const node *>(p)->value == value)
+         {
+            p->unlink();
+            delete static_cast<node *>(p);
+         }
+   }
+   template<typename T>
+   template<typename Predicate>
+   void list<T>::remove_if(Predicate pred)
+   {
+      for (list_node *p = head_.next, *n = p->next; p != &head_; p = n, n = n->next)
+         if (pred(static_cast<const node *>(p)->value))
+         {
+            p->unlink();
+            delete static_cast<node *>(p);
+         }
+   }
+   template<typename T>
+   void list<T>::unique()
+   {
+      list_node *prev = head_.next;
+      for (list_node *p = prev->next, *n = p->next; p != &head_; p = n, n = n->next)
+         if (static_cast<const node *>(p)->value == static_cast<const node *>(prev)->value)
+         {
+            p->unlink();
+            delete static_cast<node *>(p);
+         }
+         else
+            prev = p;
+   }
+   template<typename T>
+   template<typename BinaryPredicate>
+   void list<T>::unique(BinaryPredicate pred)
+   {
+      list_node *prev = head_.next;
+      for (list_node *p = prev->next, *n = p->next; p != &head_; p = n, n = n->next)
+         if (pred(static_cast<const node *>(p)->value, static_cast<const node *>(prev)->value))
+         {
+            p->unlink();
+            delete static_cast<node *>(p);
+         }
+         else
+            prev = p;
+   }
+   template<typename T>
+   void list<T>::merge(list &other) // merge sorted lists
+   {
+      list_node *o = other.head_.next;
+      for (list_node *i = head_.next; o != &other.head_ && i != &head_;)
+      {
+         if (static_cast<const node *>(o)->value < static_cast<const node *>(i)->value)
+         {
+            list_node *on = o->next;
+            o->unlink();
+            i->insert_before(o);
+            i = o;
+            o = on;
+         }
+         else
+            i = i->next;
+      }
+      if (o != &other.head_)
+         head_.splice(other.head_.next, &other.head_);
+   }
+   template<typename T>
+   template<typename Compare>
+   void list<T>::merge(list &other, Compare cmp)
+   {
+      list_node *o = other.head_.next;
+      for (list_node *i = head_.next; o != &other.head_ && i != &head_;)
+      {
+         if (cmp(static_cast<const node *>(o)->value, static_cast<const node *>(i)->value))
+         {
+            list_node *on = o->next;
+            o->unlink();
+            i->insert_before(o);
+            i = o;
+            o = on;
+         }
+         else
+            i = i->next;
+      }
+      if (o != &other.head_)
+         head_.splice(other.head_.next, &other.head_);
    }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_FORWARD_LIST_HPP_
