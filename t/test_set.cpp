@@ -178,10 +178,12 @@ void test()
 
       intset sb = sa;
       assert(ttl::equal(sb.cbegin(), sb.cend(), arr.cbegin()));
+      assert(sa == sb);
 
       intset sc;
       sc = sb;
       assert(ttl::equal(sc.cbegin(), sc.cend(), arr.cbegin()));
+      assert(!(sa != sc));
 
       for (intset::const_iterator it = sc.cbegin(); it != sc.cend(); ++it)
          printf(" {%d}", *it);
