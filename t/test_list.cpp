@@ -65,8 +65,8 @@ void test()
    {
       ttl::list<testtype> dl1 = dl;
       ttl::list<testtype> dl2 = dl;
-      assert(ttl::equal(dl1.cbegin(), dl1.cend(), dl.cbegin()));
-      assert(ttl::equal(dl2.cbegin(), dl2.cend(), dl1.begin()));
+      assert(dl1 == dl);
+      assert(!(dl2 != dl1));
       dl1.clear();
       assert(dl1.empty());
 

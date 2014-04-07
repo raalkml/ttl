@@ -507,5 +507,19 @@ namespace ttl
       if (o != &other.head_)
          head_.splice(other.head_.next, &other.head_);
    }
+
+   template<class InputIt1, class InputIt2>
+   bool equal(InputIt1, InputIt1, InputIt2);
+
+   template <typename T>
+   bool operator==(const list<T> &a, const list<T> &b)
+   {
+      return ttl::equal(a.begin(), a.end(), b.begin());
+   }
+   template <typename T>
+   bool operator!=(const list<T> &a, const list<T> &b)
+   {
+      return !ttl::equal(a.begin(), a.end(), b.begin());
+   }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_FORWARD_LIST_HPP_
