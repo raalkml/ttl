@@ -30,6 +30,7 @@ void test()
       ttl::array<int, 3> i30;
       i30 = i3;
       assert(i3 == i30);
+      assert(!(i3 != i30));
 
       puts("swap");
       {

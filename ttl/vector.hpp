@@ -13,7 +13,7 @@
 namespace ttl
 {
    template<typename T> void swap(T &, T &);
-   template<class InputIt1, class InputIt2> bool equal(InputIt1, InputIt1, InputIt2);
+   template<class InputIt1, class InputIt2> bool equal(InputIt1, InputIt1, InputIt2, InputIt2);
 
    template<typename T>
    class vector
@@ -275,7 +275,7 @@ namespace ttl
    template<typename T>
    inline bool operator==(const vector<T> &a, const vector<T> &b)
    {
-      return a.size() == b.size() && ttl::equal(a.begin(), a.end(), b.begin());
+      return ttl::equal(a.begin(), a.end(), b.begin(), b.end());
    }
    template<typename T>
    inline bool operator!=(const vector<T> &a, const vector<T> &b)

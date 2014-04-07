@@ -132,6 +132,15 @@ namespace ttl
       return true;
    }
 
+   template<class InputIt1, class InputIt2>
+   inline bool equal(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2)
+   {
+      for (; first1 != last1 && first2 != last2; ++first1, ++first2)
+         if (!(*first1 == *first2))
+            return false;
+      return first1 == last1 && first2 == last2;
+   }
+
    template<class InputIt, class UnaryFunction>
    UnaryFunction for_each(InputIt first, InputIt last, UnaryFunction f)
    {

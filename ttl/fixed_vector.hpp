@@ -15,7 +15,7 @@ namespace ttl
 {
    template<class T1, class T2> struct pair;
    template<class ForwardIt, class T> pair<ForwardIt,ForwardIt> equal_range(ForwardIt, ForwardIt, const T &);
-   template<class InputIt1, class InputIt2> bool equal(InputIt1, InputIt1, InputIt2);
+   template<class InputIt1, class InputIt2> bool equal(InputIt1, InputIt1, InputIt2, InputIt2);
    template<typename T> void swap(T &, T &);
    template<class iterator1, class iterator2> iterator1 swap_ranges(iterator1, iterator1, iterator2);
 
@@ -242,7 +242,7 @@ namespace ttl
    template<typename T, const unsigned int N>
    inline bool operator==(const fixed_vector<T,N> &a, const fixed_vector<T,N> &b)
    {
-      return a.size() == b.size() && ttl::equal(a.begin(), a.end(), b.begin());
+      return ttl::equal(a.begin(), a.end(), b.begin(), b.end());
    }
    template<typename T, const unsigned int N>
    inline bool operator!=(const fixed_vector<T,N> &a, const fixed_vector<T,N> &b)

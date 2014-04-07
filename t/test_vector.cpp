@@ -43,6 +43,8 @@ void test()
    printf("\noperator=:\n");
    v1 = v0;
    printf("equal? %s\n", v1 == v0 ? "yes": "no");
+   assert(v1 == v0);
+   assert(!(v1 != v0));
    for (ttl::vector<testtype>::const_iterator i = v1.cbegin(); i != v1.cend(); ++i)
       printf(" %d", i->value);
    printf("\n");

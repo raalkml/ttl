@@ -1,4 +1,5 @@
 // vim: sw=3 ts=8 et
+#include "ttl/algorithm.hpp"
 #include "ttl/utility.hpp"
 #include "ttl/backward_list.hpp"
 #include "t.hpp"
@@ -18,6 +19,8 @@ void test()
 {
    ttl::backward_list<testtype> fl(10, testtype(9));
    ttl::backward_list<testtype> fl1 = fl;
+   assert(fl == fl1);
+   assert(!(fl != fl1));
    int c = 0;
    for (ttl::backward_list<testtype>::iterator i = fl.begin(); i != fl.end(); ++i)
    {

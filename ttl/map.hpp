@@ -314,12 +314,12 @@ namespace ttl
    template <typename KT, typename T, typename Compare>
    bool operator==(const map<KT,T,Compare> &a, const map<KT,T,Compare> &b)
    {
-      return ttl::equal(a.begin(), a.end(), b.begin());
+      return ttl::equal(a.begin(), a.end(), b.begin(), b.end());
    }
    template <typename KT, typename T, typename Compare>
    bool operator!=(const map<KT,T,Compare> &a, const map<KT,T,Compare> &b)
    {
-      return !ttl::equal(a.begin(), a.end(), b.begin());
+      return !(a == b);
    }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_MAP_HPP_

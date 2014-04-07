@@ -286,17 +286,17 @@ namespace ttl
    }
 
    template<class InputIt1, class InputIt2>
-   bool equal(InputIt1, InputIt1, InputIt2);
+   bool equal(InputIt1, InputIt1, InputIt2, InputIt2);
 
    template <typename T>
    bool operator==(const set<T> &a, const set<T> &b)
    {
-      return ttl::equal(a.begin(), a.end(), b.begin());
+      return ttl::equal(a.begin(), a.end(), b.begin(), b.end());
    }
    template <typename T>
    bool operator!=(const set<T> &a, const set<T> &b)
    {
-      return !ttl::equal(a.begin(), a.end(), b.begin());
+      return !(a == b);
    }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_MAP_HPP_

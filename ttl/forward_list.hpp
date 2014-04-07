@@ -255,5 +255,19 @@ namespace ttl
 
       const_cast<slist_node *>(pos.head_)->splice_after(f, const_cast<slist_node *>(last.head_));
    }
+
+   template<class InputIt1, class InputIt2>
+   bool equal(InputIt1, InputIt1, InputIt2, InputIt2);
+
+   template <typename T>
+   bool operator==(const forward_list<T> &a, const forward_list<T> &b)
+   {
+      return ttl::equal(a.begin(), a.end(), b.begin(), b.end());
+   }
+   template <typename T>
+   bool operator!=(const forward_list<T> &a, const forward_list<T> &b)
+   {
+      return !(a == b);
+   }
 }
 #endif // _TINY_TEMPLATE_LIBRARY_FORWARD_LIST_HPP_
