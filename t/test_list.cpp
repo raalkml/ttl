@@ -153,10 +153,12 @@ void test()
       print_iter("after splice(from,to) dl1:", dl1.cbegin(), dl1.cend());
       print_iter("                      dl2:", dl2.cbegin(), dl2.cend());
    }
-#if 0
-   fl.reverse();
-   print_iter("after reverse, fl:", fl.cbegin(), fl.cend());
 
+   print_iter("before reverse, dl:", dl.cbegin(), dl.cend());
+   dl.reverse();
+   print_iter("after reverse, dl :", dl.cbegin(), dl.cend());
+
+#if 0
    fl1.splice_after(advanceIt(fl1.cbefore_begin(), 3), fl3);
    print_iter("after splice_after fl1<-fl3: fl1:", fl1.cbegin(), fl1.cend());
    print_iter("after splice_after fl1<-fl3: fl3:", fl3.cbegin(), fl3.cend());
