@@ -91,6 +91,24 @@ void test()
    assert(*ttl::adjacent_find(a2, a2end) == 2);
    assert(*ttl::adjacent_find(a2, a2end, ttl::equal_to<int>()) == 2);
 
+   assert(ttl::search(a2, a2end, a2, a2 + 1) == a2);
+   assert(ttl::search(a2, a2end, a2 + 1, a2 + 3) == a2 + 1);
+   assert(ttl::search(a2, a2end, a0, a0 + 2) == a2);
+   assert(ttl::search(a2, a2end, a0, a0 + 3) == a2end);
+
+   assert(ttl::search_n(a2, a2end, 1, 2) == a2 + 1);
+   assert(ttl::search_n(a2, a2end, 2, 2) == a2 + 1);
+   assert(ttl::search_n(a2, a2end, 2, 2, ttl::equal_to<int>()) == a2 + 1);
+   assert(ttl::search_n(a2, a2end, 3, 2) == a2end);
+   assert(*ttl::search_n(a2, a2end, 2, 2) == 2);
+   assert(ttl::search_n(a2, a2end, 1, 1) == a2);
+   assert(ttl::search_n(a2, a2end, 2, 1) == a2end);
+   assert(ttl::search_n(a2, a2end, 0, 1) == a2);
+   assert(ttl::search_n(a2, a2end, 1, 6) == a2end - 1);
+   assert(ttl::search_n(a2, a2end, a2end - a2 + 1, 2) == a2end);
+   assert(ttl::search_n(a2, a2end, -1, 2) == a2);
+   assert(ttl::search_n(a2, a2end, INT_MAX, 2) == a2end);
+
    fputs("for_each", stdout);
 #if __cplusplus >= 201103L // C++11
    fputs("(lambda):", stdout);

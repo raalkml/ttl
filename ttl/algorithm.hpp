@@ -58,6 +58,100 @@ namespace ttl
       return last;
    }
 
+   template<class ForwardIt1, class ForwardIt2>
+   ForwardIt1 search(ForwardIt1 first, ForwardIt1 last,
+                     ForwardIt2 subfirst, ForwardIt2 sublast)
+   {
+      for (;;)
+      {
+         ForwardIt1 i = first;
+         ForwardIt2 s = subfirst;
+         for (;;)
+         {
+            if (s == sublast)
+               return first;
+            if (i == last)
+               return last;
+            if (!(*i == *s))
+               break;
+            ++i, ++s;
+         }
+         ++first;
+      }
+   }
+
+   template<class ForwardIt1, class ForwardIt2, class BinaryPredicate>
+   ForwardIt1 search(ForwardIt1 first, ForwardIt1 last,
+                     ForwardIt2 subfirst, ForwardIt2 sublast, BinaryPredicate pred)
+   {
+      for (;;)
+      {
+         ForwardIt1 i = first;
+         ForwardIt2 s = subfirst;
+         for (;;)
+         {
+            if (s == sublast)
+               return first;
+            if (i == last)
+               return last;
+            if (!pred(*i, *s))
+               break;
+            ++i, ++s;
+         }
+         ++first;
+      }
+   }
+
+   template<class ForwardIt, class Size, class T>
+   ForwardIt search_n(ForwardIt first, ForwardIt last, Size count, const T &value)
+   {
+      if (count <= 0)
+         return first;
+
+      for(; first != last; ++first)
+      {
+         if (*first == value)
+         {
+            ForwardIt candidate = first;
+            for (Size c = 1;; ++c)
+            {
+               if (c == count)
+                  return candidate;
+               if (++first == last)
+                  return last;
+               if (!(*first == value))
+                  break;
+            }
+         }
+      }
+      return last;
+   }
+
+   template<class ForwardIt, class Size, class T, class BinaryPredicate>
+   ForwardIt search_n(ForwardIt first, ForwardIt last, Size count, const T &value, BinaryPredicate pred)
+   {
+      if (count <= 0)
+         return first;
+
+      for(; first != last; ++first)
+      {
+         if (*first == value)
+         {
+            ForwardIt candidate = first;
+            for (Size c = 1;; ++c)
+            {
+               if (c == count)
+                  return candidate;
+               if (++first == last)
+                  return last;
+               if (!pred(*first, value))
+                  break;
+            }
+         }
+      }
+      return last;
+   }
+
    template<class InputIt, class T>
    /* InputIt::difference_type */ int count(InputIt first, InputIt last, const T &value)
    {
