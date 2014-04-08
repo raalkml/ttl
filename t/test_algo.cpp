@@ -30,6 +30,13 @@ struct printer
    void operator()(const int &v) { printf(" %d", v); }
 };
 
+struct counter
+{
+   int value;
+   counter(int start): value(start) {}
+   int operator()() { return value++; }
+};
+
 void test()
 {
    assert(ttl::min(1,2) == 1);
@@ -90,6 +97,11 @@ void test()
    assert(ttl::find(a1, p, 1) == p);
    assert(ttl::find(a1, p, 2) == p);
    assert(ttl::find(a1, p, 3) == a1);
+
+   ttl::generate(a1, a1 + countof(a1), counter(1));
+   assert(a1[0] == 1 && a1[1] == 2 && a1[2] == 3 && a1[3] == 4);
+   assert(ttl::generate_n(a1, 2, counter(2)) == a1 + 2);
+   assert(a1[0] == 2 && a1[1] == 3 && a1[2] == 3 && a1[3] == 4);
 
    int a2[] = {1,2,2,3,4,6};
    int *a2end = a2 + countof(a2);
