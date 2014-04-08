@@ -46,18 +46,20 @@ void test()
    assert(ttl::mismatch(a1, a1 + countof(a1), a0) == ttl::make_pair(a1, a0));
    assert(ttl::mismatch(a1, a1 + countof(a1), a0, a0 + countof(a0)) == ttl::make_pair(a1, a0));
 
-   ttl::copy_n(a0, countof(a0) / 2, a1);
+   assert(ttl::copy_n(a0, countof(a0) / 2, a1) == a1 + countof(a0) / 2);
    assert(ttl::mismatch(a1, a1 + countof(a1), a0) == ttl::make_pair(a1 + countof(a0)/2, a0 + countof(a0)/2));
    assert(ttl::mismatch(a1, a1 + countof(a1), a0, a0 + countof(a0)) == ttl::make_pair(a1 + countof(a0)/2, a0 + countof(a0)/2));
 
    assert(ttl::transform(a0, a0 + countof(a0), a1, less_than(3)) == a1 + countof(a0));
+   print_ints("transform(unary) :", a1, a1 + countof(a1));
    assert(a1[0] == 1 && a1[1] == 1 && a1[2] == 0 && a1[3] == 0);
-   ttl::fill_n(a1, countof(a1), 0);
+   assert(ttl::fill_n(a1, countof(a1), 0) == a1 + countof(a1));
    a1[2] = a1[3] = 10;
    assert(ttl::transform(a0, a0 + countof(a0), a1, a1, ttl::less<int>()) == a1 + countof(a0));
+   print_ints("transform(binary):", a1, a1 + countof(a1));
    assert(a1[0] == 0 && a1[1] == 0 && a1[2] == 1 && a1[3] == 1);
 
-   ttl::copy(a0, a0 + countof(a0), a1);
+   assert(ttl::copy(a0, a0 + countof(a0), a1) == a1 + countof(a0));
    assert(ttl::equal(a0, a0 + countof(a0), a1));
    assert(ttl::equal(a1, a1 + countof(a1), a0, a0 + countof(a0), ttl::equal_to<int>()));
    assert(ttl::mismatch(a1, a1 + countof(a1), a0) == ttl::make_pair(a1 + countof(a1), a0 + countof(a0)));
@@ -70,12 +72,12 @@ void test()
    print_ints("copy_n:", a1, a1 + countof(a1));
 
    ttl::fill_n(a1, countof(a1), 0);
-   ttl::copy_if(a0, a0 + countof(a0), a1, less_than(3));
+   assert(ttl::copy_if(a0, a0 + countof(a0), a1, less_than(3)) == a1 + 2);
    assert(a0[0] == a1[0] && a1[2] == 0);
    print_ints("copy_if:", a1, a1 + countof(a1));
 
    ttl::fill_n(a1, countof(a1), 0);
-   ttl::copy_backward(a0 + 2, a0 + countof(a0), a1 + countof(a1));
+   assert(ttl::copy_backward(a0 + 2, a0 + countof(a0), a1 + countof(a1)) == a1 + 2);
    assert(a0[2] == a1[2] && a1[0] == 0);
    print_ints("copy_backward:", a1, a1 + countof(a1));
 
@@ -127,10 +129,10 @@ void test()
    fputs("for_each", stdout);
 #if __cplusplus >= 201103L // C++11
    fputs("(lambda):", stdout);
-   ttl::for_each(a2, a2end, [](const int &v){ printf(" %d", v); } );
+   ttl::for_each(a2, a2end, [](const int &v){ printf(" %d", v); } )(-1);
 #else
    fputs("(class inst):", stdout);
-   ttl::for_each(a2, a2end, printer());
+   ttl::for_each(a2, a2end, printer())(-1);
 #endif
    fputs("\n", stdout);
 
