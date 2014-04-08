@@ -41,7 +41,8 @@ namespace ttl
 
    public:
       fixed_vector(): last_(elements()) {}
-      explicit fixed_vector(size_type n, const value_type &value = value_type());
+      explicit fixed_vector(size_type n);
+      explicit fixed_vector(size_type n, const value_type &value);
       fixed_vector(const fixed_vector &other);
       template<typename RandomAccessIterator>
       fixed_vector(RandomAccessIterator first, RandomAccessIterator last);
@@ -151,10 +152,17 @@ namespace ttl
    };
 
    template<typename T, const unsigned int N>
+   fixed_vector<T,N>::fixed_vector(size_type n):
+      last_(elements())
+   {
+      while (n-- && !full())
+         ::new(last_++) T();
+   }
+   template<typename T, const unsigned int N>
    fixed_vector<T,N>::fixed_vector(size_type n, const value_type &value):
       last_(elements())
    {
-      while (n-- && full())
+      while (n-- && !full())
          ::new(last_++) T(value);
    }
    template<typename T, const unsigned int N>
