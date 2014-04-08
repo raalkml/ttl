@@ -42,8 +42,11 @@ void test()
 
    int a0[] = {1,2,3,4};
    int a1[countof(a0)] = {0};
+   assert(ttl::equal(a1, a1 + countof(a1), a0, ttl::less<int>()));
+
    ttl::copy(a0, a0 + countof(a0), a1);
    assert(ttl::equal(a0, a0 + countof(a0), a1));
+   assert(ttl::equal(a1, a1 + countof(a1), a0, a0 + countof(a0), ttl::equal_to<int>()));
    print_ints("copy:", a1, a1 + countof(a1));
 
    ttl::fill_n(a1, countof(a1), 0);
