@@ -88,7 +88,7 @@ namespace ttl
       return !(x == y);
    }
    template<class T1, class T2>
-   inline pair<T1, T2> make_pair(const T1 &first, const T2 &second)
+   inline pair<T1, T2> make_pair(T1 first, T2 second)
    {
       return pair<T1, T2>(first, second);
    }
