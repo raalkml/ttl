@@ -34,7 +34,8 @@ namespace ttl
 
    public:
       vector(): elements_(0), last_(0), end_of_elements_(0) {}
-      explicit vector(size_type n, const value_type &value = value_type());
+      explicit vector(size_type n);
+      explicit vector(size_type n, const value_type &);
       vector(const vector &other);
       template<typename RandomAccessIterator>
       vector(RandomAccessIterator first, RandomAccessIterator last);
@@ -141,6 +142,14 @@ namespace ttl
       }
    };
 
+   template<typename T>
+   vector<T>::vector(size_type n)
+   {
+      last_ = elements_ = static_cast<T *>(::operator new(n * sizeof(T)));
+      end_of_elements_ = elements_ + n;
+      while (n--)
+         ::new(last_++) T();
+   }
    template<typename T>
    vector<T>::vector(size_type n, const value_type &value)
    {
