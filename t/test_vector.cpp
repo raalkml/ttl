@@ -198,6 +198,11 @@ void test()
       for (const int *i = ascii; i < ascii + countof(ascii); ++i)
          v.push_back(*i);
       assert(ttl::equal(v.begin(), v.end(), ascii, ascii + countof(ascii)));
+      // push_back must reallocate if needed:
+      unsigned capacity = v.capacity();
+      for (const int *i = ascii; i < ascii + countof(ascii); ++i)
+         v.push_back(*i);
+      assert(v.capacity() > capacity);
    }
 
    printf("destructors:\n");
