@@ -50,6 +50,13 @@ void test()
    assert(ttl::mismatch(a1, a1 + countof(a1), a0) == ttl::make_pair(a1 + countof(a0)/2, a0 + countof(a0)/2));
    assert(ttl::mismatch(a1, a1 + countof(a1), a0, a0 + countof(a0)) == ttl::make_pair(a1 + countof(a0)/2, a0 + countof(a0)/2));
 
+   assert(ttl::transform(a0, a0 + countof(a0), a1, less_than(3)) == a1 + countof(a0));
+   assert(a1[0] == 1 && a1[1] == 1 && a1[2] == 0 && a1[3] == 0);
+   ttl::fill_n(a1, countof(a1), 0);
+   a1[2] = a1[3] = 10;
+   assert(ttl::transform(a0, a0 + countof(a0), a1, a1, ttl::less<int>()) == a1 + countof(a0));
+   assert(a1[0] == 0 && a1[1] == 0 && a1[2] == 1 && a1[3] == 1);
+
    ttl::copy(a0, a0 + countof(a0), a1);
    assert(ttl::equal(a0, a0 + countof(a0), a1));
    assert(ttl::equal(a1, a1 + countof(a1), a0, a0 + countof(a0), ttl::equal_to<int>()));

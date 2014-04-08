@@ -464,6 +464,22 @@ namespace ttl
       return first;
    }
 
+   template<class InputIt, class OutputIt, class UnaryOperation>
+   OutputIt transform(InputIt first1, InputIt last1, OutputIt d_first, UnaryOperation op)
+   {
+      while (first1 != last1)
+         *d_first++ = op(*first1++);
+      return d_first;
+   }
+
+   template<class InputIt1, class InputIt2, class OutputIt, class BinaryOperation>
+   OutputIt transform(InputIt1 first1, InputIt1 last1, InputIt2 first2, OutputIt d_first, BinaryOperation op)
+   {
+      while (first1 != last1)
+         *d_first++ = op(*first1++, *first2++);
+      return d_first;
+   }
+
    //
    // Binary search operations on sorted ranges
    //
