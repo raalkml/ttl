@@ -82,8 +82,7 @@ void print_iter(const char *title, Iterator first, Iterator last)
    fputs(title, stdout);
    for (; first != last; ++first)
    {
-      typename Iterator::reference r = *first;
-      printf('\x21' <= r.value && r.value < 127 ? " '%c'": " %d", first->value);
+      printf('\x21' <= first->value && first->value < 127 ? " '%c'": " %d", first->value);
    }
    fputs(".\n", stdout);
 }
