@@ -59,8 +59,8 @@ namespace ttl
       void assign(InputIterator first, InputIterator last)
       {
          clear();
-         for (; first != last; ++first)
-            push_back(*first);
+         for (; first != last && !full(); ++first)
+            new(last_++) T(*first);
       }
 
       iterator       begin() { return elements(); }
@@ -105,17 +105,12 @@ namespace ttl
       }
 
       template<typename InputIterator>
-      iterator insert(const_iterator pos, InputIterator first, InputIterator last)
-      {
-         difference_type dist = pos - cbegin();
-         for ( ; first != last; ++first)
-            insert(++pos, (size_type)1, *first);
-         return begin() + dist;
-      }
+      iterator insert(const_iterator pos, InputIterator first, InputIterator last);
 
       void push_back(const value_type &x)
       {
-         new(last_++) T(x);
+         if (!full())
+            new(last_++) T(x);
       }
 
       void pop_back()
@@ -180,7 +175,7 @@ namespace ttl
    void fixed_vector<T,N>::assign(size_type n, const value_type &value)
    {
       clear();
-      while (n--)
+      while (n-- && !full())
          ::new(last_++) T(value);
    }
    template<typename T, const unsigned int N>
@@ -190,7 +185,11 @@ namespace ttl
          for (T *pos = elements() + new_size; last_ > pos;)
             (--last_)->~T();
       else
+      {
+         if (new_size > max_size())
+            new_size = max_size();
          insert(end(), new_size - size(), value_type());
+      }
    }
    template<typename T, const unsigned int N>
    typename fixed_vector<T,N>::iterator fixed_vector<T,N>::insert(const_iterator pos, size_type n, const value_type &x)
@@ -199,26 +198,63 @@ namespace ttl
       if (n)
       {
          T *o;
-         const T *i;
          if (pos < end())
          {
-            last_ += n;
-            for (o = last_, i = pos + n; i > pos; )
+            T *p = elements() + dist, *i = last_;
+            for (o = last_ + n; end_of_elements() < o && i != p; --o)
+               (--i)->~T();
+            if (end_of_elements() < o)
+               o = end_of_elements();
+            last_ = o;
+            while (i != p)
             {
                ::new(--o) T(*--i);
                i->~T();
             }
-            for (o = elements() + dist; n--; ++o)
-               ::new(o) T(x);
+            for (o = p; n-- && o < end_of_elements();)
+               ::new(o++) T(x);
          }
          else
          {
-            for (o = last_; n--; )
+            for (o = last_; n-- && !full(); )
                ::new(last_++) T(x);
          }
       }
       return begin() + dist;
    }
+   template<typename T, const unsigned int N>
+   template<typename InputIterator>
+   typename fixed_vector<T,N>::iterator fixed_vector<T,N>::insert(const_iterator pos, InputIterator first, InputIterator last)
+   {
+      difference_type dist = pos - cbegin();
+      difference_type n = last - first;
+      if (n)
+      {
+         if (pos < end())
+         {
+            T *p = elements() + dist, *i = last_, *o;
+            for (o = last_ + n; end_of_elements() < o && i != p; --o)
+               (--i)->~T();
+            if (end_of_elements() < o)
+               o = end_of_elements();
+            last_ = o;
+            while (i != p)
+            {
+               ::new(--o) T(*--i);
+               i->~T();
+            }
+            for (o = p; first != last && o < end_of_elements(); ++first)
+               ::new(o++) T(*first);
+         }
+         else
+         {
+            for (; first != last && !full(); ++first)
+               ::new(last_++) T(*first);
+         }
+      }
+      return begin() + dist;
+   }
+
    template<typename T, const unsigned int N>
    typename fixed_vector<T,N>::iterator fixed_vector<T,N>::erase(const_iterator first, const_iterator last)
    {
