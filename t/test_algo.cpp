@@ -148,6 +148,15 @@ void test()
 #endif
    fputs("\n", stdout);
 
+   assert(ttl::is_sorted(a2, a2end) == true);
+   assert(ttl::is_sorted_until(a2, a2end) == a2end);
+   {
+      int merged[countof(a2) + countof(a0)];
+      ttl::merge(a0, a0 + countof(a0), a2, a2 + countof(a2), merged);
+      print_ints("merged:", merged, merged + countof(merged));
+      assert(ttl::is_sorted(merged, merged + countof(merged)) == true);
+   }
+
    p = ttl::lower_bound(a2, a2end, 2);
    printf("a2 dup lower_bound: [%ld\n", (long)(p - a2));
    assert(p - a2 == 1 && *p == 2);
