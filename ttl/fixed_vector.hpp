@@ -129,7 +129,7 @@ namespace ttl
 
       void clear()
       {
-         while (last_ > elements())
+         while (!empty())
             (--last_)->~T();
       }
    };
@@ -163,6 +163,7 @@ namespace ttl
       for (; first != last && !full(); ++first)
          push_back(*first);
    }
+
    template<typename T, const unsigned int N>
    fixed_vector<T,N> &fixed_vector<T,N>::operator=(const fixed_vector &other)
    {
@@ -171,6 +172,7 @@ namespace ttl
          ::new(last_++) T(*i);
       return *this;
    }
+
    template<typename T, const unsigned int N>
    void fixed_vector<T,N>::assign(size_type n, const value_type &value)
    {
@@ -178,6 +180,7 @@ namespace ttl
       while (n-- && !full())
          ::new(last_++) T(value);
    }
+
    template<typename T, const unsigned int N>
    void fixed_vector<T,N>::resize(size_type new_size)
    {
@@ -191,6 +194,7 @@ namespace ttl
          insert(end(), new_size - size(), value_type());
       }
    }
+
    template<typename T, const unsigned int N>
    typename fixed_vector<T,N>::iterator fixed_vector<T,N>::insert(const_iterator pos, size_type n, const value_type &x)
    {
@@ -271,6 +275,7 @@ namespace ttl
       last_ = o;
       return begin() + off;
    }
+
    template<typename T, const unsigned int N>
    void fixed_vector<T,N>::swap(fixed_vector& x)
    {
