@@ -480,6 +480,21 @@ namespace ttl
       return d_first;
    }
 
+   template<class BidirIt>
+   void reverse(BidirIt first, BidirIt last)
+   {
+      for (; first != last && first != --last; ++first)
+         swap(*first, *last);
+   }
+
+   template<class BidirIt, class OutputIt>
+   OutputIt reverse_copy(BidirIt first, BidirIt last, OutputIt d_first)
+   {
+      for (; first != last; ++d_first)
+         *d_first = *--last;
+      return d_first;
+   }
+
    //
    // Binary search operations on sorted ranges
    //

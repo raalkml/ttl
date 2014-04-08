@@ -204,4 +204,25 @@ void test()
    assert(*ttl::find(a2, p, 6) == 6);
    a2end = p;
 
+   {
+      printf("reverse\n");
+      int numbers[] = {1,2,3,4,5,6,7};
+      int tmp[countof(numbers)];
+      ttl::reverse_copy(numbers, numbers + countof(numbers), tmp);
+      ttl::reverse(tmp, tmp + countof(tmp));
+      assert(ttl::equal(tmp, tmp + countof(tmp), numbers, numbers + countof(numbers)));
+
+      // "three reverses" array rotation
+      int fourth = tmp[4];
+      ttl::reverse(tmp, tmp + 4);
+      ttl::reverse(tmp + 4, tmp + countof(tmp));
+      ttl::reverse(tmp, tmp + countof(tmp));
+      print_ints("rotate array left by 4:", tmp, tmp + countof(tmp));
+      assert(tmp[0] == fourth);
+      ttl::reverse(tmp + 3, tmp + countof(tmp));
+      ttl::reverse(tmp, tmp + 3);
+      ttl::reverse(tmp, tmp + countof(tmp));
+      print_ints("rotate array right by 4:", tmp, tmp + countof(tmp));
+      assert(tmp[4] == fourth);
+   }
 }
