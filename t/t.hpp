@@ -36,11 +36,20 @@ struct testtype
    testtype(const testtype &);
    testtype &operator=(const testtype &);
    ~testtype();
+
+   bool operator==(const int b) const
+   {
+      return value == b;
+   }
+   bool operator==(const testtype &b) const
+   {
+      return value == b.value;
+   }
 };
 
-inline bool operator==(const testtype &a, const testtype &b)
+inline bool operator==(const int a, const testtype &b)
 {
-   return a.value == b.value;
+   return a == b.value;
 }
 
 namespace t
