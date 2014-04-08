@@ -279,12 +279,14 @@ namespace ttl
       fixed_vector &b = this_a ? x: *this;
       size_type minsiz = this_a ? a.size(): b.size();
       ttl::swap_ranges(a.elements(), a.elements() + minsiz, b.elements());
-      for (size_type i = b.size() - a.size(); i--;)
-      {
-         new (a.elements() + i) T(b.elements()[i]);
-         b.elements()[i].~T();
-      }
+      T *e = b.elements() + minsiz;
+      while (e < b.last_)
+         new (a.last_++) T(*e++);
+      b.last_ = b.elements() + minsiz;
+      while (e > b.last_)
+         (--e)->~T();
    }
+
    template<typename T, const unsigned int N>
    inline bool operator==(const fixed_vector<T,N> &a, const fixed_vector<T,N> &b)
    {
