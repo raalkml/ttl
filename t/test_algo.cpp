@@ -43,10 +43,18 @@ void test()
    int a0[] = {1,2,3,4};
    int a1[countof(a0)] = {0};
    assert(ttl::equal(a1, a1 + countof(a1), a0, ttl::less<int>()));
+   assert(ttl::mismatch(a1, a1 + countof(a1), a0) == ttl::make_pair(a1, a0));
+   assert(ttl::mismatch(a1, a1 + countof(a1), a0, a0 + countof(a0)) == ttl::make_pair(a1, a0));
+
+   ttl::copy_n(a0, countof(a0) / 2, a1);
+   assert(ttl::mismatch(a1, a1 + countof(a1), a0) == ttl::make_pair(a1 + countof(a0)/2, a0 + countof(a0)/2));
+   assert(ttl::mismatch(a1, a1 + countof(a1), a0, a0 + countof(a0)) == ttl::make_pair(a1 + countof(a0)/2, a0 + countof(a0)/2));
 
    ttl::copy(a0, a0 + countof(a0), a1);
    assert(ttl::equal(a0, a0 + countof(a0), a1));
    assert(ttl::equal(a1, a1 + countof(a1), a0, a0 + countof(a0), ttl::equal_to<int>()));
+   assert(ttl::mismatch(a1, a1 + countof(a1), a0) == ttl::make_pair(a1 + countof(a1), a0 + countof(a0)));
+   assert(ttl::mismatch(a1, a1 + countof(a1), a0, a0 + countof(a0)) == ttl::make_pair(a1 + countof(a1), a0 + countof(a0)));
    print_ints("copy:", a1, a1 + countof(a1));
 
    ttl::fill_n(a1, countof(a1), 0);

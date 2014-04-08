@@ -253,6 +253,38 @@ namespace ttl
       return first1 == last1 && first2 == last2;
    }
 
+   template<class InputIt1, class InputIt2>
+   ttl::pair<InputIt1, InputIt2> mismatch(InputIt1 first1, InputIt1 last1, InputIt2 first2)
+   {
+      while (first1 != last1 && *first1 == *first2)
+         ++first1, ++first2;
+      return ttl::make_pair(first1, first2);
+   }
+
+   template<class InputIt1, class InputIt2, class BinaryPredicate>
+   ttl::pair<InputIt1, InputIt2> mismatch(InputIt1 first1, InputIt1 last1, InputIt2 first2, BinaryPredicate pred)
+   {
+      while (first1 != last1 && pred(*first1, *first2))
+         ++first1, ++first2;
+      return ttl::make_pair(first1, first2);
+   }
+
+   template<class InputIt1, class InputIt2>
+   ttl::pair<InputIt1, InputIt2> mismatch(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2)
+   {
+      while (first1 != last1 && first2 != last2 && *first1 == *first2)
+         ++first1, ++first2;
+      return ttl::make_pair(first1, first2);
+   }
+
+   template<class InputIt1, class InputIt2, class BinaryPredicate>
+   ttl::pair<InputIt1, InputIt2> mismatch(InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, BinaryPredicate pred)
+   {
+      while (first1 != last1 && first2 != last2 && pred(*first1, *first2))
+         ++first1, ++first2;
+      return ttl::make_pair(first1, first2);
+   }
+
    template<class InputIt, class UnaryFunction>
    UnaryFunction for_each(InputIt first, InputIt last, UnaryFunction f)
    {
