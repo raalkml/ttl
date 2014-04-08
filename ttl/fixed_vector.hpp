@@ -130,19 +130,7 @@ namespace ttl
          return erase(pos, pos + 1);
       }
 
-      void swap(fixed_vector& x)
-      {
-         const bool this_a = this->size() < x.size();
-         fixed_vector &a = this_a ? *this: x;
-         fixed_vector &b = this_a ? x: *this;
-         size_type minsiz = this_a ? a.size(): b.size();
-         ttl::swap_ranges(a.elements(), a.elements() + minsiz, b.elements());
-         for (size_type i = b.size() - a.size(); i--;)
-         {
-            new (a.elements() + i) T(b.elements()[i]);
-            b.elements()[i].~T();
-         }
-      }
+      void swap(fixed_vector& x);
 
       void clear()
       {
@@ -246,6 +234,20 @@ namespace ttl
       }
       last_ = o;
       return begin() + off;
+   }
+   template<typename T, const unsigned int N>
+   void fixed_vector<T,N>::swap(fixed_vector& x)
+   {
+      const bool this_a = this->size() < x.size();
+      fixed_vector &a = this_a ? *this: x;
+      fixed_vector &b = this_a ? x: *this;
+      size_type minsiz = this_a ? a.size(): b.size();
+      ttl::swap_ranges(a.elements(), a.elements() + minsiz, b.elements());
+      for (size_type i = b.size() - a.size(); i--;)
+      {
+         new (a.elements() + i) T(b.elements()[i]);
+         b.elements()[i].~T();
+      }
    }
    template<typename T, const unsigned int N>
    inline bool operator==(const fixed_vector<T,N> &a, const fixed_vector<T,N> &b)
