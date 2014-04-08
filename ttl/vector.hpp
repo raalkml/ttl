@@ -100,13 +100,7 @@ namespace ttl
       }
 
       template<typename InputIterator>
-      iterator insert(const_iterator pos, InputIterator first, InputIterator last)
-      {
-         difference_type dist = pos - cbegin();
-         for ( ; first != last; ++first)
-            insert(++pos, (size_type)1, *first);
-         return begin() + dist;
-      }
+      iterator insert(const_iterator pos, InputIterator first, InputIterator last);
 
       void push_back(const value_type &x)
       {
@@ -265,6 +259,57 @@ namespace ttl
       }
       return begin() + dist;
    }
+   template<typename T>
+   template<typename InputIterator>
+   typename vector<T>::iterator vector<T>::insert(const_iterator pos, InputIterator first, InputIterator last)
+   {
+      difference_type dist = pos - cbegin();
+      difference_type n = last - first;
+      if (n > 0)
+      {
+         T *o;
+         const T *i;
+         if (end_of_elements_ - last_ < n)
+         {
+            size_type newcapacity = size() + n;
+            T *newelements = o = static_cast<T *>(::operator new(newcapacity * sizeof(T)));
+            for (i = elements_; i != pos; ++i)
+               ::new(o++) T(*i);
+            for (; first != last; ++first)
+               ::new(o++) T(*first);
+            for (; i != last_; ++i)
+               ::new(o++) T(*i);
+            for (; i > elements_; )
+               (--i)->~T();
+            ::operator delete(elements_);
+            elements_ = newelements;
+            end_of_elements_ = elements_ + newcapacity;
+            last_ = o;
+         }
+         else
+         {
+            if (pos < end())
+            {
+               i = last_;
+               last_ += n;
+               for (o = last_; i != pos; )
+               {
+                  ::new(--o) T(*--i);
+                  i->~T();
+               }
+               for (o = elements_ + dist; first != last; ++first, ++o)
+                  ::new(o) T(*first);
+            }
+            else
+            {
+               for (o = last_; first != last; ++first)
+                  ::new(last_++) T(*first);
+            }
+         }
+      }
+      return begin() + dist;
+   }
+
    template<typename T>
    typename vector<T>::iterator vector<T>::erase(const_iterator first, const_iterator last)
    {
