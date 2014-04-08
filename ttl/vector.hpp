@@ -32,6 +32,33 @@ namespace ttl
    private:
       T *elements_, *last_, *end_of_elements_;
 
+      // value constructors (VCs) used to pass new elements to the insertion
+      // routine, insert_values
+      struct vc_args { };
+      struct vc_counter_args: vc_args
+      {
+         const value_type &x;
+         vc_counter_args(const value_type &_x): x(_x) {}
+      };
+      void vc_counter(T *p, vc_args &args) const
+      {
+         ::new(p) T(static_cast<vc_counter_args &>(args).x);
+      }
+      template<typename InputIterator>
+      struct vc_iterator_args: vc_args
+      {
+         InputIterator first;
+         vc_iterator_args(const InputIterator &i): first(i) {}
+      };
+      template<typename InputIterator>
+      void vc_iterator(T *p, vc_args &args) const
+      {
+         InputIterator &i = static_cast<vc_iterator_args<InputIterator> &>(args).first;
+         ::new(p) T(*i);
+         ++i;
+      }
+      iterator insert_values(const_iterator pos, difference_type n, void (ttl::vector<T>::*)(T *, vc_args &) const, vc_args &);
+
    public:
       vector(): elements_(0), last_(0), end_of_elements_(0) {}
       explicit vector(size_type n);
@@ -92,15 +119,24 @@ namespace ttl
       pointer data() { return pointer(elements_); }
       const_pointer data() const { return const_pointer(elements_); }
 
-      iterator insert(const_iterator pos, size_type n, const value_type &x);
+      iterator insert(const_iterator pos, size_type n, const value_type &x)
+      {
+         vc_counter_args args(x);
+         return insert_values(pos, n, &ttl::vector<T>::vc_counter, args);
+      }
 
       iterator insert(const_iterator pos, const value_type &x)
       {
-         return insert(pos, (size_type)1, x);
+         vc_counter_args args(x);
+         return insert_values(pos, 1, &ttl::vector<T>::vc_counter, args);
       }
 
       template<typename InputIterator>
-      iterator insert(const_iterator pos, InputIterator first, InputIterator last);
+      iterator insert(const_iterator pos, InputIterator first, InputIterator last)
+      {
+         vc_iterator_args<InputIterator> args(first);
+         return insert_values(pos, last - first, &ttl::vector<T>::vc_iterator<InputIterator>, args);
+      }
 
       void push_back(const value_type &x)
       {
@@ -211,60 +247,14 @@ namespace ttl
       end_of_elements_ = elements_ + n;
       last_ = o;
    }
+
    template<typename T>
-   typename vector<T>::iterator vector<T>::insert(const_iterator pos, size_type n, const value_type &x)
+   typename vector<T>::iterator vector<T>::insert_values(const_iterator pos,
+                                                         difference_type n,
+                                                         void (ttl::vector<T>::* vc)(T *, vc_args &) const,
+                                                         vc_args &args)
    {
       difference_type dist = pos - cbegin();
-      if (n)
-      {
-         size_type free = end_of_elements_ - last_;
-         T *o;
-         const T *i;
-         if (free < n)
-         {
-            size_type newcapacity = size() + n;
-            T *newelements = o = static_cast<T *>(::operator new(newcapacity * sizeof(T)));
-            for (i = elements_; i != pos; ++i)
-               ::new(o++) T(*i);
-            while (n--)
-               ::new(o++) T(x);
-            for (; i != last_; ++i)
-               ::new(o++) T(*i);
-            for (; i > elements_; )
-               (--i)->~T();
-            ::operator delete(elements_);
-            elements_ = newelements;
-            end_of_elements_ = elements_ + newcapacity;
-            last_ = o;
-         }
-         else
-         {
-            if (pos < end())
-            {
-               last_ += n;
-               for (o = last_, i = pos + n; i > pos; )
-               {
-                  ::new(--o) T(*--i);
-                  i->~T();
-               }
-               for (o = elements_ + dist; n--; ++o)
-                  ::new(o) T(x);
-            }
-            else
-            {
-               for (o = last_; n--; )
-                  ::new(last_++) T(x);
-            }
-         }
-      }
-      return begin() + dist;
-   }
-   template<typename T>
-   template<typename InputIterator>
-   typename vector<T>::iterator vector<T>::insert(const_iterator pos, InputIterator first, InputIterator last)
-   {
-      difference_type dist = pos - cbegin();
-      difference_type n = last - first;
       if (n > 0)
       {
          T *o;
@@ -275,8 +265,8 @@ namespace ttl
             T *newelements = o = static_cast<T *>(::operator new(newcapacity * sizeof(T)));
             for (i = elements_; i != pos; ++i)
                ::new(o++) T(*i);
-            for (; first != last; ++first)
-               ::new(o++) T(*first);
+            while (n-- > 0)
+               (this->*vc)(o++, args);
             for (; i != last_; ++i)
                ::new(o++) T(*i);
             for (; i > elements_; )
@@ -297,13 +287,13 @@ namespace ttl
                   ::new(--o) T(*--i);
                   i->~T();
                }
-               for (o = elements_ + dist; first != last; ++first, ++o)
-                  ::new(o) T(*first);
+               for (o = elements_ + dist; n-- > 0; ++o)
+                  (this->*vc)(o, args);
             }
             else
             {
-               for (o = last_; first != last; ++first)
-                  ::new(last_++) T(*first);
+               for (o = last_; n-- > 0;)
+                  (this->*vc)(last_++, args);
             }
          }
       }
