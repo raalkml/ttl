@@ -10,8 +10,9 @@
 // All of the used algorithms and data structures either have prior art
 // or are trivial and well known.
 //
-// Care was taken to avoid patented or prohibitively licensed code,
-// even if this meant suboptimal code.
+// Care has been taken to avoid patented or prohibitively licensed (in the
+// sense one cannot use it in ANY kind of project, including proprietary)
+// code, even if this meant suboptimal code.
 //
 //
 // Some templates are implementations of STL interfaces, some are not.
