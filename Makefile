@@ -3,11 +3,11 @@ export V := @
 
 export TESTS := $(sort $(basename $(notdir $(wildcard t/test*.cpp)))) all-in-one
 
-all:
-	$(MAKE) -C t report
-
 tests:
 	$(MAKE) -C t
+
+all:
+	$(MAKE) -C t report
 
 test: tests
 	./t/all-in-one
