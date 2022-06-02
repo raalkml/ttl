@@ -90,6 +90,8 @@ namespace ttl
                break;
          return const_cast<iterator>(i);
       }
+   private:
+      vector_map<KT,T> &operator=(const vector_map &other); /* none */
    };
 }
 #endif // _TINY_TEMPLATE_LIBRARY_SORTED_VECTOR_MAP_HPP_

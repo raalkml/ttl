@@ -57,6 +57,7 @@ namespace ttl
       struct reference
       {
       private:
+         reference(const reference &other); /* none */
          friend class bitset<N>;
          reference(slot_type *bits, slot_type mask): bits_(bits), mask_(mask) {}
          slot_type *bits_;
