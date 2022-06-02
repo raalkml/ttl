@@ -4,8 +4,8 @@
 //
 // This code is Public Domain
 //
-#ifndef _TINY_TEMPLATE_LIBRARY_MAP_HPP_
-#define _TINY_TEMPLATE_LIBRARY_MAP_HPP_ 1
+#ifndef _TINY_TEMPLATE_LIBRARY_SET_HPP_
+#define _TINY_TEMPLATE_LIBRARY_SET_HPP_ 1
 
 #include "types.hpp"
 #include "functional.hpp"
@@ -299,4 +299,4 @@ namespace ttl
       return !(a == b);
    }
 }
-#endif // _TINY_TEMPLATE_LIBRARY_MAP_HPP_
+#endif // _TINY_TEMPLATE_LIBRARY_SET_HPP_
